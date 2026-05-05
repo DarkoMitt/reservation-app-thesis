@@ -14,7 +14,10 @@ type RestaurantRegisterForm = {
   cuisineType: string;
   description: string;
   maxGuests: string;
-  workingHours: string;
+  workingHoursWeekdaysFrom: string;
+  workingHoursWeekdaysTo: string;
+  workingHoursWeekendFrom: string;
+  workingHoursWeekendTo: string;
   businessRegistrationNumber: string;
 };
 
@@ -76,7 +79,10 @@ const initialForm: RestaurantRegisterForm = {
   cuisineType: '',
   description: '',
   maxGuests: '',
-  workingHours: '',
+  workingHoursWeekdaysFrom: '',
+  workingHoursWeekdaysTo: '',
+  workingHoursWeekendFrom: '',
+  workingHoursWeekendTo: '',
   businessRegistrationNumber: '',
 };
 
@@ -87,6 +93,9 @@ export function useRestaurantRegister() {
   const [isCityOpen, setIsCityOpen] = useState(false);
   const [isRestaurantTypeOpen, setIsRestaurantTypeOpen] = useState(false);
   const [isCuisineTypeOpen, setIsCuisineTypeOpen] = useState(false);
+  const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
+  const [activeTimeField, setActiveTimeField] =
+    useState<keyof RestaurantRegisterForm | null>(null);
 
   const cuisineOptions = form.restaurantType
     ? CUISINE_OPTIONS_BY_TYPE[form.restaurantType]
@@ -143,6 +152,26 @@ export function useRestaurantRegister() {
     setIsCuisineTypeOpen(false);
   };
 
+  const openTimePicker = (field: keyof RestaurantRegisterForm) => {
+    setActiveTimeField(field);
+    setIsTimePickerVisible(true);
+  };
+
+  const handleTimeChange = (_event: unknown, selectedDate?: Date) => {
+    setIsTimePickerVisible(false);
+
+    if (!selectedDate || !activeTimeField) {
+      setActiveTimeField(null);
+      return;
+    }
+
+    const hours = selectedDate.getHours().toString().padStart(2, '0');
+    const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
+
+    handleChange(activeTimeField, `${hours}:${minutes}`);
+    setActiveTimeField(null);
+  };
+
   const validate = () => {
     const nextErrors: RestaurantRegisterErrors = {};
 
@@ -154,7 +183,23 @@ export function useRestaurantRegister() {
     if (!form.restaurantType.trim()) nextErrors.restaurantType = 'Restaurant type is required.';
     if (!form.cuisineType.trim()) nextErrors.cuisineType = 'Cuisine type is required.';
     if (!form.maxGuests.trim()) nextErrors.maxGuests = 'Max guests is required.';
-    if (!form.workingHours.trim()) nextErrors.workingHours = 'Working hours are required.';
+
+    if (!form.workingHoursWeekdaysFrom.trim()) {
+      nextErrors.workingHoursWeekdaysFrom = 'Opening time is required.';
+    }
+
+    if (!form.workingHoursWeekdaysTo.trim()) {
+      nextErrors.workingHoursWeekdaysTo = 'Closing time is required.';
+    }
+
+    if (!form.workingHoursWeekendFrom.trim()) {
+      nextErrors.workingHoursWeekendFrom = 'Opening time is required.';
+    }
+
+    if (!form.workingHoursWeekendTo.trim()) {
+      nextErrors.workingHoursWeekendTo = 'Closing time is required.';
+    }
+
     if (!form.businessRegistrationNumber.trim()) {
       nextErrors.businessRegistrationNumber = 'Business registration number is required.';
     }
@@ -219,5 +264,8 @@ export function useRestaurantRegister() {
     isCuisineTypeOpen,
     setIsCuisineTypeOpen,
     handleCuisineTypeSelect,
+    isTimePickerVisible,
+    openTimePicker,
+    handleTimeChange,
   };
 }

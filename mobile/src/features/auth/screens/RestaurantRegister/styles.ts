@@ -97,6 +97,43 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     color: '#2A211C',
   },
+  sectionLabel: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#2A211C',
+    marginTop: 6,
+    marginBottom: 12,
+  },
+  smallLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#6E6258',
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  timeRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 10,
+  },
+  timeButton: {
+    flex: 1,
+    backgroundColor: '#F7F1E8',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: '#E8D8C7',
+  },
+  timeText: {
+    fontSize: 15,
+    color: '#2A211C',
+    fontWeight: '600',
+  },
+  timePlaceholder: {
+    fontSize: 15,
+    color: '#9A8C7F',
+  },
   button: {
     backgroundColor: '#7B1E2B',
     borderRadius: 18,
