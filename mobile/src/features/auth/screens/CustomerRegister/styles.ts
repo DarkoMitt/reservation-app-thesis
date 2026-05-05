@@ -1,0 +1,105 @@
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F7F1E8',
+  },
+  container: {
+    paddingHorizontal: 24,
+    paddingTop: 28,
+    paddingBottom: 36,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: '800',
+    color: '#2A211C',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#6E6258',
+    marginBottom: 28,
+  },
+  form: {
+    backgroundColor: '#FFF9F2',
+    borderRadius: 24,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#EFE2D3',
+  },
+  input: {
+    backgroundColor: '#F7F1E8',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: '#2A211C',
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#E8D8C7',
+  },
+  error: {
+    color: '#A52A3B',
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 10,
+    marginLeft: 4,
+  },
+  button: {
+    backgroundColor: '#7B1E2B',
+    borderRadius: 18,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#FFF8F2',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  dropdownButton: {
+  backgroundColor: '#F7F1E8',
+  borderRadius: 16,
+  paddingHorizontal: 16,
+  paddingVertical: 14,
+  marginBottom: 10,
+  borderWidth: 1,
+  borderColor: '#E8D8C7',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+},
+dropdownText: {
+  fontSize: 15,
+  color: '#2A211C',
+},
+dropdownPlaceholder: {
+  fontSize: 15,
+  color: '#9A8C7F',
+},
+dropdownIcon: {
+  fontSize: 12,
+  color: '#7B1E2B',
+  fontWeight: '800',
+},
+dropdownList: {
+  backgroundColor: '#FFF9F2',
+  borderRadius: 16,
+  borderWidth: 1,
+  borderColor: '#E8D8C7',
+  marginBottom: 10,
+  overflow: 'hidden',
+},
+dropdownItem: {
+  paddingVertical: 13,
+  paddingHorizontal: 16,
+  borderBottomWidth: 1,
+  borderBottomColor: '#EFE2D3',
+},
+dropdownItemText: {
+  fontSize: 15,
+  color: '#2A211C',
+},
+});

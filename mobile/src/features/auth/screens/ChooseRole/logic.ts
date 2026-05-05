@@ -1,10 +1,21 @@
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { AuthStackParamList } from '../../../../app/navigation/types';
+
+type ChooseRoleNavigationProp = NativeStackNavigationProp<
+  AuthStackParamList,
+  'ChooseRole'
+>;
+
 export function useChooseRole() {
+  const navigation = useNavigation<ChooseRoleNavigationProp>();
+
   const handleCustomerPress = () => {
-    console.log('Customer selected');
+    navigation.navigate('CustomerRegister');
   };
 
   const handleRestaurantPress = () => {
-    console.log('Restaurant selected');
+    navigation.navigate('RestaurantRegister');
   };
 
   return {
