@@ -5,6 +5,7 @@ import { Alert } from 'react-native';
 type CustomerRegisterForm = {
   firstName: string;
   lastName: string;
+  country: string;
   city: string;
   phone: string;
   email: string;
@@ -29,9 +30,37 @@ export const FOOD_PREFERENCES = [
   'Healthy food',
 ];
 
+export const COUNTRIES = [
+  'North Macedonia',
+  'Serbia',
+  'Croatia',
+  'Bosnia and Herzegovina',
+  'Slovenia',
+  'Bulgaria',
+];
+
+export const CITIES_BY_COUNTRY: Record<string, string[]> = {
+  'North Macedonia': ['Skopje', 'Bitola', 'Ohrid', 'Prilep', 'Tetovo', 'Kumanovo', 'Strumica'],
+  Serbia: ['Belgrade', 'Novi Sad', 'Niš', 'Kragujevac', 'Subotica'],
+  Croatia: ['Zagreb', 'Split', 'Rijeka', 'Osijek', 'Zadar', 'Dubrovnik'],
+  'Bosnia and Herzegovina': ['Sarajevo', 'Banja Luka', 'Mostar', 'Tuzla', 'Zenica'],
+  Slovenia: ['Ljubljana', 'Maribor', 'Celje', 'Kranj', 'Koper'],
+  Bulgaria: ['Sofia', 'Plovdiv', 'Varna', 'Burgas', 'Ruse'],
+};
+
+export const PHONE_PREFIX_BY_COUNTRY: Record<string, string> = {
+  'North Macedonia': '+389',
+  Serbia: '+381',
+  Croatia: '+385',
+  'Bosnia and Herzegovina': '+387',
+  Slovenia: '+386',
+  Bulgaria: '+359',
+};
+
 const initialForm: CustomerRegisterForm = {
   firstName: '',
   lastName: '',
+  country: '',
   city: '',
   phone: '',
   email: '',
@@ -45,10 +74,38 @@ export function useCustomerRegister() {
   const [form, setForm] = useState<CustomerRegisterForm>(initialForm);
   const [errors, setErrors] = useState<CustomerRegisterErrors>({});
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
+  const [isCountryOpen, setIsCountryOpen] = useState(false);
+  const [isCityOpen, setIsCityOpen] = useState(false);
 
 const handlePreferenceSelect = (preference: string) => {
   handleChange('preferences', preference);
   setIsPreferencesOpen(false);
+};
+
+const handleCountrySelect = (country: string) => {
+  const phonePrefix = PHONE_PREFIX_BY_COUNTRY[country];
+
+  setForm(prev => ({
+    ...prev,
+    country,
+    city: '',
+    phone: phonePrefix,
+  }));
+
+  setErrors(prev => ({
+    ...prev,
+    country: undefined,
+    city: undefined,
+    phone: undefined,
+  }));
+
+  setIsCountryOpen(false);
+  setIsCityOpen(false);
+};
+
+const handleCitySelect = (city: string) => {
+  handleChange('city', city);
+  setIsCityOpen(false);
 };
 
   const handleChange = (field: keyof CustomerRegisterForm, value: string) => {
@@ -72,6 +129,10 @@ const handlePreferenceSelect = (preference: string) => {
 
     if (!form.lastName.trim()) {
       nextErrors.lastName = 'Last name is required.';
+    }
+
+    if (!form.country.trim()) {
+      nextErrors.country = 'Country is required.';
     }
 
     if (!form.city.trim()) {
@@ -165,5 +226,13 @@ const handlePreferenceSelect = (preference: string) => {
     isPreferencesOpen,
     setIsPreferencesOpen,
     handlePreferenceSelect,
+    COUNTRIES,
+    CITIES_BY_COUNTRY,
+    isCountryOpen,
+    setIsCountryOpen,
+    handleCountrySelect,
+    isCityOpen,
+    setIsCityOpen,
+    handleCitySelect,
   };
 }

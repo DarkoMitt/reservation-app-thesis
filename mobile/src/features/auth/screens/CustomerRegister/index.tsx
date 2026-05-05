@@ -22,6 +22,14 @@ function CustomerRegisterScreen(): React.JSX.Element {
     isPreferencesOpen,
     setIsPreferencesOpen,
     handlePreferenceSelect,
+    COUNTRIES,
+    CITIES_BY_COUNTRY,
+    isCountryOpen,
+    setIsCountryOpen,
+    handleCountrySelect,
+    isCityOpen,
+    setIsCityOpen,
+    handleCitySelect,
   } = useCustomerRegister();
 
   return (
@@ -57,14 +65,59 @@ function CustomerRegisterScreen(): React.JSX.Element {
           />
           {errors.lastName ? <Text style={styles.error}>{errors.lastName}</Text> : null}
 
-          <TextInput
-            style={styles.input}
-            placeholder="City"
-            placeholderTextColor="#9A8C7F"
-            value={form.city}
-            onChangeText={value => handleChange('city', value)}
-          />
+          <TouchableOpacity
+            style={styles.dropdownButton}
+            activeOpacity={0.85}
+            onPress={() => setIsCountryOpen(prev => !prev)}>
+            <Text style={form.country ? styles.dropdownText : styles.dropdownPlaceholder}>
+              {form.country || 'Country'}
+            </Text>
+            <Text style={styles.dropdownIcon}>{isCountryOpen ? '▲' : '▼'}</Text>
+          </TouchableOpacity>
+          {errors.country ? <Text style={styles.error}>{errors.country}</Text> : null}
+
+          {isCountryOpen ? (
+            <View style={styles.dropdownList}>
+              {COUNTRIES.map(country => (
+                <TouchableOpacity
+                  key={country}
+                  style={styles.dropdownItem}
+                  activeOpacity={0.75}
+                  onPress={() => handleCountrySelect(country)}>
+                  <Text style={styles.dropdownItemText}>{country}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : null}
+
+          <TouchableOpacity
+            style={[
+              styles.dropdownButton,
+              !form.country && styles.disabledDropdown,
+            ]}
+            activeOpacity={0.85}
+            disabled={!form.country}
+            onPress={() => setIsCityOpen(prev => !prev)}>
+            <Text style={form.city ? styles.dropdownText : styles.dropdownPlaceholder}>
+              {form.city || 'City'}
+            </Text>
+            <Text style={styles.dropdownIcon}>{isCityOpen ? '▲' : '▼'}</Text>
+          </TouchableOpacity>
           {errors.city ? <Text style={styles.error}>{errors.city}</Text> : null}
+
+          {isCityOpen && form.country ? (
+            <View style={styles.dropdownList}>
+              {CITIES_BY_COUNTRY[form.country].map(city => (
+                <TouchableOpacity
+                  key={city}
+                  style={styles.dropdownItem}
+                  activeOpacity={0.75}
+                  onPress={() => handleCitySelect(city)}>
+                  <Text style={styles.dropdownItemText}>{city}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : null}
 
           <TextInput
             style={styles.input}
@@ -98,28 +151,28 @@ function CustomerRegisterScreen(): React.JSX.Element {
           {errors.age ? <Text style={styles.error}>{errors.age}</Text> : null}
 
           <TouchableOpacity
-  style={styles.dropdownButton}
-  activeOpacity={0.85}
-  onPress={() => setIsPreferencesOpen(prev => !prev)}>
-  <Text style={form.preferences ? styles.dropdownText : styles.dropdownPlaceholder}>
-    {form.preferences || 'Food preferences'}
-  </Text>
-  <Text style={styles.dropdownIcon}>{isPreferencesOpen ? '▲' : '▼'}</Text>
-</TouchableOpacity>
+            style={styles.dropdownButton}
+            activeOpacity={0.85}
+            onPress={() => setIsPreferencesOpen(prev => !prev)}>
+            <Text style={form.preferences ? styles.dropdownText : styles.dropdownPlaceholder}>
+              {form.preferences || 'Food preferences'}
+            </Text>
+            <Text style={styles.dropdownIcon}>{isPreferencesOpen ? '▲' : '▼'}</Text>
+          </TouchableOpacity>
 
-{isPreferencesOpen ? (
-  <View style={styles.dropdownList}>
-    {FOOD_PREFERENCES.map(preference => (
-      <TouchableOpacity
-        key={preference}
-        style={styles.dropdownItem}
-        activeOpacity={0.75}
-        onPress={() => handlePreferenceSelect(preference)}>
-        <Text style={styles.dropdownItemText}>{preference}</Text>
-      </TouchableOpacity>
-    ))}
-  </View>
-) : null}
+          {isPreferencesOpen ? (
+            <View style={styles.dropdownList}>
+              {FOOD_PREFERENCES.map(preference => (
+                <TouchableOpacity
+                  key={preference}
+                  style={styles.dropdownItem}
+                  activeOpacity={0.75}
+                  onPress={() => handlePreferenceSelect(preference)}>
+                  <Text style={styles.dropdownItemText}>{preference}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : null}
 
           <TextInput
             style={styles.input}

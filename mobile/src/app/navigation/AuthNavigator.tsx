@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthStackParamList } from './types';
 import CustomerRegisterScreen from '../../features/auth/screens/CustomerRegister';
+import RestaurantRegisterScreen from '../../features/auth/screens/RestaurantRegister';
 
 import ChooseRoleScreen from '../../features/auth/screens/ChooseRole';
 
@@ -21,9 +22,7 @@ function AuthNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="ChooseRole" component={ChooseRoleScreen} />
       <Stack.Screen name="CustomerRegister" component={CustomerRegisterScreen} />
-      <Stack.Screen name="RestaurantRegister">
-        {() => <Placeholder title="Restaurant Register" />}
-      </Stack.Screen>
+      <Stack.Screen name="RestaurantRegister" component={RestaurantRegisterScreen} />
       <Stack.Screen name="Login">
         {() => <Placeholder title="Login" />}
       </Stack.Screen>
