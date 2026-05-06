@@ -4,7 +4,7 @@ import { useChooseRole } from './logic';
 import { styles } from './styles';
 
 function ChooseRoleScreen(): React.JSX.Element {
-  const { handleCustomerPress, handleRestaurantPress } = useChooseRole();
+  const { handleCustomerPress, handleRestaurantPress, handleLoginPress } = useChooseRole();
 
   return (
     <View style={styles.container}>
@@ -26,6 +26,10 @@ function ChooseRoleScreen(): React.JSX.Element {
           activeOpacity={0.85}
           onPress={handleRestaurantPress}>
           <Text style={styles.buttonText}>I am a Restaurant</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity activeOpacity={0.7} onPress={handleLoginPress}>
+        <Text style={styles.loginText}>Already have an account? Log In</Text>
         </TouchableOpacity>
       </View>
     </View>

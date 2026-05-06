@@ -18,8 +18,13 @@ export function useChooseRole() {
     navigation.navigate('RestaurantRegister');
   };
 
+  const handleLoginPress = () => {
+  navigation.navigate('Login');
+  };
+
   return {
     handleCustomerPress,
     handleRestaurantPress,
+    handleLoginPress,
   };
 }

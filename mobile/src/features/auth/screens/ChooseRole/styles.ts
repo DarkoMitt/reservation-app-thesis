@@ -40,4 +40,11 @@ export const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
   },
+  loginText: {
+  marginTop: 18,
+  textAlign: 'center',
+  color: '#8B1E3F',
+  fontSize: 14,
+  fontWeight: '700',
+},
 });

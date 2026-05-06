@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 
 type CustomerRegisterForm = {
@@ -76,6 +77,7 @@ export function useCustomerRegister() {
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
   const [isCountryOpen, setIsCountryOpen] = useState(false);
   const [isCityOpen, setIsCityOpen] = useState(false);
+  const navigation = useNavigation();
 
 const handlePreferenceSelect = (preference: string) => {
   handleChange('preferences', preference);
@@ -179,9 +181,10 @@ const handleCitySelect = (city: string) => {
   const handleRegister = async () => {
   const isValid = validate();
 
-  if (!isValid) {
-    return;
-  }
+if (!isValid) {
+  Alert.alert('Validation error', 'Please check all fields and try again.');
+  return;
+}
 
   try {
     const response = await fetch(
@@ -208,8 +211,17 @@ const handleCitySelect = (city: string) => {
     const data = await response.json();
 
     if (data.success) {
-      Alert.alert('Account created successfully!');
-    } else {
+  Alert.alert(
+    'Success',
+    'Account created successfully! Please login.',
+    [
+      {
+        text: 'Proceed to Login',
+        onPress: () => navigation.navigate('Login' as never),
+      },
+    ],
+  );
+} else {
       Alert.alert('Registration failed',data.message);
     }
   } catch (error) {

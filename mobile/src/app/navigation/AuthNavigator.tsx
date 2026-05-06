@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthStackParamList } from './types';
 import CustomerRegisterScreen from '../../features/auth/screens/CustomerRegister';
 import RestaurantRegisterScreen from '../../features/auth/screens/RestaurantRegister';
+import Login from '../../features/auth/screens/Login';
 
 import ChooseRoleScreen from '../../features/auth/screens/ChooseRole';
 
@@ -23,9 +24,7 @@ function AuthNavigator() {
       <Stack.Screen name="ChooseRole" component={ChooseRoleScreen} />
       <Stack.Screen name="CustomerRegister" component={CustomerRegisterScreen} />
       <Stack.Screen name="RestaurantRegister" component={RestaurantRegisterScreen} />
-      <Stack.Screen name="Login">
-        {() => <Placeholder title="Login" />}
-      </Stack.Screen>
+      <Stack.Screen name="Login" component={Login} />
     </Stack.Navigator>
   );
 }
