@@ -9,7 +9,7 @@ function ChooseRoleScreen(): React.JSX.Element {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome 👋</Text>
+        <Text style={styles.title}>Welcome </Text>
         <Text style={styles.subtitle}>
           Choose how you want to continue using the application.
         </Text>

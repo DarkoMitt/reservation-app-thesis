@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 type RestaurantRegisterForm = {
   email: string;
@@ -87,6 +88,7 @@ const initialForm: RestaurantRegisterForm = {
 };
 
 export function useRestaurantRegister() {
+  const navigation = useNavigation();
   const [form, setForm] = useState<RestaurantRegisterForm>(initialForm);
   const [errors, setErrors] = useState<RestaurantRegisterErrors>({});
   const [isCountryOpen, setIsCountryOpen] = useState(false);
@@ -234,14 +236,62 @@ export function useRestaurantRegister() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleRegister = () => {
-    if (!validate()) return;
+  const handleRegister = async () => {
+  if (!validate()) {
+    Alert.alert('Validation error', 'Please check all fields and try again.');
+    return;
+  }
 
-    Alert.alert(
-      'Request submitted',
-      'Restaurant registration form is valid. The account will be pending verification.'
+  const workingHours = `Weekdays: ${form.workingHoursWeekdaysFrom} - ${form.workingHoursWeekdaysTo}, Weekend: ${form.workingHoursWeekendFrom} - ${form.workingHoursWeekendTo}`;
+
+  try {
+    const response = await fetch(
+      'http://10.0.2.2/reservation-api/auth/register-restaurant.php',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          restaurantName: form.restaurantName,
+          restaurantType: form.restaurantType,
+          cuisineType: form.cuisineType,
+          country: form.country,
+          city: form.city,
+          address: form.streetAddress,
+          phone: form.phoneNumber,
+          email: form.email,
+          password: form.password,
+          description: form.description,
+          maxGuests: form.maxGuests,
+          workingHours,
+          businessRegistrationNumber: form.businessRegistrationNumber,
+        }),
+      },
     );
-  };
+
+    const data = await response.json();
+
+    if (data.success) {
+  Alert.alert(
+    'Request submitted',
+    'Your restaurant registration was submitted and is waiting for admin approval.',
+    [
+      {
+        text: 'OK',
+        onPress: () => {
+          navigation.goBack();
+        },
+      },
+    ],
+  );
+} else {
+      Alert.alert('Registration failed', data.message || 'Please try again.');
+    }
+  } catch (error) {
+    Alert.alert('Error', 'Something went wrong. Check your connection.');
+  }
+};
 
   return {
     form,

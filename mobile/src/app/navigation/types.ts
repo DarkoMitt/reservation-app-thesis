@@ -8,7 +8,17 @@ export type AuthStackParamList = {
 };
 
 export type MainStackParamList = {
-  CustomerDashboard: undefined;
+   CustomerDashboard: {
+    user: {
+      id: number;
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone: string;
+      role: string;
+      status: string;
+    };
+  };
   RestaurantDashboard: undefined;
   AdminDashboard: undefined;
 };

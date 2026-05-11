@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 
 type Restaurant = {
   id: number;
@@ -58,6 +58,16 @@ const mockRestaurants: Restaurant[] = [
 
 export function useCustomerDashboard() {
   const navigation = useNavigation();
+  const route = useRoute<any>();
+const user = route.params?.user;
+
+const fullName = user
+  ? `${user.first_name} ${user.last_name}`
+  : 'Customer';
+
+const initials = user
+  ? `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}`.toUpperCase()
+  : 'CU';
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -119,5 +129,7 @@ export function useCustomerDashboard() {
     filters,
     restaurants,
     handleLogout,
+    fullName,
+    initials,
   };
 }

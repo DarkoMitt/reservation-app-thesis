@@ -8,6 +8,18 @@ export function useLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const goToDashboard = (screenName: string, params?: object) => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'Main',
+        params: {
+          screen: screenName,
+          params,
+        },
+      }),
+    );
+  };
+
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert('Error', 'Please fill all fields.');
@@ -24,7 +36,7 @@ export function useLogin() {
           },
           body: JSON.stringify({
             emailOrPhone: email.trim(),
-            password: password,
+            password,
           }),
         },
       );
@@ -32,25 +44,19 @@ export function useLogin() {
       const data = await response.json();
 
       if (!data.success) {
-        Alert.alert(
-          'Login failed',
-          data.message || 'Invalid credentials.',
-        );
+        Alert.alert('Login failed', data.message || 'Invalid credentials.');
         return;
       }
 
       const user = data.user;
 
       if (user.role === 'customer') {
-        navigation.dispatch(
-  CommonActions.navigate({
-    name: 'Main',
-    params: {
-      screen: 'CustomerDashboard',
-    },
-  }),
-);
+        goToDashboard('CustomerDashboard', { user });
+        return;
+      }
 
+      if (user.role === 'admin') {
+        goToDashboard('AdminDashboard', { user });
         return;
       }
 
@@ -60,41 +66,24 @@ export function useLogin() {
             'Pending approval',
             'Your restaurant account is waiting for admin approval.',
           );
-
           return;
         }
 
-        navigation.dispatch(
-  CommonActions.navigate({
-    name: 'Main',
-    params: {
-      screen: 'RestaurantDashboard',
-    },
-  }),
-);
+        if (user.status === 'rejected') {
+          Alert.alert(
+            'Registration rejected',
+            user.rejection_reason || 'Your restaurant registration was rejected.',
+          );
+          return;
+        }
 
-        return;
-      }
-
-      if (user.role === 'admin') {
-        navigation.dispatch(
-  CommonActions.navigate({
-    name: 'Main',
-    params: {
-      screen: 'AdminDashboard',
-    },
-  }),
-);
-
+        goToDashboard('RestaurantDashboard', { user });
         return;
       }
 
       Alert.alert('Error', 'Unknown user role.');
     } catch (error) {
-      Alert.alert(
-        'Error',
-        'Something went wrong. Check your connection.',
-      );
+      Alert.alert('Error', 'Something went wrong. Check your connection.');
     }
   };
 

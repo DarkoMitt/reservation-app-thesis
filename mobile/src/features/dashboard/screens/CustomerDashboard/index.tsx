@@ -22,6 +22,8 @@ function CustomerDashboard(): React.JSX.Element {
     filters,
     restaurants,
     handleLogout,
+    fullName,
+    initials,
   } = useCustomerDashboard();
 
   return (
@@ -32,7 +34,7 @@ function CustomerDashboard(): React.JSX.Element {
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Good evening 👋</Text>
+            <Text style={styles.greeting}>Good evening</Text>
             <Text style={styles.title}>Find your next reservation</Text>
           </View>
 
@@ -40,13 +42,13 @@ function CustomerDashboard(): React.JSX.Element {
             style={styles.profileButton}
             activeOpacity={0.8}
             onPress={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
-            <Text style={styles.profileInitials}>DM</Text>
+            <Text style={styles.profileInitials}>{initials}</Text>
           </TouchableOpacity>
         </View>
 
         {isProfileMenuOpen && (
           <View style={styles.profileMenu}>
-            <Text style={styles.profileName}>Darko Mitovski</Text>
+            <Text style={styles.profileName}>{fullName}</Text>
 
             <TouchableOpacity style={styles.profileMenuItem}>
               <Text style={styles.profileMenuText}>Profile Settings</Text>
@@ -56,7 +58,9 @@ function CustomerDashboard(): React.JSX.Element {
               <Text style={styles.profileMenuText}>My Reservations</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.profileMenuItem} onPress={handleLogout}>
+            <TouchableOpacity
+              style={styles.profileMenuItem}
+              onPress={handleLogout}>
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -111,11 +115,11 @@ function CustomerDashboard(): React.JSX.Element {
                   <View>
                     <Text style={styles.restaurantName}>{restaurant.name}</Text>
                     <Text style={styles.restaurantMeta}>
-                      {restaurant.city} • {restaurant.address}
+                      {restaurant.city} - {restaurant.address}
                     </Text>
                   </View>
 
-                  <Text style={styles.rating}>⭐ {restaurant.rating}</Text>
+                  <Text style={styles.rating}>Rating {restaurant.rating}</Text>
                 </View>
 
                 <Text style={styles.foodType}>{restaurant.foodType}</Text>
@@ -123,7 +127,9 @@ function CustomerDashboard(): React.JSX.Element {
                 <View style={styles.cardFooter}>
                   <Text style={styles.status}>{restaurant.status}</Text>
 
-                  <TouchableOpacity style={styles.viewButton} activeOpacity={0.85}>
+                  <TouchableOpacity
+                    style={styles.viewButton}
+                    activeOpacity={0.85}>
                     <Text style={styles.viewButtonText}>View</Text>
                   </TouchableOpacity>
                 </View>
