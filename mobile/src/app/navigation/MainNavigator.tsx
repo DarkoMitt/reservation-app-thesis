@@ -6,6 +6,7 @@ import { MainStackParamList } from './types';
 import CustomerDashboard from '../../features/dashboard/screens/CustomerDashboard';
 import RestaurantDashboard from '../../features/dashboard/screens/RestaurantDashboard';
 import AdminDashboard from '../../features/dashboard/screens/AdminDashboard';
+import RestaurantProfile from '../../features/dashboard/screens/RestaurantProfile';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
@@ -26,6 +27,10 @@ function MainNavigator(): React.JSX.Element {
         name="AdminDashboard"
         component={AdminDashboard}
       />
+
+      <Stack.Screen 
+        name="RestaurantProfile" 
+        component={RestaurantProfile} />
     </Stack.Navigator>
   );
 }

@@ -7,20 +7,33 @@ export type AuthStackParamList = {
   Login: undefined;
 };
 
+export type AppUser = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  role: string;
+  status: string;
+  rejection_reason?: string | null;
+};
+
 export type MainStackParamList = {
-   CustomerDashboard: {
-    user: {
-      id: number;
-      first_name: string;
-      last_name: string;
-      email: string;
-      phone: string;
-      role: string;
-      status: string;
-    };
+  CustomerDashboard: {
+    user: AppUser;
   };
-  RestaurantDashboard: undefined;
-  AdminDashboard: undefined;
+
+  RestaurantDashboard: {
+    user: AppUser;
+  };
+
+  AdminDashboard: {
+    user?: AppUser;
+  };
+
+  RestaurantProfile: {
+    restaurant: any;
+  };
 };
 
 export type RootStackParamList = {
