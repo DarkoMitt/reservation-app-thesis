@@ -15,6 +15,7 @@ function RestaurantDashboard(): React.JSX.Element {
   const {
     restaurant,
     isLoading,
+    handleBack,
     handleOpenProfile,
     handleLogout,
   } = useRestaurantDashboard();
@@ -36,8 +37,15 @@ function RestaurantDashboard(): React.JSX.Element {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}>
 
+        <TouchableOpacity
+          style={styles.backButton}
+          activeOpacity={0.8}
+          onPress={handleBack}>
+          <Text style={styles.backButtonText}>‹ Back</Text>
+        </TouchableOpacity>
+
         <View style={styles.header}>
-          <View>
+          <View style={styles.headerText}>
             <Text style={styles.greeting}>Restaurant Dashboard</Text>
             <Text style={styles.title}>
               {restaurant?.restaurant_name || 'Restaurant'}
@@ -66,7 +74,7 @@ function RestaurantDashboard(): React.JSX.Element {
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>
-              {restaurant?.max_guests || 0}
+            {restaurant?.max_guests ? Number(restaurant.max_guests) : 0}
             </Text>
             <Text style={styles.statLabel}>Max Guests</Text>
           </View>
@@ -79,30 +87,12 @@ function RestaurantDashboard(): React.JSX.Element {
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Restaurant Information</Text>
-
-          <Text style={styles.infoText}>
-            Type: {restaurant?.restaurant_type || '-'}
-          </Text>
-
-          <Text style={styles.infoText}>
-            Cuisine: {restaurant?.cuisine_type || '-'}
-          </Text>
-
-          <Text style={styles.infoText}>
-            City: {restaurant?.city || '-'}
-          </Text>
-
-          <Text style={styles.infoText}>
-            Address: {restaurant?.address || '-'}
-          </Text>
-
-          <Text style={styles.infoText}>
-            Phone: {restaurant?.phone || '-'}
-          </Text>
-
-          <Text style={styles.infoText}>
-            Email: {restaurant?.email || '-'}
-          </Text>
+          <Text style={styles.infoText}>Type: {restaurant?.restaurant_type || '-'}</Text>
+          <Text style={styles.infoText}>Cuisine: {restaurant?.cuisine_type || '-'}</Text>
+          <Text style={styles.infoText}>City: {restaurant?.city || '-'}</Text>
+          <Text style={styles.infoText}>Address: {restaurant?.address || '-'}</Text>
+          <Text style={styles.infoText}>Phone: {restaurant?.phone || '-'}</Text>
+          <Text style={styles.infoText}>Email: {restaurant?.email || '-'}</Text>
         </View>
 
         <View style={styles.card}>

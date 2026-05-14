@@ -30,12 +30,16 @@ try {
             description = ?,
             max_guests = ?,
             working_hours = ?,
+            mon_thu_hours = ?,
+            fri_sun_hours = ?,
             has_smoking_area = ?,
             has_outdoor_seating = ?,
             has_parking = ?,
             has_wifi = ?,
             restaurant_image = ?,
-            menu_image = ?
+            menu_image = ?,
+            restaurant_images = ?,
+            menu_images = ?
         WHERE id = ?
     ");
 
@@ -47,12 +51,16 @@ try {
         trim($data["description"] ?? ""),
         (int)($data["maxGuests"] ?? 0),
         trim($data["workingHours"] ?? ""),
+        trim($data["monThuHours"] ?? ""),
+        trim($data["friSunHours"] ?? ""),
         (int)($data["hasSmokingArea"] ?? 0),
         (int)($data["hasOutdoorSeating"] ?? 0),
         (int)($data["hasParking"] ?? 0),
         (int)($data["hasWifi"] ?? 0),
         trim($data["restaurantImage"] ?? ""),
         trim($data["menuImage"] ?? ""),
+        $data["restaurantImages"] ?? "[]",
+        $data["menuImages"] ?? "[]",
         $restaurantId
     ]);
 
@@ -60,9 +68,10 @@ try {
         "success" => true,
         "message" => "Restaurant profile updated successfully."
     ]);
+
 } catch (PDOException $e) {
     echo json_encode([
         "success" => false,
-        "message" => "Failed to update restaurant profile."
+        "message" => $e->getMessage()
     ]);
 }

@@ -149,4 +149,22 @@ profileButtonText: {
   fontSize: 14,
   fontWeight: '800',
 },
+
+backButton: {
+  alignSelf: 'flex-start',
+  paddingVertical: 8,
+  paddingHorizontal: 4,
+  marginBottom: 12,
+},
+
+backButtonText: {
+  fontSize: 16,
+  fontWeight: '800',
+  color: '#8B1E3F',
+},
+
+headerText: {
+  flex: 1,
+  paddingRight: 12,
+},
 });

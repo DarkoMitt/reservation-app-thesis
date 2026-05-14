@@ -125,4 +125,66 @@ export const styles = StyleSheet.create({
   fontWeight: '800',
   marginBottom: 14,
 },
+
+imageButton: {
+  backgroundColor: '#8B1E3F',
+  paddingVertical: 14,
+  borderRadius: 16,
+  alignItems: 'center',
+  marginTop: 6,
+},
+
+imageButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '800',
+},
+
+previewImage: {
+  width: '100%',
+  height: 180,
+  borderRadius: 18,
+  marginTop: 14,
+  resizeMode: 'cover',
+},
+galleryGrid: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  gap: 10,
+  marginTop: 12,
+},
+
+thumbnailWrapper: {
+  width: 96,
+  height: 96,
+  borderRadius: 14,
+  overflow: 'hidden',
+  position: 'relative',
+  backgroundColor: '#EFE5DA',
+},
+
+thumbnailImage: {
+  width: '100%',
+  height: '100%',
+  resizeMode: 'cover',
+},
+
+removeImageButton: {
+  position: 'absolute',
+  top: 6,
+  right: 6,
+  width: 24,
+  height: 24,
+  borderRadius: 12,
+  backgroundColor: '#8B1E3F',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+removeImageText: {
+  color: '#FFFFFF',
+  fontSize: 18,
+  fontWeight: '800',
+  lineHeight: 20,
+},
 });

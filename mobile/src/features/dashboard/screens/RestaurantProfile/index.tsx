@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Image,
   SafeAreaView,
   ScrollView,
   Switch,
@@ -26,8 +27,12 @@ function RestaurantProfile(): React.JSX.Element {
     setDescription,
     maxGuests,
     setMaxGuests,
-    workingHours,
-    setWorkingHours,
+    monThuHours,
+    setMonThuHours,
+    friSunHours,
+    setFriSunHours,
+    restaurantImages,
+    menuImages,
     hasSmokingArea,
     setHasSmokingArea,
     hasOutdoorSeating,
@@ -36,14 +41,14 @@ function RestaurantProfile(): React.JSX.Element {
     setHasParking,
     hasWifi,
     setHasWifi,
-    restaurantImage,
-    setRestaurantImage,
-    menuImage,
-    setMenuImage,
     profileCompletion,
     isSaving,
     handleSave,
     handleGoBack,
+    pickRestaurantImages,
+    pickMenuImages,
+    removeRestaurantImage,
+    removeMenuImage,
   } = useRestaurantProfile();
 
   return (
@@ -61,7 +66,9 @@ function RestaurantProfile(): React.JSX.Element {
 
         <View style={styles.progressCard}>
           <Text style={styles.progressTitle}>Profile Completion</Text>
-          <Text style={styles.progressValue}>{profileCompletion}%</Text>
+          <Text style={styles.progressValue}>
+            {profileCompletion}%
+          </Text>
         </View>
 
         <View style={styles.card}>
@@ -111,12 +118,21 @@ function RestaurantProfile(): React.JSX.Element {
             placeholderTextColor="#8B8178"
           />
 
-          <Text style={styles.label}>Working Hours</Text>
+          <Text style={styles.label}>Mon - Thu</Text>
           <TextInput
             style={styles.input}
-            value={workingHours}
-            onChangeText={setWorkingHours}
+            value={monThuHours}
+            onChangeText={setMonThuHours}
             placeholder="09:00 - 23:00"
+            placeholderTextColor="#8B8178"
+          />
+
+          <Text style={styles.label}>Fri - Sun</Text>
+          <TextInput
+            style={styles.input}
+            value={friSunHours}
+            onChangeText={setFriSunHours}
+            placeholder="09:00 - 01:00"
             placeholderTextColor="#8B8178"
           />
 
@@ -130,46 +146,124 @@ function RestaurantProfile(): React.JSX.Element {
             placeholderTextColor="#8B8178"
           />
 
-          <Text style={styles.label}>Restaurant Image</Text>
-          <TextInput
-            style={styles.input}
-            value={restaurantImage}
-            onChangeText={setRestaurantImage}
-            placeholder="Paste restaurant image URL for now"
-            placeholderTextColor="#8B8178"
-          />
+          <Text style={styles.label}>Restaurant Images</Text>
 
-          <Text style={styles.label}>Menu Image</Text>
-          <TextInput
-            style={styles.input}
-            value={menuImage}
-            onChangeText={setMenuImage}
-            placeholder="Paste menu image URL for now"
-            placeholderTextColor="#8B8178"
-          />
+          <TouchableOpacity
+            style={styles.imageButton}
+            activeOpacity={0.85}
+            onPress={pickRestaurantImages}>
+            <Text style={styles.imageButtonText}>
+              Add Restaurant Images
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.galleryGrid}>
+            {restaurantImages.map(imageUri => (
+              <View
+                key={imageUri}
+                style={styles.thumbnailWrapper}>
+
+                <Image
+                  source={{ uri: imageUri }}
+                  style={styles.thumbnailImage}
+                />
+
+                <TouchableOpacity
+                  style={styles.removeImageButton}
+                  onPress={() =>
+                    removeRestaurantImage(imageUri)
+                  }>
+                  <Text style={styles.removeImageText}>
+                    ×
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+
+          <Text style={styles.label}>Menu Images</Text>
+
+          <TouchableOpacity
+            style={styles.imageButton}
+            activeOpacity={0.85}
+            onPress={pickMenuImages}>
+            <Text style={styles.imageButtonText}>
+              Add Menu Images
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.galleryGrid}>
+            {menuImages.map(imageUri => (
+              <View
+                key={imageUri}
+                style={styles.thumbnailWrapper}>
+
+                <Image
+                  source={{ uri: imageUri }}
+                  style={styles.thumbnailImage}
+                />
+
+                <TouchableOpacity
+                  style={styles.removeImageButton}
+                  onPress={() =>
+                    removeMenuImage(imageUri)
+                  }>
+                  <Text style={styles.removeImageText}>
+                    ×
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.featuresTitle}>Restaurant Features</Text>
+          <Text style={styles.featuresTitle}>
+            Restaurant Features
+          </Text>
 
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>Smoking Area</Text>
-            <Switch value={hasSmokingArea} onValueChange={setHasSmokingArea} />
+            <Text style={styles.switchLabel}>
+              Smoking Area
+            </Text>
+
+            <Switch
+              value={hasSmokingArea}
+              onValueChange={setHasSmokingArea}
+            />
           </View>
 
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>Outdoor Seating</Text>
-            <Switch value={hasOutdoorSeating} onValueChange={setHasOutdoorSeating} />
+            <Text style={styles.switchLabel}>
+              Outdoor Seating
+            </Text>
+
+            <Switch
+              value={hasOutdoorSeating}
+              onValueChange={setHasOutdoorSeating}
+            />
           </View>
 
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>Parking</Text>
-            <Switch value={hasParking} onValueChange={setHasParking} />
+            <Text style={styles.switchLabel}>
+              Parking
+            </Text>
+
+            <Switch
+              value={hasParking}
+              onValueChange={setHasParking}
+            />
           </View>
 
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>Wi-Fi</Text>
-            <Switch value={hasWifi} onValueChange={setHasWifi} />
+            <Text style={styles.switchLabel}>
+              Wi-Fi
+            </Text>
+
+            <Switch
+              value={hasWifi}
+              onValueChange={setHasWifi}
+            />
           </View>
         </View>
 
@@ -178,6 +272,7 @@ function RestaurantProfile(): React.JSX.Element {
           activeOpacity={0.85}
           disabled={isSaving}
           onPress={handleSave}>
+
           <Text style={styles.saveButtonText}>
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Text>

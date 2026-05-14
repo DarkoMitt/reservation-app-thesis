@@ -32,16 +32,28 @@ try {
             restaurants.description,
             restaurants.max_guests,
             restaurants.working_hours,
+            restaurants.mon_thu_hours,
+            restaurants.fri_sun_hours,
+            restaurants.has_smoking_area,
+            restaurants.has_outdoor_seating,
+            restaurants.has_parking,
+            restaurants.has_wifi,
+            restaurants.restaurant_image,
+            restaurants.menu_image,
+            restaurants.restaurant_images,
+            restaurants.menu_images,
             restaurants.status,
             restaurants.rejection_reason,
             users.email
         FROM restaurants
-        INNER JOIN users ON restaurants.user_id = users.id
+        INNER JOIN users 
+            ON restaurants.user_id = users.id
         WHERE restaurants.user_id = ?
         LIMIT 1
     ");
 
     $stmt->execute([$userId]);
+
     $restaurant = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$restaurant) {
@@ -56,9 +68,10 @@ try {
         "success" => true,
         "restaurant" => $restaurant
     ]);
+
 } catch (PDOException $e) {
     echo json_encode([
         "success" => false,
-        "message" => "Failed to load restaurant profile."
+        "message" => $e->getMessage()
     ]);
 }

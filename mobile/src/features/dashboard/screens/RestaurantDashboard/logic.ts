@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import {
   CommonActions,
+  useFocusEffect,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
+import React from 'react';
 
 type RestaurantProfile = {
   restaurant_id: number;
@@ -23,14 +25,12 @@ type RestaurantProfile = {
 };
 
 export function useRestaurantDashboard() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const route = useRoute<any>();
 
   const user = route.params?.user;
 
-  const [restaurant, setRestaurant] =
-    useState<RestaurantProfile | null>(null);
-
+  const [restaurant, setRestaurant] = useState<RestaurantProfile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchRestaurantProfile = async () => {
@@ -60,39 +60,34 @@ export function useRestaurantDashboard() {
       if (data.success) {
         setRestaurant(data.restaurant);
       } else {
-        Alert.alert(
-          'Error',
-          data.message || 'Failed to load restaurant profile.',
-        );
+        Alert.alert('Error', data.message || 'Failed to load restaurant profile.');
       }
     } catch (error) {
-      Alert.alert(
-        'Error',
-        'Something went wrong while loading restaurant profile.',
-      );
+      Alert.alert('Error', 'Something went wrong while loading restaurant profile.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleBack = () => {
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Auth' }],
+      }),
+    );
+  };
+
   const handleOpenProfile = () => {
     if (!restaurant) {
-      Alert.alert(
-        'Error',
-        'Restaurant profile is not loaded yet.',
-      );
-
+      Alert.alert('Error', 'Restaurant profile is not loaded yet.');
       return;
     }
 
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'RestaurantProfile',
-        params: {
-          restaurant,
-        },
-      }),
-    );
+    navigation.navigate('RestaurantProfile', {
+      restaurant,
+      user,
+    });
   };
 
   const handleLogout = () => {
@@ -108,11 +103,18 @@ export function useRestaurantDashboard() {
     fetchRestaurantProfile();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchRestaurantProfile();
+    }, [user?.id]),
+  );
+
   return {
     user,
     restaurant,
     isLoading,
     fetchRestaurantProfile,
+    handleBack,
     handleOpenProfile,
     handleLogout,
   };
