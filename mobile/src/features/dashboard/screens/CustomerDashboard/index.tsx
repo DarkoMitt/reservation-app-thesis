@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   Text,
@@ -21,9 +22,11 @@ function CustomerDashboard(): React.JSX.Element {
     setSelectedFilter,
     filters,
     restaurants,
+    isLoadingRestaurants,
     handleLogout,
     fullName,
     initials,
+    handleOpenRestaurant,
   } = useCustomerDashboard();
 
   return (
@@ -32,6 +35,7 @@ function CustomerDashboard(): React.JSX.Element {
         style={styles.screen}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}>
+
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Good evening</Text>
@@ -100,43 +104,60 @@ function CustomerDashboard(): React.JSX.Element {
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recommended places</Text>
-          <Text style={styles.sectionSubtitle}>{restaurants.length} places</Text>
+          <Text style={styles.sectionSubtitle}>
+            {restaurants.length} places
+          </Text>
         </View>
 
-        <View style={styles.cardsWrapper}>
-          {restaurants.map(restaurant => (
-            <View key={restaurant.id} style={styles.card}>
-              <View style={styles.imagePlaceholder}>
-                <Text style={styles.imageText}>{restaurant.type}</Text>
-              </View>
+        {isLoadingRestaurants ? (
+          <View style={styles.loadingBox}>
+            <ActivityIndicator size="large" color="#8B1E3F" />
+            <Text style={styles.loadingText}>Loading restaurants...</Text>
+          </View>
+        ) : (
+          <View style={styles.cardsWrapper}>
+            {restaurants.map(restaurant => (
+              <View key={restaurant.id} style={styles.card}>
+                <View style={styles.imagePlaceholder}>
+                  <Text style={styles.imageText}>
+                    {restaurant.restaurant_type || 'Restaurant'}
+                  </Text>
+                </View>
 
-              <View style={styles.cardBody}>
-                <View style={styles.cardHeader}>
-                  <View>
-                    <Text style={styles.restaurantName}>{restaurant.name}</Text>
-                    <Text style={styles.restaurantMeta}>
-                      {restaurant.city} - {restaurant.address}
-                    </Text>
+                <View style={styles.cardBody}>
+                  <View style={styles.cardHeader}>
+                    <View>
+                      <Text style={styles.restaurantName}>
+                        {restaurant.restaurant_name}
+                      </Text>
+
+                      <Text style={styles.restaurantMeta}>
+                        {restaurant.city} - {restaurant.address}
+                      </Text>
+                    </View>
+
+                    <Text style={styles.rating}>Rating 4.5</Text>
                   </View>
 
-                  <Text style={styles.rating}>Rating {restaurant.rating}</Text>
-                </View>
+                  <Text style={styles.foodType}>
+                    {restaurant.cuisine_type || 'Cuisine not added'}
+                  </Text>
 
-                <Text style={styles.foodType}>{restaurant.foodType}</Text>
+                  <View style={styles.cardFooter}>
+                    <Text style={styles.status}>🟢 Open now</Text>
 
-                <View style={styles.cardFooter}>
-                  <Text style={styles.status}>{restaurant.status}</Text>
-
-                  <TouchableOpacity
-                    style={styles.viewButton}
-                    activeOpacity={0.85}>
-                    <Text style={styles.viewButtonText}>View</Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.viewButton}
+                      activeOpacity={0.85}
+                      onPress={() => handleOpenRestaurant(restaurant)}>
+                      <Text style={styles.viewButtonText}>View</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

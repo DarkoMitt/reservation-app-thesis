@@ -224,4 +224,17 @@ export const styles = StyleSheet.create({
     fontWeight: '800',
     fontSize: 13,
   },
+
+  loadingBox: {
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingVertical: 30,
+},
+
+loadingText: {
+  marginTop: 10,
+  fontSize: 14,
+  color: '#6E6258',
+  fontWeight: '600',
+},
 });

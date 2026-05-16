@@ -1,77 +1,53 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import {
+  CommonActions,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 
 type Restaurant = {
   id: number;
-  name: string;
-  type: string;
+  restaurant_name: string;
+  restaurant_type: string;
+  cuisine_type: string;
   city: string;
   address: string;
-  rating: number;
-  foodType: string;
+  phone: string;
+  description: string;
+  max_guests: number;
+  working_hours: string;
+  mon_thu_hours?: string;
+  fri_sun_hours?: string;
+  has_smoking_area?: number;
+  has_outdoor_seating?: number;
+  has_parking?: number;
+  has_wifi?: number;
+  restaurant_images?: string;
+  menu_images?: string;
   status: string;
+  email: string;
 };
 
-const mockRestaurants: Restaurant[] = [
-  {
-    id: 1,
-    name: 'Pelister',
-    type: 'Restaurant',
-    city: 'Skopje',
-    address: 'Macedonia Square',
-    rating: 4.7,
-    foodType: 'Traditional • Grill • Wine',
-    status: '🟢 Open now',
-  },
-  {
-    id: 2,
-    name: 'Public Room',
-    type: 'Cafe',
-    city: 'Skopje',
-    address: '50 Divizija',
-    rating: 4.6,
-    foodType: 'Cafe • Brunch • Cocktails',
-    status: '🟢 Open now',
-  },
-  {
-    id: 3,
-    name: 'Skopski Merak',
-    type: 'Restaurant',
-    city: 'Skopje',
-    address: 'Debar Maalo',
-    rating: 4.8,
-    foodType: 'Macedonian • Grill • Traditional',
-    status: '🟠 Busy',
-  },
-  {
-    id: 4,
-    name: 'Event Garden',
-    type: 'Event Venue',
-    city: 'Skopje',
-    address: 'Aerodrom',
-    rating: 4.5,
-    foodType: 'Events • Catering • Celebration',
-    status: '🔴 Fully booked',
-  },
-];
-
 export function useCustomerDashboard() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const route = useRoute<any>();
-const user = route.params?.user;
 
-const fullName = user
-  ? `${user.first_name} ${user.last_name}`
-  : 'Customer';
+  const user = route.params?.user;
 
-const initials = user
-  ? `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}`.toUpperCase()
-  : 'CU';
+  const fullName = user
+    ? `${user.first_name} ${user.last_name}`
+    : 'Customer';
+
+  const initials = user
+    ? `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}`.toUpperCase()
+    : 'CU';
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('Best Match');
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
 
   const filters = [
     'Best Match',
@@ -82,7 +58,39 @@ const initials = user
     'Trending',
   ];
 
-  const restaurants = mockRestaurants.filter(restaurant => {
+  const fetchRestaurants = async () => {
+    try {
+      setIsLoadingRestaurants(true);
+
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/restaurant/get-approved-restaurants.php',
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setRestaurants(data.restaurants || []);
+      } else {
+        Alert.alert(
+          'Error',
+          data.message || 'Failed to load restaurants.',
+        );
+      }
+    } catch (error) {
+      Alert.alert(
+        'Error',
+        'Something went wrong while loading restaurants.',
+      );
+    } finally {
+      setIsLoadingRestaurants(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRestaurants();
+  }, []);
+
+  const filteredRestaurants = restaurants.filter(restaurant => {
     const searchValue = search.toLowerCase().trim();
 
     if (!searchValue) {
@@ -90,13 +98,20 @@ const initials = user
     }
 
     return (
-      restaurant.name.toLowerCase().includes(searchValue) ||
-      restaurant.city.toLowerCase().includes(searchValue) ||
-      restaurant.address.toLowerCase().includes(searchValue) ||
-      restaurant.foodType.toLowerCase().includes(searchValue) ||
-      restaurant.type.toLowerCase().includes(searchValue)
+      restaurant.restaurant_name?.toLowerCase().includes(searchValue) ||
+      restaurant.city?.toLowerCase().includes(searchValue) ||
+      restaurant.address?.toLowerCase().includes(searchValue) ||
+      restaurant.cuisine_type?.toLowerCase().includes(searchValue) ||
+      restaurant.restaurant_type?.toLowerCase().includes(searchValue)
     );
   });
+
+  const handleOpenRestaurant = (restaurant: Restaurant) => {
+    navigation.navigate('RestaurantDetails', {
+      restaurant,
+      user,
+    });
+  };
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -127,9 +142,11 @@ const initials = user
     selectedFilter,
     setSelectedFilter,
     filters,
-    restaurants,
+    restaurants: filteredRestaurants,
+    isLoadingRestaurants,
     handleLogout,
     fullName,
     initials,
+    handleOpenRestaurant,
   };
 }

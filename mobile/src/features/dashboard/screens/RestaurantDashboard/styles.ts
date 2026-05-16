@@ -167,4 +167,73 @@ headerText: {
   flex: 1,
   paddingRight: 12,
 },
+
+requestCard: {
+  backgroundColor: '#FFF7EC',
+  borderRadius: 18,
+  padding: 16,
+  marginBottom: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+requestHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 12,
+},
+
+requestName: {
+  fontSize: 16,
+  fontWeight: '800',
+  color: '#2A211C',
+},
+
+requestRisk: {
+  fontSize: 12,
+  fontWeight: '700',
+  color: '#8B1E3F',
+},
+
+requestText: {
+  fontSize: 14,
+  color: '#4B4038',
+  marginBottom: 8,
+  fontWeight: '600',
+},
+
+requestButtonsRow: {
+  flexDirection: 'row',
+  gap: 12,
+  marginTop: 14,
+},
+
+approveButton: {
+  flex: 1,
+  backgroundColor: '#1E7A46',
+  paddingVertical: 12,
+  borderRadius: 14,
+  alignItems: 'center',
+},
+
+approveButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '800',
+},
+
+rejectButton: {
+  flex: 1,
+  backgroundColor: '#B3261E',
+  paddingVertical: 12,
+  borderRadius: 14,
+  alignItems: 'center',
+},
+
+rejectButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '800',
+},
 });
