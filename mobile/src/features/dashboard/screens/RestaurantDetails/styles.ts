@@ -175,4 +175,160 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 8,
   },
+
+  rejectedReservationCard: {
+  backgroundColor: '#FFF0F0',
+  borderRadius: 20,
+  padding: 18,
+  marginBottom: 18,
+  borderWidth: 1,
+  borderColor: '#F0C2C2',
+},
+
+rejectedReservationTitle: {
+  fontSize: 18,
+  fontWeight: '800',
+  color: '#B3261E',
+  marginBottom: 12,
+},
+
+rejectionReasonText: {
+  fontSize: 14,
+  color: '#B3261E',
+  fontWeight: '700',
+  marginTop: 6,
+},
+
+changeRequestBox: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 16,
+  padding: 14,
+  marginTop: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+changeRequestTitle: {
+  fontSize: 16,
+  fontWeight: '800',
+  color: '#8B1E3F',
+  marginBottom: 12,
+},
+
+changeReasonText: {
+  fontSize: 14,
+  color: '#4B4038',
+  fontWeight: '700',
+  marginTop: 6,
+  marginBottom: 8,
+},
+
+expiryText: {
+  fontSize: 12,
+  color: '#8B8178',
+  fontWeight: '600',
+  marginTop: 4,
+  marginBottom: 12,
+},
+
+changeButtonsRow: {
+  flexDirection: 'row',
+  gap: 12,
+  marginTop: 10,
+},
+
+acceptChangeButton: {
+  flex: 1,
+  backgroundColor: '#1E7A46',
+  paddingVertical: 12,
+  borderRadius: 14,
+  alignItems: 'center',
+},
+
+acceptChangeButtonText: {
+  color: '#FFFFFF',
+  fontSize: 13,
+  fontWeight: '800',
+},
+
+rejectChangeButton: {
+  flex: 1,
+  backgroundColor: '#B3261E',
+  paddingVertical: 12,
+  borderRadius: 14,
+  alignItems: 'center',
+},
+
+rejectChangeButtonText: {
+  color: '#FFFFFF',
+  fontSize: 13,
+  fontWeight: '800',
+},
+
+cancelBox: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 16,
+  padding: 14,
+  marginTop: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+cancelTitle: {
+  fontSize: 16,
+  fontWeight: '800',
+  color: '#B3261E',
+  marginBottom: 8,
+},
+
+cancelHint: {
+  fontSize: 12,
+  color: '#6E6258',
+  fontWeight: '600',
+  lineHeight: 18,
+  marginBottom: 10,
+},
+
+cancelInput: {
+  minHeight: 90,
+  borderRadius: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  backgroundColor: '#FFFFFF',
+  paddingHorizontal: 14,
+  paddingTop: 12,
+  fontSize: 14,
+  color: '#2A211C',
+  textAlignVertical: 'top',
+},
+
+cancelReservationButton: {
+  backgroundColor: '#B3261E',
+  paddingVertical: 12,
+  borderRadius: 14,
+  alignItems: 'center',
+  marginTop: 14,
+},
+
+cancelReservationButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '800',
+},
+
+cancelSecondaryButton: {
+  flex: 1,
+  backgroundColor: '#FFFFFF',
+  borderWidth: 1,
+  borderColor: '#8B1E3F',
+  paddingVertical: 12,
+  borderRadius: 14,
+  alignItems: 'center',
+},
+
+cancelSecondaryButtonText: {
+  color: '#8B1E3F',
+  fontSize: 14,
+  fontWeight: '800',
+},
 });

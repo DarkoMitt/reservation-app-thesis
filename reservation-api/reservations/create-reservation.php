@@ -46,7 +46,8 @@ try {
         FROM reservations
         WHERE customer_user_id = ?
         AND restaurant_id = ?
-        AND status IN ('pending', 'approved', 'change_requested')
+        AND status IN ('approved', 'change_requested')
+        AND CONCAT(reservation_date, ' ', reservation_time) > NOW()
         LIMIT 1
     ");
 

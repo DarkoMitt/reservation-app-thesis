@@ -35,6 +35,7 @@ type ReservationRequest = {
   no_show_risk: string;
   trust_score: number;
   special_request: string | null;
+  rejection_reason?: string | null;
   created_at: string;
   full_name: string;
   email: string;
@@ -43,7 +44,6 @@ type ReservationRequest = {
 export function useRestaurantDashboard() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-
   const user = route.params?.user;
 
   const [restaurant, setRestaurant] = useState<RestaurantProfile | null>(null);
@@ -51,6 +51,15 @@ export function useRestaurantDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingRequests, setIsLoadingRequests] = useState(false);
   const [isUpdatingRequest, setIsUpdatingRequest] = useState(false);
+
+  const [selectedRejectRequestId, setSelectedRejectRequestId] = useState<number | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+
+  const [selectedChangeRequestId, setSelectedChangeRequestId] = useState<number | null>(null);
+  const [suggestedDate, setSuggestedDate] = useState('');
+  const [suggestedTime, setSuggestedTime] = useState('');
+  const [suggestedGuestsCount, setSuggestedGuestsCount] = useState('');
+  const [changeReason, setChangeReason] = useState('');
 
   const fetchRestaurantProfile = async () => {
     if (!user?.id) {
@@ -65,12 +74,8 @@ export function useRestaurantDashboard() {
         'http://10.0.2.2/reservation-api/restaurant/get-restaurant-profile.php',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: user.id,
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id }),
         },
       );
 
@@ -82,7 +87,7 @@ export function useRestaurantDashboard() {
       } else {
         Alert.alert('Error', data.message || 'Failed to load restaurant profile.');
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Something went wrong while loading restaurant profile.');
     } finally {
       setIsLoading(false);
@@ -91,10 +96,7 @@ export function useRestaurantDashboard() {
 
   const fetchReservationRequests = async (restaurantId?: number) => {
     const targetRestaurantId = restaurantId || restaurant?.restaurant_id;
-
-    if (!targetRestaurantId) {
-      return;
-    }
+    if (!targetRestaurantId) return;
 
     try {
       setIsLoadingRequests(true);
@@ -103,12 +105,8 @@ export function useRestaurantDashboard() {
         'http://10.0.2.2/reservation-api/reservations/get-restaurant-requests.php',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            restaurantId: targetRestaurantId,
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ restaurantId: targetRestaurantId }),
         },
       );
 
@@ -119,7 +117,7 @@ export function useRestaurantDashboard() {
       } else {
         Alert.alert('Error', data.message || 'Failed to load reservation requests.');
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Something went wrong while loading reservation requests.');
     } finally {
       setIsLoadingRequests(false);
@@ -128,7 +126,14 @@ export function useRestaurantDashboard() {
 
   const updateReservationStatus = async (
     reservationId: number,
-    status: 'approved' | 'rejected',
+    status: 'approved' | 'rejected' | 'change_requested',
+    options?: {
+      rejectionReason?: string;
+      suggestedDate?: string;
+      suggestedTime?: string;
+      suggestedGuestsCount?: string;
+      changeReason?: string;
+    },
   ) => {
     try {
       setIsUpdatingRequest(true);
@@ -137,12 +142,15 @@ export function useRestaurantDashboard() {
         'http://10.0.2.2/reservation-api/reservations/update-reservation-status.php',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             reservationId,
             status,
+            rejectionReason: options?.rejectionReason || '',
+            suggestedDate: options?.suggestedDate || '',
+            suggestedTime: options?.suggestedTime || '',
+            suggestedGuestsCount: options?.suggestedGuestsCount || '',
+            changeReason: options?.changeReason || '',
           }),
         },
       );
@@ -150,18 +158,22 @@ export function useRestaurantDashboard() {
       const data = await response.json();
 
       if (data.success) {
-        Alert.alert(
-          'Success',
-          status === 'approved'
-            ? 'Reservation approved successfully.'
-            : 'Reservation rejected successfully.',
-        );
+        Alert.alert('Success', 'Reservation updated successfully.');
+
+        setSelectedRejectRequestId(null);
+        setRejectionReason('');
+
+        setSelectedChangeRequestId(null);
+        setSuggestedDate('');
+        setSuggestedTime('');
+        setSuggestedGuestsCount('');
+        setChangeReason('');
 
         fetchReservationRequests();
       } else {
         Alert.alert('Error', data.message || 'Failed to update reservation.');
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Something went wrong while updating reservation.');
     } finally {
       setIsUpdatingRequest(false);
@@ -173,18 +185,68 @@ export function useRestaurantDashboard() {
   };
 
   const handleRejectReservation = (reservationId: number) => {
-    Alert.alert(
-      'Reject Reservation',
-      'Are you sure you want to reject this reservation?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Reject',
-          style: 'destructive',
-          onPress: () => updateReservationStatus(reservationId, 'rejected'),
-        },
-      ],
-    );
+    setSelectedChangeRequestId(null);
+    setSelectedRejectRequestId(reservationId);
+    setRejectionReason('');
+  };
+
+  const handleCancelReject = () => {
+    setSelectedRejectRequestId(null);
+    setRejectionReason('');
+  };
+
+  const handleConfirmReject = () => {
+    if (!selectedRejectRequestId) return;
+
+    if (!rejectionReason.trim()) {
+      Alert.alert('Reason Required', 'Please enter a reason before rejecting this reservation.');
+      return;
+    }
+
+    updateReservationStatus(selectedRejectRequestId, 'rejected', {
+      rejectionReason: rejectionReason.trim(),
+    });
+  };
+
+  const handleOfferChange = (request: ReservationRequest) => {
+    setSelectedRejectRequestId(null);
+    setSelectedChangeRequestId(request.id);
+    setSuggestedDate(request.reservation_date);
+    setSuggestedTime(request.reservation_time?.slice(0, 5) || '');
+    setSuggestedGuestsCount(String(request.guests_count));
+    setChangeReason('');
+  };
+
+  const handleCancelChange = () => {
+    setSelectedChangeRequestId(null);
+    setSuggestedDate('');
+    setSuggestedTime('');
+    setSuggestedGuestsCount('');
+    setChangeReason('');
+  };
+
+  const handleConfirmChange = () => {
+    if (!selectedChangeRequestId) return;
+
+    if (!suggestedDate || !suggestedTime || !suggestedGuestsCount || !changeReason.trim()) {
+      Alert.alert(
+        'Missing Information',
+        'Please enter suggested date, time, guests count and reason.',
+      );
+      return;
+    }
+
+    if (Number(suggestedGuestsCount) <= 0) {
+      Alert.alert('Invalid Guests', 'Suggested guests count must be greater than 0.');
+      return;
+    }
+
+    updateReservationStatus(selectedChangeRequestId, 'change_requested', {
+      suggestedDate,
+      suggestedTime,
+      suggestedGuestsCount,
+      changeReason: changeReason.trim(),
+    });
   };
 
   const handleBack = () => {
@@ -232,19 +294,32 @@ export function useRestaurantDashboard() {
   );
 
   return {
-    user,
     restaurant,
-    reservationRequests,
     pendingRequests,
     isLoading,
     isLoadingRequests,
     isUpdatingRequest,
-    fetchRestaurantProfile,
-    fetchReservationRequests,
+    selectedRejectRequestId,
+    rejectionReason,
+    setRejectionReason,
+    handleRejectReservation,
+    handleCancelReject,
+    handleConfirmReject,
+    selectedChangeRequestId,
+    suggestedDate,
+    setSuggestedDate,
+    suggestedTime,
+    setSuggestedTime,
+    suggestedGuestsCount,
+    setSuggestedGuestsCount,
+    changeReason,
+    setChangeReason,
+    handleOfferChange,
+    handleCancelChange,
+    handleConfirmChange,
     handleBack,
     handleOpenProfile,
     handleLogout,
     handleApproveReservation,
-    handleRejectReservation,
   };
 }

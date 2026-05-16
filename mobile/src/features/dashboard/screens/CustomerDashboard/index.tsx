@@ -27,6 +27,7 @@ function CustomerDashboard(): React.JSX.Element {
     fullName,
     initials,
     handleOpenRestaurant,
+    handleOpenMyReservations,
   } = useCustomerDashboard();
 
   return (
@@ -58,7 +59,9 @@ function CustomerDashboard(): React.JSX.Element {
               <Text style={styles.profileMenuText}>Profile Settings</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.profileMenuItem}>
+            <TouchableOpacity
+              style={styles.profileMenuItem}
+              onPress={handleOpenMyReservations}>
               <Text style={styles.profileMenuText}>My Reservations</Text>
             </TouchableOpacity>
 

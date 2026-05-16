@@ -7,6 +7,22 @@ header("Access-Control-Allow-Methods: POST");
 
 require_once "../config/database.php";
 
+$cleanupStmt = $pdo->prepare("
+    UPDATE reservations
+    SET
+        status = 'rejected',
+        rejection_reason = 'The suggested change expired because the customer did not respond within 1 hour.',
+        suggested_date = NULL,
+        suggested_time = NULL,
+        suggested_guests_count = NULL,
+        change_reason = NULL,
+        change_expires_at = NULL
+    WHERE status = 'change_requested'
+    AND change_expires_at < NOW()
+");
+
+$cleanupStmt->execute();
+
 $data = json_decode(file_get_contents("php://input"), true);
 
 $restaurantId = $data["restaurantId"] ?? null;

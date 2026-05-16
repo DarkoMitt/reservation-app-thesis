@@ -236,4 +236,86 @@ rejectButtonText: {
   fontSize: 14,
   fontWeight: '800',
 },
+
+rejectReasonBox: {
+  marginTop: 14,
+},
+
+rejectReasonLabel: {
+  fontSize: 14,
+  color: '#2A211C',
+  fontWeight: '800',
+  marginBottom: 8,
+},
+
+rejectReasonInput: {
+  minHeight: 90,
+  borderRadius: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  backgroundColor: '#FFFFFF',
+  paddingHorizontal: 14,
+  paddingTop: 12,
+  fontSize: 14,
+  color: '#2A211C',
+  textAlignVertical: 'top',
+},
+
+cancelRejectButton: {
+  flex: 1,
+  backgroundColor: '#FFFFFF',
+  borderWidth: 1,
+  borderColor: '#8B1E3F',
+  paddingVertical: 12,
+  borderRadius: 14,
+  alignItems: 'center',
+},
+
+cancelRejectButtonText: {
+  color: '#8B1E3F',
+  fontSize: 14,
+  fontWeight: '800',
+},
+
+changeOfferBox: {
+  marginTop: 14,
+  backgroundColor: '#FFFFFF',
+  borderRadius: 16,
+  padding: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+changeOfferTitle: {
+  fontSize: 16,
+  fontWeight: '800',
+  color: '#8B1E3F',
+  marginBottom: 12,
+},
+
+inputSmall: {
+  height: 48,
+  borderRadius: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  backgroundColor: '#FFFFFF',
+  paddingHorizontal: 14,
+  fontSize: 14,
+  color: '#2A211C',
+  marginBottom: 10,
+},
+
+changeButton: {
+  flex: 1,
+  backgroundColor: '#D9902F',
+  paddingVertical: 12,
+  borderRadius: 14,
+  alignItems: 'center',
+},
+
+changeButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '800',
+},
 });

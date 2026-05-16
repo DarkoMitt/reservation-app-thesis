@@ -45,6 +45,15 @@ export type MainStackParamList = {
     restaurant: any;
     user: AppUser;
   };
+
+  MyReservations: {
+    user: AppUser;
+  };
+
+  ReservationDetails: {
+    reservation: any;
+    user: AppUser;
+  };
 };
 
 export type RootStackParamList = {

@@ -71,16 +71,10 @@ export function useCustomerDashboard() {
       if (data.success) {
         setRestaurants(data.restaurants || []);
       } else {
-        Alert.alert(
-          'Error',
-          data.message || 'Failed to load restaurants.',
-        );
+        Alert.alert('Error', data.message || 'Failed to load restaurants.');
       }
     } catch (error) {
-      Alert.alert(
-        'Error',
-        'Something went wrong while loading restaurants.',
-      );
+      Alert.alert('Error', 'Something went wrong while loading restaurants.');
     } finally {
       setIsLoadingRestaurants(false);
     }
@@ -109,6 +103,14 @@ export function useCustomerDashboard() {
   const handleOpenRestaurant = (restaurant: Restaurant) => {
     navigation.navigate('RestaurantDetails', {
       restaurant,
+      user,
+    });
+  };
+
+  const handleOpenMyReservations = () => {
+    setIsProfileMenuOpen(false);
+
+    navigation.navigate('MyReservations', {
       user,
     });
   };
@@ -148,5 +150,6 @@ export function useCustomerDashboard() {
     fullName,
     initials,
     handleOpenRestaurant,
+    handleOpenMyReservations,
   };
 }

@@ -9,41 +9,22 @@ import AdminDashboard from '../../features/dashboard/screens/AdminDashboard';
 import RestaurantProfile from '../../features/dashboard/screens/RestaurantProfile';
 import RestaurantDetails from '../../features/dashboard/screens/RestaurantDetails';
 import ReservationForm from '../../features/reservations/screens/ReservationForm';
+import MyReservations from '../../features/reservations/screens/MyReservations';
+import ReservationDetails from '../../features/reservations/screens/ReservationDetails';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 function MainNavigator(): React.JSX.Element {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name="CustomerDashboard"
-        component={CustomerDashboard}
-      />
-
-      <Stack.Screen
-        name="RestaurantDashboard"
-        component={RestaurantDashboard}
-      />
-
-      <Stack.Screen
-        name="AdminDashboard"
-        component={AdminDashboard}
-      />
-
-      <Stack.Screen
-        name="RestaurantProfile"
-        component={RestaurantProfile}
-      />
-
-      <Stack.Screen
-        name="RestaurantDetails"
-        component={RestaurantDetails}
-      />
-
-      <Stack.Screen
-        name="ReservationForm"
-        component={ReservationForm}
-      />
+      <Stack.Screen name="CustomerDashboard" component={CustomerDashboard} />
+      <Stack.Screen name="RestaurantDashboard" component={RestaurantDashboard} />
+      <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
+      <Stack.Screen name="RestaurantProfile" component={RestaurantProfile} />
+      <Stack.Screen name="RestaurantDetails" component={RestaurantDetails} />
+      <Stack.Screen name="ReservationForm" component={ReservationForm} />
+      <Stack.Screen name="MyReservations" component={MyReservations} />
+      <Stack.Screen name="ReservationDetails" component={ReservationDetails} />
     </Stack.Navigator>
   );
 }
