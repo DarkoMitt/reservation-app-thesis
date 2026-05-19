@@ -318,4 +318,50 @@ changeButtonText: {
   fontSize: 14,
   fontWeight: '800',
 },
+
+newCustomerBadge: {
+  fontSize: 12,
+  color: '#D9902F',
+  fontWeight: '800',
+  marginTop: 4,
+},
+
+starsRow: {
+  flexDirection: 'row',
+  gap: 8,
+  marginBottom: 12,
+},
+
+starText: {
+  fontSize: 30,
+  color: '#D8CFC5',
+  fontWeight: '900',
+},
+
+activeStarText: {
+  color: '#D99A2B',
+},
+
+rateCustomerBox: {
+  marginTop: 14,
+  backgroundColor: '#FFFFFF',
+  borderRadius: 16,
+  padding: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+rateCustomerTitle: {
+  fontSize: 16,
+  fontWeight: '800',
+  color: '#8B1E3F',
+  marginBottom: 12,
+},
+
+alreadyRatedText: {
+  fontSize: 13,
+  color: '#1E7A46',
+  fontWeight: '800',
+  marginTop: 10,
+},
 });

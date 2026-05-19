@@ -6,6 +6,15 @@ import {
   useRoute,
 } from '@react-navigation/native';
 
+type RatingSummary = {
+  total_reviews: number;
+  overall_rating: number;
+  food_rating: number;
+  service_rating: number;
+  atmosphere_rating: number;
+  most_common_price_per_person: number | null;
+};
+
 type CustomerReservation = {
   id: number;
   reservation_date: string;
@@ -52,12 +61,41 @@ export function useRestaurantDetails() {
   const [lastRejectedReservation, setLastRejectedReservation] =
     useState<CustomerReservation | null>(null);
 
+  const [ratingSummary, setRatingSummary] =
+    useState<RatingSummary | null>(null);
+
+  const [showRatingDetails, setShowRatingDetails] = useState(false);
   const [isLoadingReservation, setIsLoadingReservation] = useState(false);
   const [isRespondingChange, setIsRespondingChange] = useState(false);
-  const [isCancellingReservation, setIsCancellingReservation] = useState(false);
 
-  const [isCancelBoxOpen, setIsCancelBoxOpen] = useState(false);
-  const [cancellationReason, setCancellationReason] = useState('');
+  const fetchRatingSummary = async () => {
+    if (!restaurant?.id) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/ratings/get-restaurant-rating-summary.php',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            restaurantId: restaurant.id,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setRatingSummary(data.summary);
+      }
+    } catch (error) {
+      setRatingSummary(null);
+    }
+  };
 
   const fetchReservationStatus = async () => {
     if (!restaurant?.id || !user?.id) {
@@ -104,6 +142,7 @@ export function useRestaurantDetails() {
 
   useFocusEffect(
     useCallback(() => {
+      fetchRatingSummary();
       fetchReservationStatus();
     }, [restaurant?.id, user?.id]),
   );
@@ -185,63 +224,6 @@ export function useRestaurantDetails() {
     );
   };
 
-  const handleOpenCancelBox = () => {
-    setIsCancelBoxOpen(true);
-    setCancellationReason('');
-  };
-
-  const handleCloseCancelBox = () => {
-    setIsCancelBoxOpen(false);
-    setCancellationReason('');
-  };
-
-  const handleCancelReservation = async () => {
-    if (!activeReservation?.id) {
-      Alert.alert('Error', 'Reservation data is missing.');
-      return;
-    }
-
-    try {
-      setIsCancellingReservation(true);
-
-      const response = await fetch(
-        'http://10.0.2.2/reservation-api/reservations/cancel-reservation.php',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            reservationId: activeReservation.id,
-            cancellationReason,
-          }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        Alert.alert('Success', 'Reservation cancelled successfully.');
-
-        setIsCancelBoxOpen(false);
-        setCancellationReason('');
-        fetchReservationStatus();
-      } else {
-        Alert.alert(
-          'Cannot Cancel Reservation',
-          data.message || 'Failed to cancel reservation.',
-        );
-      }
-    } catch (error) {
-      Alert.alert(
-        'Error',
-        'Something went wrong while cancelling reservation.',
-      );
-    } finally {
-      setIsCancellingReservation(false);
-    }
-  };
-
   const reservationStatusLabel = getStatusLabel(activeReservation?.status);
   const rejectedStatusLabel = getStatusLabel(lastRejectedReservation?.status);
 
@@ -250,20 +232,16 @@ export function useRestaurantDetails() {
     user,
     activeReservation,
     lastRejectedReservation,
+    ratingSummary,
+    showRatingDetails,
+    setShowRatingDetails,
     isLoadingReservation,
     isRespondingChange,
-    isCancellingReservation,
-    isCancelBoxOpen,
-    cancellationReason,
-    setCancellationReason,
     reservationStatusLabel,
     rejectedStatusLabel,
     handleGoBack,
     handleReserve,
     handleAcceptChange,
     handleRejectChange,
-    handleOpenCancelBox,
-    handleCloseCancelBox,
-    handleCancelReservation,
   };
 }

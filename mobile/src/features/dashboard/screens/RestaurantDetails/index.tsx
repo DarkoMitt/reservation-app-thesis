@@ -4,7 +4,6 @@ import {
   SafeAreaView,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -17,21 +16,17 @@ function RestaurantDetails(): React.JSX.Element {
     restaurant,
     activeReservation,
     lastRejectedReservation,
+    ratingSummary,
+    showRatingDetails,
+    setShowRatingDetails,
     isLoadingReservation,
     isRespondingChange,
-    isCancellingReservation,
-    isCancelBoxOpen,
-    cancellationReason,
-    setCancellationReason,
     reservationStatusLabel,
     rejectedStatusLabel,
     handleGoBack,
     handleReserve,
     handleAcceptChange,
     handleRejectChange,
-    handleOpenCancelBox,
-    handleCloseCancelBox,
-    handleCancelReservation,
   } = useRestaurantDetails();
 
   const restaurantName =
@@ -78,9 +73,56 @@ function RestaurantDetails(): React.JSX.Element {
           <Text style={styles.foodType}>{cuisineType}</Text>
 
           <View style={styles.ratingRow}>
-            <Text style={styles.rating}>Rating 4.5</Text>
+            <Text style={styles.rating}>
+              ★ {ratingSummary?.overall_rating || 0}/5
+            </Text>
+
             <Text style={styles.status}>🟢 Open now</Text>
           </View>
+        </View>
+
+        <View style={styles.ratingSummaryCard}>
+          <Text style={styles.ratingSummaryTitle}>Restaurant Rating</Text>
+
+          <Text style={styles.ratingSummaryMain}>
+            ★ {ratingSummary?.overall_rating || 0}/5
+          </Text>
+
+          <Text style={styles.ratingSummarySub}>
+            Based on {ratingSummary?.total_reviews || 0} customer reviews
+          </Text>
+
+          <Text style={styles.ratingSummarySub}>
+            Most common price:{' '}
+            {ratingSummary?.most_common_price_per_person
+              ? `${ratingSummary.most_common_price_per_person} MKD per person`
+              : 'Not enough data yet'}
+          </Text>
+
+          <TouchableOpacity
+            style={styles.ratingDetailsButton}
+            activeOpacity={0.85}
+            onPress={() => setShowRatingDetails(!showRatingDetails)}>
+            <Text style={styles.ratingDetailsButtonText}>
+              {showRatingDetails ? 'Hide detailed ratings' : 'Show detailed ratings'}
+            </Text>
+          </TouchableOpacity>
+
+          {showRatingDetails ? (
+            <View style={styles.ratingDetailsBox}>
+              <Text style={styles.ratingDetailText}>
+                Food: {ratingSummary?.food_rating || 0}/5
+              </Text>
+
+              <Text style={styles.ratingDetailText}>
+                Service: {ratingSummary?.service_rating || 0}/5
+              </Text>
+
+              <Text style={styles.ratingDetailText}>
+                Atmosphere: {ratingSummary?.atmosphere_rating || 0}/5
+              </Text>
+            </View>
+          ) : null}
         </View>
 
         {isLoadingReservation ? (
@@ -109,7 +151,7 @@ function RestaurantDetails(): React.JSX.Element {
             </Text>
 
             <Text style={styles.reservationInfoText}>
-              Trust Score: {activeReservation.trust_score || 100}
+              Trust Score: {activeReservation.trust_score || 20}
             </Text>
 
             {activeReservation.status === 'change_requested' ? (
@@ -135,8 +177,7 @@ function RestaurantDetails(): React.JSX.Element {
                 </Text>
 
                 <Text style={styles.expiryText}>
-                  You have 1 hour to respond. Expires at:{' '}
-                  {activeReservation.change_expires_at}
+                  Expires at: {activeReservation.change_expires_at}
                 </Text>
 
                 <View style={styles.changeButtonsRow}>
@@ -159,59 +200,6 @@ function RestaurantDetails(): React.JSX.Element {
                   </TouchableOpacity>
                 </View>
               </View>
-            ) : null}
-
-            {activeReservation.status !== 'change_requested' ? (
-              isCancelBoxOpen ? (
-                <View style={styles.cancelBox}>
-                  <Text style={styles.cancelTitle}>
-                    Cancel Reservation
-                  </Text>
-
-                  <Text style={styles.cancelHint}>
-                    You can cancel only at least 5 hours before the reservation time.
-                    Reason is optional.
-                  </Text>
-
-                  <TextInput
-                    style={styles.cancelInput}
-                    multiline
-                    value={cancellationReason}
-                    onChangeText={setCancellationReason}
-                    placeholder="Optional cancellation reason..."
-                    placeholderTextColor="#8B8178"
-                  />
-
-                  <View style={styles.changeButtonsRow}>
-                    <TouchableOpacity
-                      style={styles.cancelSecondaryButton}
-                      disabled={isCancellingReservation}
-                      onPress={handleCloseCancelBox}>
-                      <Text style={styles.cancelSecondaryButtonText}>
-                        Back
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.cancelReservationButton}
-                      disabled={isCancellingReservation}
-                      onPress={handleCancelReservation}>
-                      <Text style={styles.cancelReservationButtonText}>
-                        Confirm Cancel
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ) : (
-                <TouchableOpacity
-                  style={styles.cancelReservationButton}
-                  disabled={isCancellingReservation}
-                  onPress={handleOpenCancelBox}>
-                  <Text style={styles.cancelReservationButtonText}>
-                    Cancel Reservation
-                  </Text>
-                </TouchableOpacity>
-              )
             ) : null}
           </View>
         ) : (

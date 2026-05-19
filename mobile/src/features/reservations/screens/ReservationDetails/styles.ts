@@ -224,4 +224,104 @@ ratingHintText: {
   fontWeight: '600',
   lineHeight: 20,
 },
+
+ratingForm: {
+  marginTop: 8,
+},
+
+ratingInput: {
+  height: 48,
+  borderRadius: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  backgroundColor: '#FFFFFF',
+  paddingHorizontal: 14,
+  fontSize: 14,
+  color: '#2A211C',
+  marginBottom: 10,
+},
+
+ratingTextArea: {
+  minHeight: 90,
+  borderRadius: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  backgroundColor: '#FFFFFF',
+  paddingHorizontal: 14,
+  paddingTop: 12,
+  fontSize: 14,
+  color: '#2A211C',
+  textAlignVertical: 'top',
+  marginBottom: 12,
+},
+
+submitRatingButton: {
+  backgroundColor: '#8B1E3F',
+  paddingVertical: 14,
+  borderRadius: 14,
+  alignItems: 'center',
+},
+
+submitRatingButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '800',
+},
+
+ratingLabel: {
+  fontSize: 14,
+  color: '#2A211C',
+  fontWeight: '800',
+  marginTop: 10,
+  marginBottom: 6,
+},
+
+starsRow: {
+  flexDirection: 'row',
+  gap: 8,
+  marginBottom: 8,
+},
+
+starText: {
+  fontSize: 30,
+  color: '#D8CFC5',
+  fontWeight: '900',
+},
+
+activeStarText: {
+  color: '#D99A2B',
+},
+
+priceOptionsGrid: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  gap: 10,
+  marginBottom: 12,
+},
+
+priceOptionChip: {
+  backgroundColor: '#FFFFFF',
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  borderRadius: 14,
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+},
+
+activePriceOptionChip: {
+  backgroundColor: '#8B1E3F',
+  borderColor: '#8B1E3F',
+},
+
+priceOptionText: {
+  color: '#6E6258',
+  fontSize: 13,
+  fontWeight: '800',
+},
+
+activePriceOptionText: {
+  color: '#FFFFFF',
+},
+
+
 });

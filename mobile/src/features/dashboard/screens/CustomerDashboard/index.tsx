@@ -139,7 +139,9 @@ function CustomerDashboard(): React.JSX.Element {
                       </Text>
                     </View>
 
-                    <Text style={styles.rating}>Rating 4.5</Text>
+                    <Text style={styles.rating}>
+                      ★ {Number(restaurant.average_rating || 0).toFixed(1)}
+                    </Text>
                   </View>
 
                   <Text style={styles.foodType}>
@@ -147,7 +149,9 @@ function CustomerDashboard(): React.JSX.Element {
                   </Text>
 
                   <View style={styles.cardFooter}>
-                    <Text style={styles.status}>🟢 Open now</Text>
+                    <Text style={styles.status}>
+                      {restaurant.displayStatus || 'Status unknown'}
+                    </Text>
 
                     <TouchableOpacity
                       style={styles.viewButton}

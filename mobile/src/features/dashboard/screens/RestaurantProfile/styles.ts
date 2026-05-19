@@ -187,4 +187,62 @@ removeImageText: {
   fontWeight: '800',
   lineHeight: 20,
 },
+
+ratingSummaryCard: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 22,
+  padding: 18,
+  marginBottom: 18,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+ratingSummaryTitle: {
+  fontSize: 18,
+  fontWeight: '800',
+  color: '#2A211C',
+  marginBottom: 8,
+},
+
+ratingSummaryMain: {
+  fontSize: 30,
+  fontWeight: '900',
+  color: '#D99A2B',
+  marginBottom: 6,
+},
+
+ratingSummarySub: {
+  fontSize: 14,
+  color: '#6E6258',
+  fontWeight: '600',
+  marginBottom: 6,
+},
+
+ratingDetailsButton: {
+  marginTop: 10,
+  backgroundColor: '#8B1E3F',
+  borderRadius: 14,
+  paddingVertical: 12,
+  alignItems: 'center',
+},
+
+ratingDetailsButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '800',
+},
+
+ratingDetailsBox: {
+  marginTop: 12,
+  backgroundColor: '#F7F1E8',
+  borderRadius: 16,
+  padding: 14,
+},
+
+ratingDetailText: {
+  fontSize: 14,
+  color: '#4B4038',
+  fontWeight: '700',
+  marginBottom: 8,
+},
 });

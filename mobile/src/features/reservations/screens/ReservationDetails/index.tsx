@@ -5,10 +5,35 @@ import {
   Text,
   TouchableOpacity,
   View,
+  TextInput,
 } from 'react-native';
 
 import { useReservationDetails } from './logic';
 import { styles } from './styles';
+
+const priceOptions = ['500', '1000', '1500', '2500', '4000', '6000+'];
+
+const renderStars = (
+  value: string,
+  onChange: (value: string) => void,
+) => (
+  <View style={styles.starsRow}>
+    {[1, 2, 3, 4, 5].map(star => (
+      <TouchableOpacity
+        key={star}
+        activeOpacity={0.75}
+        onPress={() => onChange(String(star))}>
+        <Text
+          style={[
+            styles.starText,
+            Number(value) >= star && styles.activeStarText,
+          ]}>
+          ★
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+);
 
 function ReservationDetails(): React.JSX.Element {
   const {
@@ -20,6 +45,25 @@ function ReservationDetails(): React.JSX.Element {
     handleCancelReservation,
     handleAcceptChange,
     handleRejectChange,
+
+    customerToRestaurantRating,
+    restaurantToCustomerRating,
+    canRateRestaurant,
+
+    overallRating,
+    setOverallRating,
+    foodRating,
+    setFoodRating,
+    serviceRating,
+    setServiceRating,
+    atmosphereRating,
+    setAtmosphereRating,
+    pricePerPerson,
+    setPricePerPerson,
+    reviewText,
+    setReviewText,
+    isSubmittingRating,
+    submitCustomerRating,
   } = useReservationDetails();
 
   const displayStatus =
@@ -39,9 +83,7 @@ function ReservationDetails(): React.JSX.Element {
         <Text style={styles.title}>Reservation Details</Text>
 
         <View style={styles.card}>
-          <Text style={styles.restaurantName}>
-            {reservation.restaurant_name}
-          </Text>
+          <Text style={styles.restaurantName}>{reservation.restaurant_name}</Text>
 
           <Text style={styles.restaurantMeta}>
             {reservation.city} • {reservation.address}
@@ -86,9 +128,7 @@ function ReservationDetails(): React.JSX.Element {
 
         {reservation.status === 'rejected' ? (
           <View style={styles.rejectedCard}>
-            <Text style={styles.rejectedTitle}>
-              Reservation Rejected
-            </Text>
+            <Text style={styles.rejectedTitle}>Reservation Rejected</Text>
 
             <Text style={styles.rejectedReason}>
               {reservation.rejection_reason || 'No reason provided.'}
@@ -98,9 +138,7 @@ function ReservationDetails(): React.JSX.Element {
 
         {reservation.status === 'change_requested' && !isPastReservation ? (
           <View style={styles.changeCard}>
-            <Text style={styles.changeTitle}>
-              Restaurant Suggested Changes
-            </Text>
+            <Text style={styles.changeTitle}>Restaurant Suggested Changes</Text>
 
             <Text style={styles.infoText}>
               Suggested Date: {reservation.suggested_date}
@@ -142,16 +180,102 @@ function ReservationDetails(): React.JSX.Element {
           <View style={styles.ratingCard}>
             <Text style={styles.sectionTitle}>Ratings & Visit Summary</Text>
 
-            <Text style={styles.ratingInfoText}>
-              Your rating to restaurant: Not rated yet
-            </Text>
+            {customerToRestaurantRating ? (
+              <>
+                <Text style={styles.ratingInfoText}>
+                  Your rating to restaurant: {customerToRestaurantRating.overall_rating}/5
+                </Text>
+                <Text style={styles.ratingInfoText}>
+                  Food: {customerToRestaurantRating.food_rating}/5
+                </Text>
+                <Text style={styles.ratingInfoText}>
+                  Service: {customerToRestaurantRating.service_rating}/5
+                </Text>
+                <Text style={styles.ratingInfoText}>
+                  Atmosphere: {customerToRestaurantRating.atmosphere_rating}/5
+                </Text>
+                <Text style={styles.ratingInfoText}>
+                  Price per person:{' '}
+                  {customerToRestaurantRating.price_per_person
+                    ? `${customerToRestaurantRating.price_per_person} MKD`
+                    : '-'}
+                </Text>
+                {customerToRestaurantRating.review_text ? (
+                  <Text style={styles.ratingInfoText}>
+                    Review: {customerToRestaurantRating.review_text}
+                  </Text>
+                ) : null}
+              </>
+            ) : canRateRestaurant ? (
+              <View style={styles.ratingForm}>
+                <Text style={styles.ratingHintText}>
+                  Rate your restaurant experience
+                </Text>
+
+                <Text style={styles.ratingLabel}>Overall</Text>
+                {renderStars(overallRating, setOverallRating)}
+
+                <Text style={styles.ratingLabel}>Food</Text>
+                {renderStars(foodRating, setFoodRating)}
+
+                <Text style={styles.ratingLabel}>Service</Text>
+                {renderStars(serviceRating, setServiceRating)}
+
+                <Text style={styles.ratingLabel}>Atmosphere</Text>
+                {renderStars(atmosphereRating, setAtmosphereRating)}
+
+                <Text style={styles.ratingLabel}>Price per person</Text>
+                <View style={styles.priceOptionsGrid}>
+                  {priceOptions.map(price => (
+                    <TouchableOpacity
+                      key={price}
+                      activeOpacity={0.85}
+                      style={[
+                        styles.priceOptionChip,
+                        pricePerPerson === price && styles.activePriceOptionChip,
+                      ]}
+                      onPress={() => setPricePerPerson(price)}>
+                      <Text
+                        style={[
+                          styles.priceOptionText,
+                          pricePerPerson === price &&
+                            styles.activePriceOptionText,
+                        ]}>
+                        {price} MKD
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                <TextInput
+                  style={styles.ratingTextArea}
+                  value={reviewText}
+                  onChangeText={setReviewText}
+                  multiline
+                  placeholder="Write your review..."
+                  placeholderTextColor="#8B8178"
+                />
+
+                <TouchableOpacity
+                  style={styles.submitRatingButton}
+                  disabled={isSubmittingRating}
+                  onPress={submitCustomerRating}>
+                  <Text style={styles.submitRatingButtonText}>
+                    {isSubmittingRating ? 'Submitting...' : 'Submit Rating'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <Text style={styles.ratingInfoText}>
+                You can rate the restaurant only after the restaurant confirms your visit.
+              </Text>
+            )}
 
             <Text style={styles.ratingInfoText}>
-              Restaurant rating to you: Not rated yet
-            </Text>
-
-            <Text style={styles.ratingHintText}>
-              Rating system will show customer-to-restaurant and restaurant-to-customer feedback after the visit is confirmed.
+              Restaurant rating to you:{' '}
+              {restaurantToCustomerRating
+                ? `${restaurantToCustomerRating.overall_rating}/5`
+                : 'Not rated yet'}
             </Text>
           </View>
         ) : null}
@@ -160,9 +284,7 @@ function ReservationDetails(): React.JSX.Element {
           style={styles.viewRestaurantButton}
           activeOpacity={0.85}
           onPress={handleOpenRestaurant}>
-          <Text style={styles.viewRestaurantButtonText}>
-            View Restaurant
-          </Text>
+          <Text style={styles.viewRestaurantButtonText}>View Restaurant</Text>
         </TouchableOpacity>
 
         {canCancelReservation ? (

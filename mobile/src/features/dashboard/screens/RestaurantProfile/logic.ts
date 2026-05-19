@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -25,6 +25,15 @@ type RestaurantProfile = {
   email: string;
 };
 
+type RatingSummary = {
+  total_reviews: number;
+  overall_rating: number;
+  food_rating: number;
+  service_rating: number;
+  atmosphere_rating: number;
+  most_common_price_per_person: number | null;
+};
+
 const parseImages = (value?: string): string[] => {
   if (!value) return [];
 
@@ -38,7 +47,10 @@ const parseImages = (value?: string): string[] => {
 
 const calculateCompletion = (fields: Array<string | string[]>) => {
   const completedFields = fields.filter(field => {
-    if (Array.isArray(field)) return field.length > 0;
+    if (Array.isArray(field)) {
+      return field.length > 0;
+    }
+
     return field && field.trim().length > 0;
   }).length;
 
@@ -58,8 +70,13 @@ export function useRestaurantProfile() {
   const [description, setDescription] = useState(restaurant?.description || '');
   const [maxGuests, setMaxGuests] = useState(String(restaurant?.max_guests || ''));
 
-  const [monThuHours, setMonThuHours] = useState(restaurant?.mon_thu_hours || '');
-  const [friSunHours, setFriSunHours] = useState(restaurant?.fri_sun_hours || '');
+  const [monThuHours, setMonThuHours] = useState(
+    restaurant?.mon_thu_hours || '',
+  );
+
+  const [friSunHours, setFriSunHours] = useState(
+    restaurant?.fri_sun_hours || '',
+  );
 
   const [restaurantImages, setRestaurantImages] = useState<string[]>(
     parseImages(restaurant?.restaurant_images),
@@ -69,10 +86,22 @@ export function useRestaurantProfile() {
     parseImages(restaurant?.menu_images),
   );
 
-  const [hasSmokingArea, setHasSmokingArea] = useState(Boolean(Number(restaurant?.has_smoking_area)));
-  const [hasOutdoorSeating, setHasOutdoorSeating] = useState(Boolean(Number(restaurant?.has_outdoor_seating)));
-  const [hasParking, setHasParking] = useState(Boolean(Number(restaurant?.has_parking)));
+  const [hasSmokingArea, setHasSmokingArea] = useState(
+    Boolean(Number(restaurant?.has_smoking_area)),
+  );
+
+  const [hasOutdoorSeating, setHasOutdoorSeating] = useState(
+    Boolean(Number(restaurant?.has_outdoor_seating)),
+  );
+
+  const [hasParking, setHasParking] = useState(
+    Boolean(Number(restaurant?.has_parking)),
+  );
+
   const [hasWifi, setHasWifi] = useState(Boolean(Number(restaurant?.has_wifi)));
+
+  const [ratingSummary, setRatingSummary] = useState<RatingSummary | null>(null);
+  const [showRatingDetails, setShowRatingDetails] = useState(false);
 
   const initialCompletion = calculateCompletion([
     restaurant?.cuisine_type || '',
@@ -90,6 +119,37 @@ export function useRestaurantProfile() {
   const [profileCompletion, setProfileCompletion] = useState(initialCompletion);
   const [isSaving, setIsSaving] = useState(false);
 
+  const fetchRatingSummary = async () => {
+    if (!restaurant?.restaurant_id) return;
+
+    try {
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/ratings/get-restaurant-rating-summary.php',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            restaurantId: restaurant.restaurant_id,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setRatingSummary(data.summary);
+      }
+    } catch {
+      setRatingSummary(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchRatingSummary();
+  }, []);
+
   const handleGoBack = () => {
     navigation.goBack();
   };
@@ -103,8 +163,10 @@ export function useRestaurantProfile() {
 
     if (result.didCancel) return;
 
+    const assets = result.assets || [];
     const allowedTypes = ['image/jpeg', 'image/png'];
-    const validImages = (result.assets || [])
+
+    const validImages = assets
       .filter(asset => asset.uri)
       .filter(asset => !asset.type || allowedTypes.includes(asset.type))
       .map(asset => asset.uri as string);
@@ -138,51 +200,6 @@ export function useRestaurantProfile() {
     try {
       setIsSaving(true);
 
-      const currentData = JSON.stringify({
-  cuisineType,
-  address,
-  city,
-  phone,
-  description,
-  maxGuests,
-  monThuHours,
-  friSunHours,
-  hasSmokingArea,
-  hasOutdoorSeating,
-  hasParking,
-  hasWifi,
-  restaurantImages,
-  menuImages,
-});
-
-const originalData = JSON.stringify({
-  cuisineType: restaurant?.cuisine_type || '',
-  address: restaurant?.address || '',
-  city: restaurant?.city || '',
-  phone: restaurant?.phone || '',
-  description: restaurant?.description || '',
-  maxGuests: String(restaurant?.max_guests || ''),
-  monThuHours: restaurant?.mon_thu_hours || '',
-  friSunHours: restaurant?.fri_sun_hours || '',
-  hasSmokingArea: Boolean(Number(restaurant?.has_smoking_area)),
-  hasOutdoorSeating: Boolean(Number(restaurant?.has_outdoor_seating)),
-  hasParking: Boolean(Number(restaurant?.has_parking)),
-  hasWifi: Boolean(Number(restaurant?.has_wifi)),
-  restaurantImages: parseImages(restaurant?.restaurant_images),
-  menuImages: parseImages(restaurant?.menu_images),
-});
-
-if (currentData === originalData) {
-  Alert.alert(
-    'No Changes',
-    'You have not made any changes.',
-  );
-
-  return;
-}
-
-      const workingHours = `Mon - Thu: ${monThuHours}, Fri - Sun: ${friSunHours}`;
-
       const response = await fetch(
         'http://10.0.2.2/reservation-api/restaurant/update-restaurant-profile.php',
         {
@@ -198,7 +215,7 @@ if (currentData === originalData) {
             phone,
             description,
             maxGuests: Number(maxGuests),
-            workingHours,
+            workingHours: `${monThuHours} | ${friSunHours}`,
             monThuHours,
             friSunHours,
             hasSmokingArea: hasSmokingArea ? 1 : 0,
@@ -216,28 +233,31 @@ if (currentData === originalData) {
       const data = await response.json();
 
       if (data.success) {
-        setProfileCompletion(
-          calculateCompletion([
-            cuisineType,
-            address,
-            city,
-            phone,
-            description,
-            maxGuests,
-            monThuHours,
-            friSunHours,
-            restaurantImages,
-            menuImages,
-          ]),
-        );
+        const updatedCompletion = calculateCompletion([
+          cuisineType,
+          address,
+          city,
+          phone,
+          description,
+          maxGuests,
+          monThuHours,
+          friSunHours,
+          restaurantImages,
+          menuImages,
+        ]);
+
+        setProfileCompletion(updatedCompletion);
 
         Alert.alert('Success', 'Restaurant profile updated successfully.', [
-          { text: 'OK', onPress: () => navigation.goBack() },
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack(),
+          },
         ]);
       } else {
         Alert.alert('Error', data.message || 'Failed to update profile.');
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Something went wrong while updating profile.');
     } finally {
       setIsSaving(false);
@@ -271,6 +291,9 @@ if (currentData === originalData) {
     setHasParking,
     hasWifi,
     setHasWifi,
+    ratingSummary,
+    showRatingDetails,
+    setShowRatingDetails,
     profileCompletion,
     isSaving,
     handleSave,

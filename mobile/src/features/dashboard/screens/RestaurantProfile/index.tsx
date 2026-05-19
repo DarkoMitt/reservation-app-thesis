@@ -41,6 +41,9 @@ function RestaurantProfile(): React.JSX.Element {
     setHasParking,
     hasWifi,
     setHasWifi,
+    ratingSummary,
+    showRatingDetails,
+    setShowRatingDetails,
     profileCompletion,
     isSaving,
     handleSave,
@@ -66,9 +69,51 @@ function RestaurantProfile(): React.JSX.Element {
 
         <View style={styles.progressCard}>
           <Text style={styles.progressTitle}>Profile Completion</Text>
-          <Text style={styles.progressValue}>
-            {profileCompletion}%
+          <Text style={styles.progressValue}>{profileCompletion}%</Text>
+        </View>
+
+        <View style={styles.ratingSummaryCard}>
+          <Text style={styles.ratingSummaryTitle}>Restaurant Rating</Text>
+
+          <Text style={styles.ratingSummaryMain}>
+            ★ {ratingSummary?.overall_rating || 0}/5
           </Text>
+
+          <Text style={styles.ratingSummarySub}>
+            Based on {ratingSummary?.total_reviews || 0} customer reviews
+          </Text>
+
+          <Text style={styles.ratingSummarySub}>
+            Most common price:{' '}
+            {ratingSummary?.most_common_price_per_person
+              ? `${ratingSummary.most_common_price_per_person} MKD per person`
+              : 'Not enough data yet'}
+          </Text>
+
+          <TouchableOpacity
+            style={styles.ratingDetailsButton}
+            activeOpacity={0.85}
+            onPress={() => setShowRatingDetails(!showRatingDetails)}>
+            <Text style={styles.ratingDetailsButtonText}>
+              {showRatingDetails ? 'Hide detailed ratings' : 'Show detailed ratings'}
+            </Text>
+          </TouchableOpacity>
+
+          {showRatingDetails ? (
+            <View style={styles.ratingDetailsBox}>
+              <Text style={styles.ratingDetailText}>
+                Food: {ratingSummary?.food_rating || 0}/5
+              </Text>
+
+              <Text style={styles.ratingDetailText}>
+                Service: {ratingSummary?.service_rating || 0}/5
+              </Text>
+
+              <Text style={styles.ratingDetailText}>
+                Atmosphere: {ratingSummary?.atmosphere_rating || 0}/5
+              </Text>
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.card}>
@@ -152,30 +197,18 @@ function RestaurantProfile(): React.JSX.Element {
             style={styles.imageButton}
             activeOpacity={0.85}
             onPress={pickRestaurantImages}>
-            <Text style={styles.imageButtonText}>
-              Add Restaurant Images
-            </Text>
+            <Text style={styles.imageButtonText}>Add Restaurant Images</Text>
           </TouchableOpacity>
 
           <View style={styles.galleryGrid}>
             {restaurantImages.map(imageUri => (
-              <View
-                key={imageUri}
-                style={styles.thumbnailWrapper}>
-
-                <Image
-                  source={{ uri: imageUri }}
-                  style={styles.thumbnailImage}
-                />
+              <View key={imageUri} style={styles.thumbnailWrapper}>
+                <Image source={{ uri: imageUri }} style={styles.thumbnailImage} />
 
                 <TouchableOpacity
                   style={styles.removeImageButton}
-                  onPress={() =>
-                    removeRestaurantImage(imageUri)
-                  }>
-                  <Text style={styles.removeImageText}>
-                    ×
-                  </Text>
+                  onPress={() => removeRestaurantImage(imageUri)}>
+                  <Text style={styles.removeImageText}>×</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -187,30 +220,18 @@ function RestaurantProfile(): React.JSX.Element {
             style={styles.imageButton}
             activeOpacity={0.85}
             onPress={pickMenuImages}>
-            <Text style={styles.imageButtonText}>
-              Add Menu Images
-            </Text>
+            <Text style={styles.imageButtonText}>Add Menu Images</Text>
           </TouchableOpacity>
 
           <View style={styles.galleryGrid}>
             {menuImages.map(imageUri => (
-              <View
-                key={imageUri}
-                style={styles.thumbnailWrapper}>
-
-                <Image
-                  source={{ uri: imageUri }}
-                  style={styles.thumbnailImage}
-                />
+              <View key={imageUri} style={styles.thumbnailWrapper}>
+                <Image source={{ uri: imageUri }} style={styles.thumbnailImage} />
 
                 <TouchableOpacity
                   style={styles.removeImageButton}
-                  onPress={() =>
-                    removeMenuImage(imageUri)
-                  }>
-                  <Text style={styles.removeImageText}>
-                    ×
-                  </Text>
+                  onPress={() => removeMenuImage(imageUri)}>
+                  <Text style={styles.removeImageText}>×</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -218,52 +239,26 @@ function RestaurantProfile(): React.JSX.Element {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.featuresTitle}>
-            Restaurant Features
-          </Text>
+          <Text style={styles.featuresTitle}>Restaurant Features</Text>
 
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>
-              Smoking Area
-            </Text>
-
-            <Switch
-              value={hasSmokingArea}
-              onValueChange={setHasSmokingArea}
-            />
+            <Text style={styles.switchLabel}>Smoking Area</Text>
+            <Switch value={hasSmokingArea} onValueChange={setHasSmokingArea} />
           </View>
 
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>
-              Outdoor Seating
-            </Text>
-
-            <Switch
-              value={hasOutdoorSeating}
-              onValueChange={setHasOutdoorSeating}
-            />
+            <Text style={styles.switchLabel}>Outdoor Seating</Text>
+            <Switch value={hasOutdoorSeating} onValueChange={setHasOutdoorSeating} />
           </View>
 
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>
-              Parking
-            </Text>
-
-            <Switch
-              value={hasParking}
-              onValueChange={setHasParking}
-            />
+            <Text style={styles.switchLabel}>Parking</Text>
+            <Switch value={hasParking} onValueChange={setHasParking} />
           </View>
 
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>
-              Wi-Fi
-            </Text>
-
-            <Switch
-              value={hasWifi}
-              onValueChange={setHasWifi}
-            />
+            <Text style={styles.switchLabel}>Wi-Fi</Text>
+            <Switch value={hasWifi} onValueChange={setHasWifi} />
           </View>
         </View>
 
@@ -272,7 +267,6 @@ function RestaurantProfile(): React.JSX.Element {
           activeOpacity={0.85}
           disabled={isSaving}
           onPress={handleSave}>
-
           <Text style={styles.saveButtonText}>
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Text>

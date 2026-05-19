@@ -39,6 +39,19 @@ type ReservationRequest = {
   created_at: string;
   full_name: string;
   email: string;
+  customer_trust_score?: number;
+  customer_no_show_count?: number;
+  customer_total_reservations?: number;
+  is_new_customer?: number;
+  has_restaurant_customer_rating?: number;
+};
+
+const isPastApprovedReservation = (request: ReservationRequest) => {
+  const reservationDateTime = new Date(
+    `${request.reservation_date}T${request.reservation_time}`,
+  );
+
+  return request.status === 'approved' && reservationDateTime < new Date();
 };
 
 export function useRestaurantDashboard() {
@@ -60,6 +73,11 @@ export function useRestaurantDashboard() {
   const [suggestedTime, setSuggestedTime] = useState('');
   const [suggestedGuestsCount, setSuggestedGuestsCount] = useState('');
   const [changeReason, setChangeReason] = useState('');
+
+  const [selectedRateRequestId, setSelectedRateRequestId] = useState<number | null>(null);
+  const [customerRating, setCustomerRating] = useState('');
+  const [customerReviewText, setCustomerReviewText] = useState('');
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
 
   const fetchRestaurantProfile = async () => {
     if (!user?.id) {
@@ -126,7 +144,7 @@ export function useRestaurantDashboard() {
 
   const updateReservationStatus = async (
     reservationId: number,
-    status: 'approved' | 'rejected' | 'change_requested',
+    status: 'approved' | 'rejected' | 'change_requested' | 'visited' | 'no_show',
     options?: {
       rejectionReason?: string;
       suggestedDate?: string;
@@ -162,7 +180,6 @@ export function useRestaurantDashboard() {
 
         setSelectedRejectRequestId(null);
         setRejectionReason('');
-
         setSelectedChangeRequestId(null);
         setSuggestedDate('');
         setSuggestedTime('');
@@ -182,6 +199,79 @@ export function useRestaurantDashboard() {
 
   const handleApproveReservation = (reservationId: number) => {
     updateReservationStatus(reservationId, 'approved');
+  };
+
+  const handleMarkVisited = (reservationId: number) => {
+    updateReservationStatus(reservationId, 'visited');
+  };
+
+  const handleMarkNoShow = (reservationId: number) => {
+    Alert.alert('Mark as No-show', 'Are you sure this customer did not arrive?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Mark No-show',
+        style: 'destructive',
+        onPress: () => updateReservationStatus(reservationId, 'no_show'),
+      },
+    ]);
+  };
+
+  const handleOpenRateCustomer = (reservationId: number) => {
+    setSelectedRateRequestId(reservationId);
+    setCustomerRating('');
+    setCustomerReviewText('');
+  };
+
+  const handleCancelRateCustomer = () => {
+    setSelectedRateRequestId(null);
+    setCustomerRating('');
+    setCustomerReviewText('');
+  };
+
+  const submitCustomerRating = async () => {
+    if (!selectedRateRequestId) return;
+
+    if (!customerRating) {
+      Alert.alert('Missing Rating', 'Please select customer rating.');
+      return;
+    }
+
+    try {
+      setIsSubmittingRating(true);
+
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/ratings/submit-rating.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            reservationId: selectedRateRequestId,
+            reviewerUserId: user.id,
+            ratingType: 'restaurant_to_customer',
+            overallRating: Number(customerRating),
+            reviewText: customerReviewText,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        Alert.alert('Success', 'Customer rating submitted successfully.');
+
+        setSelectedRateRequestId(null);
+        setCustomerRating('');
+        setCustomerReviewText('');
+
+        fetchReservationRequests();
+      } else {
+        Alert.alert('Error', data.message || 'Failed to submit rating.');
+      }
+    } catch {
+      Alert.alert('Error', 'Something went wrong while submitting rating.');
+    } finally {
+      setIsSubmittingRating(false);
+    }
   };
 
   const handleRejectReservation = (reservationId: number) => {
@@ -229,10 +319,7 @@ export function useRestaurantDashboard() {
     if (!selectedChangeRequestId) return;
 
     if (!suggestedDate || !suggestedTime || !suggestedGuestsCount || !changeReason.trim()) {
-      Alert.alert(
-        'Missing Information',
-        'Please enter suggested date, time, guests count and reason.',
-      );
+      Alert.alert('Missing Information', 'Please enter suggested date, time, guests count and reason.');
       return;
     }
 
@@ -293,18 +380,30 @@ export function useRestaurantDashboard() {
     request => request.status === 'pending',
   );
 
+  const pastApprovedRequests = reservationRequests.filter(
+    request => isPastApprovedReservation(request),
+  );
+
+  const visitedRequests = reservationRequests.filter(
+    request => request.status === 'visited',
+  );
+
   return {
     restaurant,
     pendingRequests,
+    pastApprovedRequests,
+    visitedRequests,
     isLoading,
     isLoadingRequests,
     isUpdatingRequest,
+
     selectedRejectRequestId,
     rejectionReason,
     setRejectionReason,
     handleRejectReservation,
     handleCancelReject,
     handleConfirmReject,
+
     selectedChangeRequestId,
     suggestedDate,
     setSuggestedDate,
@@ -317,9 +416,22 @@ export function useRestaurantDashboard() {
     handleOfferChange,
     handleCancelChange,
     handleConfirmChange,
+
+    selectedRateRequestId,
+    customerRating,
+    setCustomerRating,
+    customerReviewText,
+    setCustomerReviewText,
+    isSubmittingRating,
+    handleOpenRateCustomer,
+    handleCancelRateCustomer,
+    submitCustomerRating,
+
     handleBack,
     handleOpenProfile,
     handleLogout,
     handleApproveReservation,
+    handleMarkVisited,
+    handleMarkNoShow,
   };
 }
