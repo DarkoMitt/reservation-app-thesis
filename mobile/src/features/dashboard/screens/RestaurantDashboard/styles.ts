@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
 
   content: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 26,
     paddingBottom: 40,
   },
 
@@ -22,57 +22,104 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  header: {
+  backButton: {
+    alignSelf: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    marginBottom: 12,
+  },
+
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#8B1E3F',
+  },
+
+  topHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 18,
   },
 
   greeting: {
     fontSize: 14,
     color: '#6E6258',
     marginBottom: 4,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 
   title: {
-    fontSize: 28,
-    fontWeight: '800',
+    fontSize: 30,
+    fontWeight: '900',
     color: '#2A211C',
   },
 
-  logoutButton: {
+  avatarButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: '#8B1E3F',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
-  logoutText: {
+  avatarText: {
     color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 13,
+    fontSize: 20,
+    fontWeight: '900',
+  },
+
+  profileMenu: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 18,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#E7DED3',
+  },
+
+  profileMenuName: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#2A211C',
+    marginBottom: 14,
+  },
+
+  profileMenuItem: {
+    paddingVertical: 12,
+  },
+
+  profileMenuText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#4B4038',
+  },
+
+  profileMenuLogout: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: '#8B1E3F',
   },
 
   statusCard: {
     backgroundColor: '#8B1E3F',
-    borderRadius: 22,
+    borderRadius: 24,
     padding: 22,
-    marginBottom: 20,
+    marginBottom: 18,
   },
 
   statusLabel: {
     color: '#F3E7EA',
     fontSize: 14,
     marginBottom: 6,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 
   statusValue: {
     color: '#FFFFFF',
-    fontSize: 26,
-    fontWeight: '800',
+    fontSize: 28,
+    fontWeight: '900',
     textTransform: 'capitalize',
   },
 
@@ -85,7 +132,7 @@ export const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 22,
     paddingVertical: 20,
     paddingHorizontal: 16,
     borderWidth: 1,
@@ -94,7 +141,7 @@ export const styles = StyleSheet.create({
 
   statValue: {
     fontSize: 28,
-    fontWeight: '800',
+    fontWeight: '900',
     color: '#2A211C',
     marginBottom: 4,
   },
@@ -102,12 +149,12 @@ export const styles = StyleSheet.create({
   statLabel: {
     fontSize: 13,
     color: '#6E6258',
-    fontWeight: '600',
+    fontWeight: '700',
   },
 
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
+    borderRadius: 24,
     padding: 18,
     marginBottom: 18,
     borderWidth: 1,
@@ -116,9 +163,16 @@ export const styles = StyleSheet.create({
 
   cardTitle: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '900',
     color: '#2A211C',
     marginBottom: 16,
+  },
+
+  description: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: '#6E6258',
+    fontWeight: '500',
   },
 
   infoText: {
@@ -128,240 +182,217 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  description: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: '#6E6258',
-    fontWeight: '500',
+  requestCard: {
+    backgroundColor: '#FFF7EC',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#E7DED3',
   },
+
+  requestHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+
+  requestName: {
+    fontSize: 17,
+    fontWeight: '900',
+    color: '#2A211C',
+    marginBottom: 4,
+  },
+
+  requestRisk: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#8B1E3F',
+  },
+
+  requestText: {
+    fontSize: 14,
+    color: '#4B4038',
+    marginBottom: 8,
+    fontWeight: '600',
+  },
+
+  newCustomerBadge: {
+    fontSize: 12,
+    color: '#D9902F',
+    fontWeight: '900',
+    marginTop: 4,
+  },
+
+  requestButtonsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 14,
+  },
+
+  approveButton: {
+    flex: 1,
+    backgroundColor: '#1E7A46',
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: 'center',
+  },
+
+  approveButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '900',
+  },
+
+  rejectButton: {
+    flex: 1,
+    backgroundColor: '#B3261E',
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: 'center',
+  },
+
+  rejectButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '900',
+  },
+
+  changeButton: {
+    flex: 1,
+    backgroundColor: '#D9902F',
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: 'center',
+  },
+
+  changeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '900',
+  },
+
   profileButton: {
-  backgroundColor: '#FFFFFF',
-  borderWidth: 1,
-  borderColor: '#8B1E3F',
-  paddingVertical: 14,
-  borderRadius: 16,
-  alignItems: 'center',
-  marginBottom: 20,
-},
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#8B1E3F',
+    paddingVertical: 14,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginTop: 14,
+  },
 
-profileButtonText: {
-  color: '#8B1E3F',
-  fontSize: 14,
-  fontWeight: '800',
-},
+  profileButtonText: {
+    color: '#8B1E3F',
+    fontSize: 14,
+    fontWeight: '900',
+  },
 
-backButton: {
-  alignSelf: 'flex-start',
-  paddingVertical: 8,
-  paddingHorizontal: 4,
-  marginBottom: 12,
-},
+  rejectReasonBox: {
+    marginTop: 14,
+  },
 
-backButtonText: {
-  fontSize: 16,
-  fontWeight: '800',
-  color: '#8B1E3F',
-},
+  rejectReasonLabel: {
+    fontSize: 14,
+    color: '#2A211C',
+    fontWeight: '900',
+    marginBottom: 8,
+  },
 
-headerText: {
-  flex: 1,
-  paddingRight: 12,
-},
+  rejectReasonInput: {
+    minHeight: 90,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E7DED3',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    fontSize: 14,
+    color: '#2A211C',
+    textAlignVertical: 'top',
+  },
 
-requestCard: {
-  backgroundColor: '#FFF7EC',
-  borderRadius: 18,
-  padding: 16,
-  marginBottom: 14,
-  borderWidth: 1,
-  borderColor: '#E7DED3',
-},
+  cancelRejectButton: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#8B1E3F',
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: 'center',
+  },
 
-requestHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 12,
-},
+  cancelRejectButtonText: {
+    color: '#8B1E3F',
+    fontSize: 14,
+    fontWeight: '900',
+  },
 
-requestName: {
-  fontSize: 16,
-  fontWeight: '800',
-  color: '#2A211C',
-},
+  changeOfferBox: {
+    marginTop: 14,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E7DED3',
+  },
 
-requestRisk: {
-  fontSize: 12,
-  fontWeight: '700',
-  color: '#8B1E3F',
-},
+  changeOfferTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#8B1E3F',
+    marginBottom: 12,
+  },
 
-requestText: {
-  fontSize: 14,
-  color: '#4B4038',
-  marginBottom: 8,
-  fontWeight: '600',
-},
+  inputSmall: {
+    height: 48,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E7DED3',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 14,
+    fontSize: 14,
+    color: '#2A211C',
+    marginBottom: 10,
+  },
 
-requestButtonsRow: {
-  flexDirection: 'row',
-  gap: 12,
-  marginTop: 14,
-},
+  starsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
 
-approveButton: {
-  flex: 1,
-  backgroundColor: '#1E7A46',
-  paddingVertical: 12,
-  borderRadius: 14,
-  alignItems: 'center',
-},
+  starText: {
+    fontSize: 30,
+    color: '#D8CFC5',
+    fontWeight: '900',
+  },
 
-approveButtonText: {
-  color: '#FFFFFF',
-  fontSize: 14,
-  fontWeight: '800',
-},
+  activeStarText: {
+    color: '#D99A2B',
+  },
 
-rejectButton: {
-  flex: 1,
-  backgroundColor: '#B3261E',
-  paddingVertical: 12,
-  borderRadius: 14,
-  alignItems: 'center',
-},
+  rateCustomerBox: {
+    marginTop: 14,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E7DED3',
+  },
 
-rejectButtonText: {
-  color: '#FFFFFF',
-  fontSize: 14,
-  fontWeight: '800',
-},
+  rateCustomerTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#8B1E3F',
+    marginBottom: 12,
+  },
 
-rejectReasonBox: {
-  marginTop: 14,
-},
-
-rejectReasonLabel: {
-  fontSize: 14,
-  color: '#2A211C',
-  fontWeight: '800',
-  marginBottom: 8,
-},
-
-rejectReasonInput: {
-  minHeight: 90,
-  borderRadius: 14,
-  borderWidth: 1,
-  borderColor: '#E7DED3',
-  backgroundColor: '#FFFFFF',
-  paddingHorizontal: 14,
-  paddingTop: 12,
-  fontSize: 14,
-  color: '#2A211C',
-  textAlignVertical: 'top',
-},
-
-cancelRejectButton: {
-  flex: 1,
-  backgroundColor: '#FFFFFF',
-  borderWidth: 1,
-  borderColor: '#8B1E3F',
-  paddingVertical: 12,
-  borderRadius: 14,
-  alignItems: 'center',
-},
-
-cancelRejectButtonText: {
-  color: '#8B1E3F',
-  fontSize: 14,
-  fontWeight: '800',
-},
-
-changeOfferBox: {
-  marginTop: 14,
-  backgroundColor: '#FFFFFF',
-  borderRadius: 16,
-  padding: 14,
-  borderWidth: 1,
-  borderColor: '#E7DED3',
-},
-
-changeOfferTitle: {
-  fontSize: 16,
-  fontWeight: '800',
-  color: '#8B1E3F',
-  marginBottom: 12,
-},
-
-inputSmall: {
-  height: 48,
-  borderRadius: 14,
-  borderWidth: 1,
-  borderColor: '#E7DED3',
-  backgroundColor: '#FFFFFF',
-  paddingHorizontal: 14,
-  fontSize: 14,
-  color: '#2A211C',
-  marginBottom: 10,
-},
-
-changeButton: {
-  flex: 1,
-  backgroundColor: '#D9902F',
-  paddingVertical: 12,
-  borderRadius: 14,
-  alignItems: 'center',
-},
-
-changeButtonText: {
-  color: '#FFFFFF',
-  fontSize: 14,
-  fontWeight: '800',
-},
-
-newCustomerBadge: {
-  fontSize: 12,
-  color: '#D9902F',
-  fontWeight: '800',
-  marginTop: 4,
-},
-
-starsRow: {
-  flexDirection: 'row',
-  gap: 8,
-  marginBottom: 12,
-},
-
-starText: {
-  fontSize: 30,
-  color: '#D8CFC5',
-  fontWeight: '900',
-},
-
-activeStarText: {
-  color: '#D99A2B',
-},
-
-rateCustomerBox: {
-  marginTop: 14,
-  backgroundColor: '#FFFFFF',
-  borderRadius: 16,
-  padding: 14,
-  borderWidth: 1,
-  borderColor: '#E7DED3',
-},
-
-rateCustomerTitle: {
-  fontSize: 16,
-  fontWeight: '800',
-  color: '#8B1E3F',
-  marginBottom: 12,
-},
-
-alreadyRatedText: {
-  fontSize: 13,
-  color: '#1E7A46',
-  fontWeight: '800',
-  marginTop: 10,
-},
+  alreadyRatedText: {
+    fontSize: 13,
+    color: '#1E7A46',
+    fontWeight: '900',
+    marginTop: 10,
+  },
 });

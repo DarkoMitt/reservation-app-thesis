@@ -31,6 +31,9 @@ type Restaurant = {
   total_reviews?: number;
   current_reserved_guests?: number;
   displayStatus?: string;
+  match_score?: number;
+  visit_count?: number;
+  trending_score?: number;
 };
 
 const parseWorkingHours = (hours?: string) => {
@@ -120,21 +123,25 @@ export function useCustomerDashboard() {
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
 
   const filters = [
-    'Best Match',
-    'Open Now',
-    'Highest Rated',
-    'Most Visited',
-    'Nearest',
-    'Trending',
-  ];
+  'Best Match',
+  'Open Now',
+  'Highest Rated',
+  'Most Visited',
+  'Trending',
+];
 
   const fetchRestaurants = async () => {
     try {
       setIsLoadingRestaurants(true);
 
-      const response = await fetch(
-        'http://10.0.2.2/reservation-api/restaurant/get-approved-restaurants.php',
-      );
+        const response = await fetch(
+    'http://10.0.2.2/reservation-api/restaurant/get-approved-restaurants.php',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user?.id }),
+      },
+    );
 
       const data = await response.json();
 
@@ -185,16 +192,36 @@ export function useCustomerDashboard() {
       return true;
     })
     .sort((a, b) => {
-      if (selectedFilter === 'Highest Rated') {
-        return Number(b.average_rating || 0) - Number(a.average_rating || 0);
-      }
+  if (selectedFilter === 'Best Match') {
+    return Number(b.match_score || 0) - Number(a.match_score || 0);
+  }
 
-      return 0;
-    });
+  if (selectedFilter === 'Highest Rated') {
+    return Number(b.average_rating || 0) - Number(a.average_rating || 0);
+  }
+
+  if (selectedFilter === 'Most Visited') {
+    return Number(b.visit_count || 0) - Number(a.visit_count || 0);
+  }
+
+  if (selectedFilter === 'Trending') {
+    return Number(b.trending_score || 0) - Number(a.trending_score || 0);
+  }
+
+  return 0;
+});
 
   const handleOpenRestaurant = (restaurant: Restaurant) => {
     navigation.navigate('RestaurantDetails', {
       restaurant,
+      user,
+    });
+  };
+
+    const handleOpenProfile = () => {
+    setIsProfileMenuOpen(false);
+
+    navigation.navigate('CustomerProfile', {
       user,
     });
   };
@@ -239,6 +266,7 @@ export function useCustomerDashboard() {
     fullName,
     initials,
     handleOpenRestaurant,
+    handleOpenProfile,
     handleOpenMyReservations,
   };
 }

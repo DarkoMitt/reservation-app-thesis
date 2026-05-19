@@ -28,6 +28,7 @@ function CustomerDashboard(): React.JSX.Element {
     initials,
     handleOpenRestaurant,
     handleOpenMyReservations,
+    handleOpenProfile,
   } = useCustomerDashboard();
 
   return (
@@ -39,7 +40,6 @@ function CustomerDashboard(): React.JSX.Element {
 
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Good evening</Text>
             <Text style={styles.title}>Find your next reservation</Text>
           </View>
 
@@ -55,7 +55,9 @@ function CustomerDashboard(): React.JSX.Element {
           <View style={styles.profileMenu}>
             <Text style={styles.profileName}>{fullName}</Text>
 
-            <TouchableOpacity style={styles.profileMenuItem}>
+            <TouchableOpacity
+              style={styles.profileMenuItem}
+              onPress={handleOpenProfile}>
               <Text style={styles.profileMenuText}>Profile Settings</Text>
             </TouchableOpacity>
 

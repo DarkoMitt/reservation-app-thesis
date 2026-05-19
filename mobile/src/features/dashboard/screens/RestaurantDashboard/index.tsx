@@ -12,37 +12,19 @@ import {
 import { useRestaurantDashboard } from './logic';
 import { styles } from './styles';
 
-const renderStars = (
-  value: string,
-  onChange: (value: string) => void,
-) => (
-  <View style={styles.starsRow}>
-    {[1, 2, 3, 4, 5].map(star => (
-      <TouchableOpacity
-        key={star}
-        activeOpacity={0.75}
-        onPress={() => onChange(String(star))}>
-        <Text
-          style={[
-            styles.starText,
-            Number(value) >= star && styles.activeStarText,
-          ]}>
-          ★
-        </Text>
-      </TouchableOpacity>
-    ))}
-  </View>
-);
-
 function RestaurantDashboard(): React.JSX.Element {
   const {
     restaurant,
     pendingRequests,
     pastApprovedRequests,
-    visitedRequests,
     isLoading,
     isLoadingRequests,
     isUpdatingRequest,
+
+    isProfileMenuOpen,
+    setIsProfileMenuOpen,
+    restaurantInitial,
+    handleOpenVisitedCustomers,
 
     selectedRejectRequestId,
     rejectionReason,
@@ -63,16 +45,6 @@ function RestaurantDashboard(): React.JSX.Element {
     handleOfferChange,
     handleCancelChange,
     handleConfirmChange,
-
-    selectedRateRequestId,
-    customerRating,
-    setCustomerRating,
-    customerReviewText,
-    setCustomerReviewText,
-    isSubmittingRating,
-    handleOpenRateCustomer,
-    handleCancelRateCustomer,
-    submitCustomerRating,
 
     handleBack,
     handleOpenProfile,
@@ -103,18 +75,46 @@ function RestaurantDashboard(): React.JSX.Element {
           <Text style={styles.backButtonText}>‹ Back</Text>
         </TouchableOpacity>
 
-        <View style={styles.header}>
-          <View style={styles.headerText}>
-            <Text style={styles.greeting}>Restaurant Dashboard</Text>
+        <View style={styles.topHeader}>
+          <View>
             <Text style={styles.title}>
               {restaurant?.restaurant_name || 'Restaurant'}
             </Text>
           </View>
 
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutText}>Logout</Text>
+          <TouchableOpacity
+            style={styles.avatarButton}
+            activeOpacity={0.85}
+            onPress={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
+            <Text style={styles.avatarText}>{restaurantInitial}</Text>
           </TouchableOpacity>
         </View>
+
+        {isProfileMenuOpen ? (
+          <View style={styles.profileMenu}>
+            <Text style={styles.profileMenuName}>
+              {restaurant?.restaurant_name || 'Restaurant'}
+            </Text>
+
+            <TouchableOpacity
+              style={styles.profileMenuItem}
+              onPress={handleOpenProfile}>
+              <Text style={styles.profileMenuText}>My Profile</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.profileMenuItem}
+              onPress={handleOpenVisitedCustomers}>
+              <Text style={styles.profileMenuText}>Visited Customers</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.profileMenuItem}
+              onPress={handleLogout}>
+              <Text style={styles.profileMenuLogout}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
 
         <View style={styles.statusCard}>
           <Text style={styles.statusLabel}>Account Status</Text>
@@ -122,13 +122,6 @@ function RestaurantDashboard(): React.JSX.Element {
             {restaurant?.status || 'Unknown'}
           </Text>
         </View>
-
-        <TouchableOpacity
-          style={styles.profileButton}
-          activeOpacity={0.85}
-          onPress={handleOpenProfile}>
-          <Text style={styles.profileButtonText}>My Profile</Text>
-        </TouchableOpacity>
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
@@ -170,15 +163,9 @@ function RestaurantDashboard(): React.JSX.Element {
                   </Text>
                 </View>
 
-                <Text style={styles.requestText}>
-                  Date: {request.reservation_date}
-                </Text>
-                <Text style={styles.requestText}>
-                  Time: {request.reservation_time}
-                </Text>
-                <Text style={styles.requestText}>
-                  Guests: {request.guests_count}
-                </Text>
+                <Text style={styles.requestText}>Date: {request.reservation_date}</Text>
+                <Text style={styles.requestText}>Time: {request.reservation_time}</Text>
+                <Text style={styles.requestText}>Guests: {request.guests_count}</Text>
                 <Text style={styles.requestText}>
                   Trust Score: {request.customer_trust_score || 20}
                 </Text>
@@ -341,72 +328,6 @@ function RestaurantDashboard(): React.JSX.Element {
                     <Text style={styles.rejectButtonText}>No-show</Text>
                   </TouchableOpacity>
                 </View>
-              </View>
-            ))
-          )}
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Visited Customers</Text>
-
-          {visitedRequests.length === 0 ? (
-            <Text style={styles.description}>
-              No visited customers available for rating yet.
-            </Text>
-          ) : (
-            visitedRequests.map(request => (
-              <View key={request.id} style={styles.requestCard}>
-                <Text style={styles.requestName}>{request.full_name}</Text>
-                <Text style={styles.requestText}>Date: {request.reservation_date}</Text>
-                <Text style={styles.requestText}>Time: {request.reservation_time}</Text>
-                <Text style={styles.requestText}>Guests: {request.guests_count}</Text>
-
-                {Number(request.has_restaurant_customer_rating) === 1 ? (
-                  <Text style={styles.alreadyRatedText}>
-                    Customer already rated by restaurant.
-                  </Text>
-                ) : selectedRateRequestId === request.id ? (
-                  <View style={styles.rateCustomerBox}>
-                    <Text style={styles.rateCustomerTitle}>Rate Customer</Text>
-
-                    <Text style={styles.rejectReasonLabel}>Overall reliability</Text>
-                    {renderStars(customerRating, setCustomerRating)}
-
-                    <TextInput
-                      style={styles.rejectReasonInput}
-                      multiline
-                      value={customerReviewText}
-                      onChangeText={setCustomerReviewText}
-                      placeholder="Example: Arrived on time and respected the reservation."
-                      placeholderTextColor="#8B8178"
-                    />
-
-                    <View style={styles.requestButtonsRow}>
-                      <TouchableOpacity
-                        style={styles.cancelRejectButton}
-                        disabled={isSubmittingRating}
-                        onPress={handleCancelRateCustomer}>
-                        <Text style={styles.cancelRejectButtonText}>Cancel</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={styles.approveButton}
-                        disabled={isSubmittingRating}
-                        onPress={submitCustomerRating}>
-                        <Text style={styles.approveButtonText}>
-                          {isSubmittingRating ? 'Saving...' : 'Submit Rating'}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ) : (
-                  <TouchableOpacity
-                    style={styles.profileButton}
-                    activeOpacity={0.85}
-                    onPress={() => handleOpenRateCustomer(request.id)}>
-                    <Text style={styles.profileButtonText}>Rate Customer</Text>
-                  </TouchableOpacity>
-                )}
               </View>
             ))
           )}

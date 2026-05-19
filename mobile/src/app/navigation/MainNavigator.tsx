@@ -11,6 +11,8 @@ import RestaurantDetails from '../../features/dashboard/screens/RestaurantDetail
 import ReservationForm from '../../features/reservations/screens/ReservationForm';
 import MyReservations from '../../features/reservations/screens/MyReservations';
 import ReservationDetails from '../../features/reservations/screens/ReservationDetails';
+import CustomerProfile from '../../features/dashboard/screens/CustomerProfile';
+import VisitedCustomers from '../../features/dashboard/screens/VisitedCustomers';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
@@ -25,6 +27,8 @@ function MainNavigator(): React.JSX.Element {
       <Stack.Screen name="ReservationForm" component={ReservationForm} />
       <Stack.Screen name="MyReservations" component={MyReservations} />
       <Stack.Screen name="ReservationDetails" component={ReservationDetails} />
+      <Stack.Screen name="CustomerProfile" component={CustomerProfile} />
+      <Stack.Screen name="VisitedCustomers" component={VisitedCustomers} />
     </Stack.Navigator>
   );
 }

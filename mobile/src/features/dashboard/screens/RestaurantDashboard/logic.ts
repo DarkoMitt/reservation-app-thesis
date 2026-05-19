@@ -65,6 +65,8 @@ export function useRestaurantDashboard() {
   const [isLoadingRequests, setIsLoadingRequests] = useState(false);
   const [isUpdatingRequest, setIsUpdatingRequest] = useState(false);
 
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
   const [selectedRejectRequestId, setSelectedRejectRequestId] = useState<number | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
@@ -74,10 +76,8 @@ export function useRestaurantDashboard() {
   const [suggestedGuestsCount, setSuggestedGuestsCount] = useState('');
   const [changeReason, setChangeReason] = useState('');
 
-  const [selectedRateRequestId, setSelectedRateRequestId] = useState<number | null>(null);
-  const [customerRating, setCustomerRating] = useState('');
-  const [customerReviewText, setCustomerReviewText] = useState('');
-  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+  const restaurantInitial =
+    restaurant?.restaurant_name?.charAt(0)?.toUpperCase() || 'R';
 
   const fetchRestaurantProfile = async () => {
     if (!user?.id) {
@@ -216,64 +216,6 @@ export function useRestaurantDashboard() {
     ]);
   };
 
-  const handleOpenRateCustomer = (reservationId: number) => {
-    setSelectedRateRequestId(reservationId);
-    setCustomerRating('');
-    setCustomerReviewText('');
-  };
-
-  const handleCancelRateCustomer = () => {
-    setSelectedRateRequestId(null);
-    setCustomerRating('');
-    setCustomerReviewText('');
-  };
-
-  const submitCustomerRating = async () => {
-    if (!selectedRateRequestId) return;
-
-    if (!customerRating) {
-      Alert.alert('Missing Rating', 'Please select customer rating.');
-      return;
-    }
-
-    try {
-      setIsSubmittingRating(true);
-
-      const response = await fetch(
-        'http://10.0.2.2/reservation-api/ratings/submit-rating.php',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            reservationId: selectedRateRequestId,
-            reviewerUserId: user.id,
-            ratingType: 'restaurant_to_customer',
-            overallRating: Number(customerRating),
-            reviewText: customerReviewText,
-          }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        Alert.alert('Success', 'Customer rating submitted successfully.');
-
-        setSelectedRateRequestId(null);
-        setCustomerRating('');
-        setCustomerReviewText('');
-
-        fetchReservationRequests();
-      } else {
-        Alert.alert('Error', data.message || 'Failed to submit rating.');
-      }
-    } catch {
-      Alert.alert('Error', 'Something went wrong while submitting rating.');
-    } finally {
-      setIsSubmittingRating(false);
-    }
-  };
-
   const handleRejectReservation = (reservationId: number) => {
     setSelectedChangeRequestId(null);
     setSelectedRejectRequestId(reservationId);
@@ -346,6 +288,8 @@ export function useRestaurantDashboard() {
   };
 
   const handleOpenProfile = () => {
+    setIsProfileMenuOpen(false);
+
     if (!restaurant) {
       Alert.alert('Error', 'Restaurant profile is not loaded yet.');
       return;
@@ -357,7 +301,23 @@ export function useRestaurantDashboard() {
     });
   };
 
+  const handleOpenVisitedCustomers = () => {
+    setIsProfileMenuOpen(false);
+
+    if (!restaurant) {
+      Alert.alert('Error', 'Restaurant profile is not loaded yet.');
+      return;
+    }
+
+    navigation.navigate('VisitedCustomers', {
+      restaurant,
+      user,
+    });
+  };
+
   const handleLogout = () => {
+    setIsProfileMenuOpen(false);
+
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
@@ -384,18 +344,18 @@ export function useRestaurantDashboard() {
     request => isPastApprovedReservation(request),
   );
 
-  const visitedRequests = reservationRequests.filter(
-    request => request.status === 'visited',
-  );
-
   return {
     restaurant,
     pendingRequests,
     pastApprovedRequests,
-    visitedRequests,
     isLoading,
     isLoadingRequests,
     isUpdatingRequest,
+
+    isProfileMenuOpen,
+    setIsProfileMenuOpen,
+    restaurantInitial,
+    handleOpenVisitedCustomers,
 
     selectedRejectRequestId,
     rejectionReason,
@@ -416,16 +376,6 @@ export function useRestaurantDashboard() {
     handleOfferChange,
     handleCancelChange,
     handleConfirmChange,
-
-    selectedRateRequestId,
-    customerRating,
-    setCustomerRating,
-    customerReviewText,
-    setCustomerReviewText,
-    isSubmittingRating,
-    handleOpenRateCustomer,
-    handleCancelRateCustomer,
-    submitCustomerRating,
 
     handleBack,
     handleOpenProfile,
