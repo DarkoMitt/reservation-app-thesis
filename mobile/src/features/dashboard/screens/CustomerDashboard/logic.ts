@@ -121,27 +121,74 @@ export function useCustomerDashboard() {
   const [selectedFilter, setSelectedFilter] = useState('Best Match');
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
+  const [hasShownBanAlert, setHasShownBanAlert] = useState(false);
 
   const filters = [
-  'Best Match',
-  'Open Now',
-  'Highest Rated',
-  'Most Visited',
-  'Trending',
-];
+    'Best Match',
+    'Open Now',
+    'Highest Rated',
+    'Most Visited',
+    'Trending',
+  ];
+
+  const forceLogoutAfterBan = () => {
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Auth' }],
+      }),
+    );
+  };
+
+  const checkUserStatus = async () => {
+    if (!user?.id || hasShownBanAlert) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/auth/check-user-status.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success && data.status === 'banned') {
+        setHasShownBanAlert(true);
+
+        Alert.alert(
+          'Account Banned',
+          'Your account has been banned after receiving 5 no-show reports from restaurants.',
+          [
+            {
+              text: 'OK',
+              onPress: forceLogoutAfterBan,
+            },
+          ],
+          { cancelable: false },
+        );
+      }
+    } catch {
+      // silent check, no need to interrupt user if network fails
+    }
+  };
 
   const fetchRestaurants = async () => {
     try {
       setIsLoadingRestaurants(true);
 
-        const response = await fetch(
-    'http://10.0.2.2/reservation-api/restaurant/get-approved-restaurants.php',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user?.id }),
-      },
-    );
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/restaurant/get-approved-restaurants.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user?.id }),
+        },
+      );
 
       const data = await response.json();
 
@@ -166,7 +213,14 @@ export function useCustomerDashboard() {
 
   useEffect(() => {
     fetchRestaurants();
-  }, []);
+    checkUserStatus();
+
+    const statusInterval = setInterval(() => {
+      checkUserStatus();
+    }, 10000);
+
+    return () => clearInterval(statusInterval);
+  }, [user?.id, hasShownBanAlert]);
 
   const filteredRestaurants = restaurants
     .filter(restaurant => {
@@ -192,34 +246,37 @@ export function useCustomerDashboard() {
       return true;
     })
     .sort((a, b) => {
-  if (selectedFilter === 'Best Match') {
-    return Number(b.match_score || 0) - Number(a.match_score || 0);
-  }
+      if (selectedFilter === 'Best Match') {
+        return Number(b.match_score || 0) - Number(a.match_score || 0);
+      }
 
-  if (selectedFilter === 'Highest Rated') {
-    return Number(b.average_rating || 0) - Number(a.average_rating || 0);
-  }
+      if (selectedFilter === 'Highest Rated') {
+        return Number(b.average_rating || 0) - Number(a.average_rating || 0);
+      }
 
-  if (selectedFilter === 'Most Visited') {
-    return Number(b.visit_count || 0) - Number(a.visit_count || 0);
-  }
+      if (selectedFilter === 'Most Visited') {
+        return Number(b.visit_count || 0) - Number(a.visit_count || 0);
+      }
 
-  if (selectedFilter === 'Trending') {
-    return Number(b.trending_score || 0) - Number(a.trending_score || 0);
-  }
+      if (selectedFilter === 'Trending') {
+        return Number(b.trending_score || 0) - Number(a.trending_score || 0);
+      }
 
-  return 0;
-});
+      return 0;
+    });
 
   const handleOpenRestaurant = (restaurant: Restaurant) => {
+    checkUserStatus();
+
     navigation.navigate('RestaurantDetails', {
       restaurant,
       user,
     });
   };
 
-    const handleOpenProfile = () => {
+  const handleOpenProfile = () => {
     setIsProfileMenuOpen(false);
+    checkUserStatus();
 
     navigation.navigate('CustomerProfile', {
       user,
@@ -228,6 +285,7 @@ export function useCustomerDashboard() {
 
   const handleOpenMyReservations = () => {
     setIsProfileMenuOpen(false);
+    checkUserStatus();
 
     navigation.navigate('MyReservations', {
       user,

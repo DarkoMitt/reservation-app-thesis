@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
 
   content: {
     paddingHorizontal: 20,
-    paddingTop: 26,
+    paddingTop: 40,
     paddingBottom: 40,
   },
 
@@ -394,5 +394,19 @@ export const styles = StyleSheet.create({
     color: '#1E7A46',
     fontWeight: '900',
     marginTop: 10,
+  },
+
+  viewProfileButton: {
+    marginTop: 12,
+    backgroundColor: '#8B1E3F',
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+
+  viewProfileButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

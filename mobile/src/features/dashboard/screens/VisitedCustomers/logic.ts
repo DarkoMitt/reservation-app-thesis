@@ -23,6 +23,7 @@ export function useVisitedCustomers() {
   const user = route.params?.user;
 
   const [visitedRequests, setVisitedRequests] = useState<ReservationRequest[]>([]);
+  const [reviewDate, setReviewDate] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const [selectedRateRequestId, setSelectedRateRequestId] = useState<number | null>(null);
@@ -40,7 +41,7 @@ export function useVisitedCustomers() {
       setIsLoading(true);
 
       const response = await fetch(
-        'http://10.0.2.2/reservation-api/reservations/get-restaurant-requests.php',
+        'http://10.0.2.2/reservation-api/reservations/get-visited-customers-for-review.php',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -53,11 +54,8 @@ export function useVisitedCustomers() {
       const data = await response.json();
 
       if (data.success) {
-        const visitedOnly = (data.requests || []).filter(
-          (request: ReservationRequest) => request.status === 'visited',
-        );
-
-        setVisitedRequests(visitedOnly);
+        setVisitedRequests(data.requests || []);
+        setReviewDate(data.review_date || '');
       } else {
         Alert.alert('Error', data.message || 'Failed to load visited customers.');
       }
@@ -130,6 +128,13 @@ export function useVisitedCustomers() {
     navigation.goBack();
   };
 
+  const handleOpenCustomerProfile = (customerUserId: number) => {
+    navigation.navigate('CustomerPublicProfile', {
+      customerUserId,
+      user,
+  });
+  };
+
   useEffect(() => {
     fetchVisitedCustomers();
   }, []);
@@ -143,6 +148,7 @@ export function useVisitedCustomers() {
   return {
     restaurant,
     visitedRequests,
+    reviewDate,
     isLoading,
 
     selectedRateRequestId,
@@ -156,5 +162,6 @@ export function useVisitedCustomers() {
     handleCancelRateCustomer,
     submitCustomerRating,
     handleBack,
+    handleOpenCustomerProfile,
   };
 }

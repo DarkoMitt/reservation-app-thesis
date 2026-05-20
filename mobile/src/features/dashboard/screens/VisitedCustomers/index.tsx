@@ -51,6 +51,7 @@ function VisitedCustomers(): React.JSX.Element {
     handleCancelRateCustomer,
     submitCustomerRating,
     handleBack,
+    handleOpenCustomerProfile,
   } = useVisitedCustomers();
 
   if (isLoading) {
@@ -110,6 +111,17 @@ function VisitedCustomers(): React.JSX.Element {
                 <Text style={styles.detailText}>Time: {request.reservation_time}</Text>
                 <Text style={styles.detailText}>Guests: {request.guests_count}</Text>
               </View>
+
+              <TouchableOpacity
+                style={styles.viewProfileButton}
+                activeOpacity={0.85}
+                onPress={() =>
+                  handleOpenCustomerProfile(request.customer_user_id)
+                }>
+                <Text style={styles.viewProfileButtonText}>
+                  View Customer Profile
+                </Text>
+              </TouchableOpacity>
 
               {Number(request.has_restaurant_customer_rating) === 1 ? (
                 <Text style={styles.alreadyRatedText}>

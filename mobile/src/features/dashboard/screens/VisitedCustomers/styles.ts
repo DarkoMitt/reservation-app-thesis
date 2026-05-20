@@ -259,4 +259,18 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '900',
   },
+
+  viewProfileButton: {
+    marginTop: 12,
+    backgroundColor: '#8B1E3F',
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+
+  viewProfileButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
 });

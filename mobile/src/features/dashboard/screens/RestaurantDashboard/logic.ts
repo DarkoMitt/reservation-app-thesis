@@ -344,6 +344,13 @@ export function useRestaurantDashboard() {
     request => isPastApprovedReservation(request),
   );
 
+  const handleOpenCustomerProfile = (customerUserId: number) => {
+    navigation.navigate('CustomerPublicProfile', {
+      customerUserId,
+      user,
+    });
+  };
+
   return {
     restaurant,
     pendingRequests,
@@ -383,5 +390,6 @@ export function useRestaurantDashboard() {
     handleApproveReservation,
     handleMarkVisited,
     handleMarkNoShow,
+    handleOpenCustomerProfile,
   };
 }

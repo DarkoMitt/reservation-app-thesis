@@ -19,13 +19,9 @@ function RestaurantRegisterScreen(): React.JSX.Element {
     errors,
     handleChange,
     handleRegister,
-    COUNTRIES,
-    CITIES_BY_COUNTRY,
+    MACEDONIAN_CITIES,
     RESTAURANT_TYPES,
     cuisineOptions,
-    isCountryOpen,
-    setIsCountryOpen,
-    handleCountrySelect,
     isCityOpen,
     setIsCityOpen,
     handleCitySelect,
@@ -51,7 +47,7 @@ function RestaurantRegisterScreen(): React.JSX.Element {
 
         <Text style={styles.title}>Create Restaurant Account</Text>
         <Text style={styles.subtitle}>
-          Register your restaurant and start managing reservations digitally.
+          Register your restaurant in Macedonia and start managing reservations digitally.
         </Text>
 
         <View style={styles.form}>
@@ -69,36 +65,6 @@ function RestaurantRegisterScreen(): React.JSX.Element {
           <TouchableOpacity
             style={styles.dropdownButton}
             activeOpacity={0.85}
-            onPress={() => setIsCountryOpen(prev => !prev)}>
-            <Text
-              style={form.country ? styles.dropdownText : styles.dropdownPlaceholder}>
-              {form.country || 'Country'}
-            </Text>
-            <Text style={styles.dropdownIcon}>{isCountryOpen ? '▲' : '▼'}</Text>
-          </TouchableOpacity>
-          {errors.country ? <Text style={styles.error}>{errors.country}</Text> : null}
-
-          {isCountryOpen ? (
-            <View style={styles.dropdownList}>
-              {COUNTRIES.map(country => (
-                <TouchableOpacity
-                  key={country}
-                  style={styles.dropdownItem}
-                  activeOpacity={0.75}
-                  onPress={() => handleCountrySelect(country)}>
-                  <Text style={styles.dropdownItemText}>{country}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          ) : null}
-
-          <TouchableOpacity
-            style={[
-              styles.dropdownButton,
-              !form.country && styles.disabledDropdown,
-            ]}
-            activeOpacity={0.85}
-            disabled={!form.country}
             onPress={() => setIsCityOpen(prev => !prev)}>
             <Text style={form.city ? styles.dropdownText : styles.dropdownPlaceholder}>
               {form.city || 'City'}
@@ -107,9 +73,9 @@ function RestaurantRegisterScreen(): React.JSX.Element {
           </TouchableOpacity>
           {errors.city ? <Text style={styles.error}>{errors.city}</Text> : null}
 
-          {isCityOpen && form.country ? (
+          {isCityOpen ? (
             <View style={styles.dropdownList}>
-              {CITIES_BY_COUNTRY[form.country].map(city => (
+              {MACEDONIAN_CITIES.map(city => (
                 <TouchableOpacity
                   key={city}
                   style={styles.dropdownItem}

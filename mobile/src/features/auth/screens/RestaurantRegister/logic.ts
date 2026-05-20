@@ -7,7 +7,6 @@ type RestaurantRegisterForm = {
   password: string;
   confirmPassword: string;
   restaurantName: string;
-  country: string;
   city: string;
   streetAddress: string;
   phoneNumber: string;
@@ -24,32 +23,24 @@ type RestaurantRegisterForm = {
 
 type RestaurantRegisterErrors = Partial<RestaurantRegisterForm>;
 
-export const COUNTRIES = [
-  'North Macedonia',
-  'Serbia',
-  'Croatia',
-  'Bosnia and Herzegovina',
-  'Slovenia',
-  'Bulgaria',
+export const MACEDONIAN_CITIES = [
+  'Skopje',
+  'Kriva Palanka',
+  'Bitola',
+  'Ohrid',
+  'Prilep',
+  'Tetovo',
+  'Kumanovo',
+  'Strumica',
+  'Veles',
+  'Shtip',
+  'Gostivar',
+  'Kavadarci',
+  'Gevgelija',
+  'Kochani',
+  'Kicevo',
+  'Struga',
 ];
-
-export const CITIES_BY_COUNTRY: Record<string, string[]> = {
-  'North Macedonia': ['Skopje', 'Bitola', 'Ohrid', 'Prilep', 'Tetovo', 'Kumanovo', 'Strumica'],
-  Serbia: ['Belgrade', 'Novi Sad', 'Niš', 'Kragujevac', 'Subotica'],
-  Croatia: ['Zagreb', 'Split', 'Rijeka', 'Osijek', 'Zadar', 'Dubrovnik'],
-  'Bosnia and Herzegovina': ['Sarajevo', 'Banja Luka', 'Mostar', 'Tuzla', 'Zenica'],
-  Slovenia: ['Ljubljana', 'Maribor', 'Celje', 'Kranj', 'Koper'],
-  Bulgaria: ['Sofia', 'Plovdiv', 'Varna', 'Burgas', 'Ruse'],
-};
-
-export const PHONE_PREFIX_BY_COUNTRY: Record<string, string> = {
-  'North Macedonia': '+389',
-  Serbia: '+381',
-  Croatia: '+385',
-  'Bosnia and Herzegovina': '+387',
-  Slovenia: '+386',
-  Bulgaria: '+359',
-};
 
 export const RESTAURANT_TYPES = [
   'Restaurant',
@@ -72,10 +63,9 @@ const initialForm: RestaurantRegisterForm = {
   password: '',
   confirmPassword: '',
   restaurantName: '',
-  country: '',
   city: '',
   streetAddress: '',
-  phoneNumber: '',
+  phoneNumber: '+389',
   restaurantType: '',
   cuisineType: '',
   description: '',
@@ -91,7 +81,6 @@ export function useRestaurantRegister() {
   const navigation = useNavigation();
   const [form, setForm] = useState<RestaurantRegisterForm>(initialForm);
   const [errors, setErrors] = useState<RestaurantRegisterErrors>({});
-  const [isCountryOpen, setIsCountryOpen] = useState(false);
   const [isCityOpen, setIsCityOpen] = useState(false);
   const [isRestaurantTypeOpen, setIsRestaurantTypeOpen] = useState(false);
   const [isCuisineTypeOpen, setIsCuisineTypeOpen] = useState(false);
@@ -106,25 +95,6 @@ export function useRestaurantRegister() {
   const handleChange = (field: keyof RestaurantRegisterForm, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
     setErrors(prev => ({ ...prev, [field]: undefined }));
-  };
-
-  const handleCountrySelect = (country: string) => {
-    setForm(prev => ({
-      ...prev,
-      country,
-      city: '',
-      phoneNumber: PHONE_PREFIX_BY_COUNTRY[country],
-    }));
-
-    setErrors(prev => ({
-      ...prev,
-      country: undefined,
-      city: undefined,
-      phoneNumber: undefined,
-    }));
-
-    setIsCountryOpen(false);
-    setIsCityOpen(false);
   };
 
   const handleCitySelect = (city: string) => {
@@ -178,7 +148,6 @@ export function useRestaurantRegister() {
     const nextErrors: RestaurantRegisterErrors = {};
 
     if (!form.restaurantName.trim()) nextErrors.restaurantName = 'Restaurant name is required.';
-    if (!form.country.trim()) nextErrors.country = 'Country is required.';
     if (!form.city.trim()) nextErrors.city = 'City is required.';
     if (!form.streetAddress.trim()) nextErrors.streetAddress = 'Street address is required.';
     if (!form.phoneNumber.trim()) nextErrors.phoneNumber = 'Phone number is required.';
@@ -237,74 +206,69 @@ export function useRestaurantRegister() {
   };
 
   const handleRegister = async () => {
-  if (!validate()) {
-    Alert.alert('Validation error', 'Please check all fields and try again.');
-    return;
-  }
-
-  const workingHours = `Weekdays: ${form.workingHoursWeekdaysFrom} - ${form.workingHoursWeekdaysTo}, Weekend: ${form.workingHoursWeekendFrom} - ${form.workingHoursWeekendTo}`;
-
-  try {
-    const response = await fetch(
-      'http://10.0.2.2/reservation-api/auth/register-restaurant.php',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          restaurantName: form.restaurantName,
-          restaurantType: form.restaurantType,
-          cuisineType: form.cuisineType,
-          country: form.country,
-          city: form.city,
-          address: form.streetAddress,
-          phone: form.phoneNumber,
-          email: form.email,
-          password: form.password,
-          description: form.description,
-          maxGuests: form.maxGuests,
-          workingHours,
-          businessRegistrationNumber: form.businessRegistrationNumber,
-        }),
-      },
-    );
-
-    const data = await response.json();
-
-    if (data.success) {
-  Alert.alert(
-    'Request submitted',
-    'Your restaurant registration was submitted and is waiting for admin approval.',
-    [
-      {
-        text: 'OK',
-        onPress: () => {
-          navigation.goBack();
-        },
-      },
-    ],
-  );
-} else {
-      Alert.alert('Registration failed', data.message || 'Please try again.');
+    if (!validate()) {
+      Alert.alert('Validation error', 'Please check all fields and try again.');
+      return;
     }
-  } catch (error) {
-    Alert.alert('Error', 'Something went wrong. Check your connection.');
-  }
-};
+
+    const workingHours = `Weekdays: ${form.workingHoursWeekdaysFrom} - ${form.workingHoursWeekdaysTo}, Weekend: ${form.workingHoursWeekendFrom} - ${form.workingHoursWeekendTo}`;
+
+    try {
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/auth/register-restaurant.php',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            restaurantName: form.restaurantName,
+            restaurantType: form.restaurantType,
+            cuisineType: form.cuisineType,
+            city: form.city,
+            address: form.streetAddress,
+            phone: form.phoneNumber,
+            email: form.email,
+            password: form.password,
+            description: form.description,
+            maxGuests: form.maxGuests,
+            workingHours,
+            businessRegistrationNumber: form.businessRegistrationNumber,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        Alert.alert(
+          'Request submitted',
+          'Your restaurant registration was submitted and is waiting for admin approval.',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.goBack();
+              },
+            },
+          ],
+        );
+      } else {
+        Alert.alert('Registration failed', data.message || 'Please try again.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong. Check your connection.');
+    }
+  };
 
   return {
     form,
     errors,
     handleChange,
     handleRegister,
-    COUNTRIES,
-    CITIES_BY_COUNTRY,
+    MACEDONIAN_CITIES,
     RESTAURANT_TYPES,
     cuisineOptions,
-    isCountryOpen,
-    setIsCountryOpen,
-    handleCountrySelect,
     isCityOpen,
     setIsCityOpen,
     handleCitySelect,

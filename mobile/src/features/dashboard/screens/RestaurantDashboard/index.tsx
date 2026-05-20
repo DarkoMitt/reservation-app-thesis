@@ -52,6 +52,7 @@ function RestaurantDashboard(): React.JSX.Element {
     handleApproveReservation,
     handleMarkVisited,
     handleMarkNoShow,
+    handleOpenCustomerProfile,
   } = useRestaurantDashboard();
 
   if (isLoading) {
@@ -163,15 +164,32 @@ function RestaurantDashboard(): React.JSX.Element {
                   </Text>
                 </View>
 
-                <Text style={styles.requestText}>Date: {request.reservation_date}</Text>
-                <Text style={styles.requestText}>Time: {request.reservation_time}</Text>
-                <Text style={styles.requestText}>Guests: {request.guests_count}</Text>
+                <Text style={styles.requestText}>
+                  Date: {request.reservation_date}
+                </Text>
+                <Text style={styles.requestText}>
+                  Time: {request.reservation_time}
+                </Text>
+                <Text style={styles.requestText}>
+                  Guests: {request.guests_count}
+                </Text>
                 <Text style={styles.requestText}>
                   Trust Score: {request.customer_trust_score || 20}
                 </Text>
                 <Text style={styles.requestText}>
                   No-shows: {request.customer_no_show_count || 0}
                 </Text>
+
+                <TouchableOpacity
+                  style={styles.viewProfileButton}
+                  activeOpacity={0.85}
+                  onPress={() =>
+                    handleOpenCustomerProfile(request.customer_user_id)
+                  }>
+                  <Text style={styles.viewProfileButtonText}>
+                    View Customer Profile
+                  </Text>
+                </TouchableOpacity>
 
                 {request.special_request ? (
                   <Text style={styles.requestText}>
@@ -306,12 +324,29 @@ function RestaurantDashboard(): React.JSX.Element {
             pastApprovedRequests.map(request => (
               <View key={request.id} style={styles.requestCard}>
                 <Text style={styles.requestName}>{request.full_name}</Text>
-                <Text style={styles.requestText}>Date: {request.reservation_date}</Text>
-                <Text style={styles.requestText}>Time: {request.reservation_time}</Text>
-                <Text style={styles.requestText}>Guests: {request.guests_count}</Text>
+                <Text style={styles.requestText}>
+                  Date: {request.reservation_date}
+                </Text>
+                <Text style={styles.requestText}>
+                  Time: {request.reservation_time}
+                </Text>
+                <Text style={styles.requestText}>
+                  Guests: {request.guests_count}
+                </Text>
                 <Text style={styles.requestText}>
                   Trust Score: {request.customer_trust_score || 20}
                 </Text>
+
+                <TouchableOpacity
+                  style={styles.viewProfileButton}
+                  activeOpacity={0.85}
+                  onPress={() =>
+                    handleOpenCustomerProfile(request.customer_user_id)
+                  }>
+                  <Text style={styles.viewProfileButtonText}>
+                    View Customer Profile
+                  </Text>
+                </TouchableOpacity>
 
                 <View style={styles.requestButtonsRow}>
                   <TouchableOpacity
