@@ -4,6 +4,7 @@ import {
   SafeAreaView,
   ScrollView,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -18,6 +19,19 @@ function CustomerProfile(): React.JSX.Element {
     isLoading,
     trustLevel,
     handleBack,
+
+    isEditing,
+    editedEmail,
+    setEditedEmail,
+    editedPreferences,
+    isPreferencesOpen,
+    setIsPreferencesOpen,
+    FOOD_PREFERENCES,
+    handlePreferenceSelect,
+    handleStartEdit,
+    handleCancelEdit,
+    handleSaveProfile,
+    isSaving,
   } = useCustomerProfile();
 
   if (isLoading) {
@@ -47,14 +61,92 @@ function CustomerProfile(): React.JSX.Element {
         </Text>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Profile Information</Text>
+          <View style={styles.cardHeaderRow}>
+            <Text style={styles.cardTitle}>Profile Information</Text>
+
+            {!isEditing ? (
+              <TouchableOpacity onPress={handleStartEdit}>
+                <Text style={styles.editText}>Edit</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
 
           <Text style={styles.infoText}>
             Name: {customer?.first_name} {customer?.last_name}
           </Text>
-          <Text style={styles.infoText}>Email: {customer?.email || '-'}</Text>
-          <Text style={styles.infoText}>Phone: {customer?.phone || '-'}</Text>
-          <Text style={styles.infoText}>Status: {customer?.status || '-'}</Text>
+
+          {!isEditing ? (
+            <>
+              <Text style={styles.infoText}>Email: {customer?.email || '-'}</Text>
+              <Text style={styles.infoText}>Phone: {customer?.phone || '-'}</Text>
+              <Text style={styles.infoText}>Age: {customer?.age || '-'}</Text>
+              <Text style={styles.infoText}>
+                Preferences: {customer?.preferences || 'No preferences'}
+              </Text>
+              <Text style={styles.infoText}>Status: {customer?.status || '-'}</Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.inputLabel}>Email</Text>
+              <TextInput
+                style={styles.input}
+                value={editedEmail}
+                onChangeText={setEditedEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholder="Email"
+                placeholderTextColor="#8B8178"
+              />
+
+              <Text style={styles.infoText}>Phone: {customer?.phone || '-'}</Text>
+              <Text style={styles.infoText}>Age: {customer?.age || '-'}</Text>
+
+              <Text style={styles.inputLabel}>Preferences</Text>
+              <TouchableOpacity
+                style={styles.dropdownButton}
+                activeOpacity={0.85}
+                onPress={() => setIsPreferencesOpen(prev => !prev)}>
+                <Text style={styles.dropdownText}>
+                  {editedPreferences || 'No preferences'}
+                </Text>
+                <Text style={styles.dropdownIcon}>
+                  {isPreferencesOpen ? '▲' : '▼'}
+                </Text>
+              </TouchableOpacity>
+
+              {isPreferencesOpen ? (
+                <View style={styles.dropdownList}>
+                  {FOOD_PREFERENCES.map(preference => (
+                    <TouchableOpacity
+                      key={preference}
+                      style={styles.dropdownItem}
+                      activeOpacity={0.75}
+                      onPress={() => handlePreferenceSelect(preference)}>
+                      <Text style={styles.dropdownItemText}>{preference}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : null}
+
+              <View style={styles.editButtonsRow}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  disabled={isSaving}
+                  onPress={handleCancelEdit}>
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  disabled={isSaving}
+                  onPress={handleSaveProfile}>
+                  <Text style={styles.saveButtonText}>
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
         </View>
 
         <View style={styles.card}>
@@ -77,37 +169,37 @@ function CustomerProfile(): React.JSX.Element {
         </View>
 
         <View style={styles.card}>
-  <Text style={styles.cardTitle}>Reservation Statistics</Text>
+          <Text style={styles.cardTitle}>Reservation Statistics</Text>
 
-  <View style={styles.totalStatsCard}>
-    <Text style={styles.totalStatsNumber}>
-      {stats?.total_reservations ?? 0}
-    </Text>
-    <Text style={styles.totalStatsLabel}>Total Reservations</Text>
-  </View>
+          <View style={styles.totalStatsCard}>
+            <Text style={styles.totalStatsNumber}>
+              {stats?.total_reservations ?? 0}
+            </Text>
+            <Text style={styles.totalStatsLabel}>Total Reservations</Text>
+          </View>
 
-  <View style={styles.statsGrid}>
-    {[
-      { label: 'Visited', value: stats?.visited_reservations ?? 0, icon: '✓' },
-      { label: 'No-shows', value: stats?.no_show_reservations ?? 0, icon: '!' },
-      { label: 'Cancelled', value: stats?.cancelled_reservations ?? 0, icon: '×' },
-      { label: 'Pending', value: stats?.pending_reservations ?? 0, icon: '…' },
-      { label: 'Approved', value: stats?.approved_reservations ?? 0, icon: '★' },
-      { label: 'Rejected', value: stats?.rejected_reservations ?? 0, icon: '-' },
-    ].map(item => (
-      <View key={item.label} style={styles.statBox}>
-        <View style={styles.statIconCircle}>
-          <Text style={styles.statIcon}>{item.icon}</Text>
+          <View style={styles.statsGrid}>
+            {[
+              { label: 'Visited', value: stats?.visited_reservations ?? 0, icon: '✓' },
+              { label: 'No-shows', value: stats?.no_show_reservations ?? 0, icon: '!' },
+              { label: 'Cancelled', value: stats?.cancelled_reservations ?? 0, icon: '×' },
+              { label: 'Pending', value: stats?.pending_reservations ?? 0, icon: '…' },
+              { label: 'Approved', value: stats?.approved_reservations ?? 0, icon: '★' },
+              { label: 'Rejected', value: stats?.rejected_reservations ?? 0, icon: '-' },
+            ].map(item => (
+              <View key={item.label} style={styles.statBox}>
+                <View style={styles.statIconCircle}>
+                  <Text style={styles.statIcon}>{item.icon}</Text>
+                </View>
+
+                <View>
+                  <Text style={styles.statValue}>{item.value}</Text>
+                  <Text style={styles.statLabel}>{item.label}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
         </View>
-
-        <View>
-          <Text style={styles.statValue}>{item.value}</Text>
-          <Text style={styles.statLabel}>{item.label}</Text>
-        </View>
-      </View>
-    ))}
-  </View>
-</View>
       </ScrollView>
     </SafeAreaView>
   );

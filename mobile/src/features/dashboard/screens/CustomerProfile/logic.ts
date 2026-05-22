@@ -13,6 +13,8 @@ type CustomerProfile = {
   trust_score: number;
   no_show_count: number;
   created_at: string;
+  age?: number;
+  preferences?: string;
 };
 
 type CustomerStats = {
@@ -25,6 +27,19 @@ type CustomerStats = {
   rejected_reservations: number;
 };
 
+export const FOOD_PREFERENCES = [
+  'No preferences',
+  'Vegetarian',
+  'Vegan',
+  'Halal',
+  'Gluten-free',
+  'Dairy-free',
+  'Seafood',
+  'No pork',
+  'No spicy food',
+  'Healthy food',
+];
+
 export function useCustomerProfile() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
@@ -33,6 +48,12 @@ export function useCustomerProfile() {
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [stats, setStats] = useState<CustomerStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedEmail, setEditedEmail] = useState('');
+  const [editedPreferences, setEditedPreferences] = useState('');
+  const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const fetchCustomerProfile = async () => {
     if (!user?.id) {
@@ -57,6 +78,8 @@ export function useCustomerProfile() {
       if (data.success) {
         setCustomer(data.customer);
         setStats(data.stats);
+        setEditedEmail(data.customer.email || '');
+        setEditedPreferences(data.customer.preferences || 'No preferences');
       } else {
         Alert.alert('Error', data.message || 'Failed to load customer profile.');
       }
@@ -68,18 +91,77 @@ export function useCustomerProfile() {
   };
 
   const getTrustLevel = () => {
-  const score = Number(customer?.trust_score || 0);
+    const score = Number(customer?.trust_score || 0);
 
-  if (score <= 25) {
-    return 'Low';
-  }
+    if (score <= 25) return 'Low';
+    if (score <= 50) return 'Medium';
+    return 'High';
+  };
 
-  if (score <= 50) {
-    return 'Medium';
-  }
+  const handlePreferenceSelect = (preference: string) => {
+    setEditedPreferences(preference);
+    setIsPreferencesOpen(false);
+  };
 
-  return 'High';
-};
+  const handleStartEdit = () => {
+    setEditedEmail(customer?.email || '');
+    setEditedPreferences(customer?.preferences || 'No preferences');
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setEditedEmail(customer?.email || '');
+    setEditedPreferences(customer?.preferences || 'No preferences');
+    setIsPreferencesOpen(false);
+    setIsEditing(false);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!user?.id) return;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!editedEmail.trim()) {
+      Alert.alert('Validation error', 'Email is required.');
+      return;
+    }
+
+    if (!emailRegex.test(editedEmail)) {
+      Alert.alert('Validation error', 'Enter a valid email address.');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/customer/update-customer-profile.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            email: editedEmail,
+            preferences: editedPreferences,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        Alert.alert('Success', 'Profile updated successfully.');
+        setIsEditing(false);
+        fetchCustomerProfile();
+      } else {
+        Alert.alert('Error', data.message || 'Failed to update profile.');
+      }
+    } catch {
+      Alert.alert('Error', 'Something went wrong while updating profile.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleBack = () => {
     navigation.goBack();
@@ -95,5 +177,18 @@ export function useCustomerProfile() {
     isLoading,
     trustLevel: getTrustLevel(),
     handleBack,
+
+    isEditing,
+    editedEmail,
+    setEditedEmail,
+    editedPreferences,
+    isPreferencesOpen,
+    setIsPreferencesOpen,
+    FOOD_PREFERENCES,
+    handlePreferenceSelect,
+    handleStartEdit,
+    handleCancelEdit,
+    handleSaveProfile,
+    isSaving,
   };
 }

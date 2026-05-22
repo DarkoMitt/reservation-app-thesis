@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-
 type CustomerRegisterForm = {
   firstName: string;
   lastName: string;
@@ -10,7 +9,7 @@ type CustomerRegisterForm = {
   city: string;
   phone: string;
   email: string;
-  age: string;
+  birthDate: string;
   preferences: string;
   password: string;
   confirmPassword: string;
@@ -41,12 +40,12 @@ export const COUNTRIES = [
 ];
 
 export const CITIES_BY_COUNTRY: Record<string, string[]> = {
-  'North Macedonia': ['Skopje', 'Bitola', 'Ohrid', 'Prilep', 'Tetovo', 'Kumanovo', 'Strumica'],
-  Serbia: ['Belgrade', 'Novi Sad', 'Niš', 'Kragujevac', 'Subotica'],
+  'North Macedonia': ['Skopje','Kriva Palanka','Bitola','Ohrid','Prilep','Tetovo','Kumanovo','Strumica',],
+  Serbia: ['Belgrade', 'Novi Sad', 'Niš', 'Kragujevac', 'Subotica', 'Zrenjanin', 'Pančevo', 'Čačak'],
   Croatia: ['Zagreb', 'Split', 'Rijeka', 'Osijek', 'Zadar', 'Dubrovnik'],
   'Bosnia and Herzegovina': ['Sarajevo', 'Banja Luka', 'Mostar', 'Tuzla', 'Zenica'],
   Slovenia: ['Ljubljana', 'Maribor', 'Celje', 'Kranj', 'Koper'],
-  Bulgaria: ['Sofia', 'Plovdiv', 'Varna', 'Burgas', 'Ruse'],
+  Bulgaria: ['Sofia', 'Plovdiv', 'Varna', 'Burgas', 'Ruse', 'Kjustendil'],
 };
 
 export const PHONE_PREFIX_BY_COUNTRY: Record<string, string> = {
@@ -65,86 +64,116 @@ const initialForm: CustomerRegisterForm = {
   city: '',
   phone: '',
   email: '',
-  age: '',
+  birthDate: '',
   preferences: '',
   password: '',
   confirmPassword: '',
 };
 
+const formatDateForBackend = (date: Date) => {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${month}/${day}/${year}`;
+};
+
+const calculateAgeFromDate = (birth: Date) => {
+  const today = new Date();
+
+  let age = today.getFullYear() - birth.getFullYear();
+
+  const hasBirthdayPassed =
+    today.getMonth() > birth.getMonth() ||
+    (today.getMonth() === birth.getMonth() &&
+      today.getDate() >= birth.getDate());
+
+  if (!hasBirthdayPassed) {
+    age--;
+  }
+
+  return age;
+};
+
 export function useCustomerRegister() {
+  const navigation = useNavigation<any>();
+
   const [form, setForm] = useState<CustomerRegisterForm>(initialForm);
   const [errors, setErrors] = useState<CustomerRegisterErrors>({});
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
   const [isCountryOpen, setIsCountryOpen] = useState(false);
   const [isCityOpen, setIsCityOpen] = useState(false);
-  const navigation = useNavigation();
 
-const handlePreferenceSelect = (preference: string) => {
-  handleChange('preferences', preference);
-  setIsPreferencesOpen(false);
-};
-
-const handleCountrySelect = (country: string) => {
-  const phonePrefix = PHONE_PREFIX_BY_COUNTRY[country];
-
-  setForm(prev => ({
-    ...prev,
-    country,
-    city: '',
-    phone: phonePrefix,
-  }));
-
-  setErrors(prev => ({
-    ...prev,
-    country: undefined,
-    city: undefined,
-    phone: undefined,
-  }));
-
-  setIsCountryOpen(false);
-  setIsCityOpen(false);
-};
-
-const handleCitySelect = (city: string) => {
-  handleChange('city', city);
-  setIsCityOpen(false);
-};
+  const [isBirthDatePickerVisible, setIsBirthDatePickerVisible] = useState(false);
+  const [selectedBirthDate, setSelectedBirthDate] = useState<Date | null>(null);
 
   const handleChange = (field: keyof CustomerRegisterForm, value: string) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: undefined }));
+  };
+
+  const openBirthDatePicker = () => {
+    setIsBirthDatePickerVisible(true);
+  };
+
+  const handleBirthDateChange = (_event: unknown, selectedDate?: Date) => {
+    setIsBirthDatePickerVisible(false);
+
+    if (!selectedDate) {
+      return;
+    }
+
+    setSelectedBirthDate(selectedDate);
+    handleChange('birthDate', formatDateForBackend(selectedDate));
+  };
+
+  const handlePreferenceSelect = (preference: string) => {
+    handleChange('preferences', preference);
+    setIsPreferencesOpen(false);
+  };
+
+  const handleCountrySelect = (country: string) => {
+    const phonePrefix = PHONE_PREFIX_BY_COUNTRY[country];
+
     setForm(prev => ({
       ...prev,
-      [field]: value,
+      country,
+      city: '',
+      phone: phonePrefix,
     }));
 
     setErrors(prev => ({
       ...prev,
-      [field]: undefined,
+      country: undefined,
+      city: undefined,
+      phone: undefined,
     }));
+
+    setIsCountryOpen(false);
+    setIsCityOpen(false);
+  };
+
+  const handleCitySelect = (city: string) => {
+    handleChange('city', city);
+    setIsCityOpen(false);
   };
 
   const validate = () => {
     const nextErrors: CustomerRegisterErrors = {};
 
-    if (!form.firstName.trim()) {
-      nextErrors.firstName = 'First name is required.';
-    }
+    if (!form.firstName.trim()) nextErrors.firstName = 'First name is required.';
+    if (!form.lastName.trim()) nextErrors.lastName = 'Last name is required.';
+    if (!form.country.trim()) nextErrors.country = 'Country is required.';
+    if (!form.city.trim()) nextErrors.city = 'City is required.';
+    const selectedPrefix = PHONE_PREFIX_BY_COUNTRY[form.country] || '';
+    const phoneWithoutPrefix = form.phone.replace(selectedPrefix, '').replace(/\D/g, '');
 
-    if (!form.lastName.trim()) {
-      nextErrors.lastName = 'Last name is required.';
-    }
-
-    if (!form.country.trim()) {
-      nextErrors.country = 'Country is required.';
-    }
-
-    if (!form.city.trim()) {
-      nextErrors.city = 'City is required.';
-    }
-
-    if (!form.phone.trim()) {
+    if (!form.phone.trim() || !phoneWithoutPrefix) {
       nextErrors.phone = 'Phone number is required.';
+    } else if (phoneWithoutPrefix.length < 7) {
+      nextErrors.phone = 'Enter a valid phone number.';
     }
-
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!form.email.trim()) {
       nextErrors.email = 'Email is required.';
@@ -152,11 +181,14 @@ const handleCitySelect = (city: string) => {
       nextErrors.email = 'Enter a valid email address.';
     }
 
-    const ageNumber = Number(form.age);
-    if (!form.age.trim()) {
-      nextErrors.age = 'Age is required.';
-    } else if (Number.isNaN(ageNumber) || ageNumber < 13) {
-      nextErrors.age = 'Enter a valid age.';
+    if (!selectedBirthDate || !form.birthDate.trim()) {
+      nextErrors.birthDate = 'Birth date is required.';
+    } else {
+      const age = calculateAgeFromDate(selectedBirthDate);
+
+      if (age < 13) {
+        nextErrors.birthDate = 'You must be at least 13 years old.';
+      }
     }
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{9,}$/;
@@ -174,70 +206,63 @@ const handleCitySelect = (city: string) => {
     }
 
     setErrors(nextErrors);
-
     return Object.keys(nextErrors).length === 0;
   };
 
   const handleRegister = async () => {
-  const isValid = validate();
-
-if (!isValid) {
-  Alert.alert('Validation error', 'Please check all fields and try again.');
-  return;
-}
-
-  try {
-    const response = await fetch(
-      'http://10.0.2.2/reservation-api/auth/register-customer.php',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: form.firstName,
-          lastName: form.lastName,
-          country: form.country,
-          city: form.city,
-          phone: form.phone,
-          email: form.email,
-          age: form.age,
-          preferences: form.preferences,
-          password: form.password,
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (data.success) {
-  Alert.alert(
-    'Success',
-    'Account created successfully! Please login.',
-    [
-      {
-        text: 'Proceed to Login',
-        onPress: () => navigation.navigate('Login' as never),
-      },
-    ],
-  );
-} else {
-      Alert.alert('Registration failed',data.message);
+    if (!validate()) {
+      Alert.alert('Validation error', 'Please check all fields and try again.');
+      return;
     }
-  } catch (error) {
-    Alert.alert('Something went wrong. Check your connection.');
-  }
-};
+
+    try {
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/auth/register-customer.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: form.firstName,
+            lastName: form.lastName,
+            country: form.country,
+            city: form.city,
+            phone: form.phone,
+            email: form.email,
+            birthDate: form.birthDate,
+            preferences: form.preferences || 'No preferences',
+            password: form.password,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        Alert.alert('Success', 'Account created successfully! Please login.', [
+          {
+            text: 'Proceed to Login',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]);
+      } else {
+        Alert.alert('Registration failed', data.message || 'Please try again.');
+      }
+    } catch {
+      Alert.alert('Something went wrong. Check your connection.');
+    }
+  };
 
   return {
     form,
     errors,
     handleChange,
     handleRegister,
+
     FOOD_PREFERENCES,
     isPreferencesOpen,
     setIsPreferencesOpen,
     handlePreferenceSelect,
+
     COUNTRIES,
     CITIES_BY_COUNTRY,
     isCountryOpen,
@@ -246,5 +271,10 @@ if (!isValid) {
     isCityOpen,
     setIsCityOpen,
     handleCitySelect,
+
+    isBirthDatePickerVisible,
+    selectedBirthDate,
+    openBirthDatePicker,
+    handleBirthDateChange,
   };
 }

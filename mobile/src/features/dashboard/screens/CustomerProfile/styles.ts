@@ -164,5 +164,120 @@ statLabel: {
   marginTop: 2,
 },
 
+cardHeaderRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 14,
+},
+
+editText: {
+  fontSize: 14,
+  fontWeight: '900',
+  color: '#8B1E3F',
+},
+
+inputLabel: {
+  fontSize: 14,
+  fontWeight: '800',
+  color: '#2A211C',
+  marginBottom: 8,
+  marginTop: 8,
+},
+
+input: {
+  backgroundColor: '#F7F1E8',
+  borderRadius: 14,
+  borderWidth: 1,
+  borderColor: '#E7D9C8',
+  paddingHorizontal: 14,
+  paddingVertical: 12,
+  fontSize: 14,
+  color: '#2A211C',
+  marginBottom: 12,
+},
+
+dropdownButton: {
+  backgroundColor: '#F7F1E8',
+  borderRadius: 14,
+  borderWidth: 1,
+  borderColor: '#E7D9C8',
+  paddingHorizontal: 14,
+  paddingVertical: 12,
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 12,
+},
+
+dropdownText: {
+  fontSize: 14,
+  fontWeight: '700',
+  color: '#2A211C',
+},
+
+dropdownIcon: {
+  fontSize: 12,
+  fontWeight: '900',
+  color: '#8B1E3F',
+},
+
+dropdownList: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 14,
+  borderWidth: 1,
+  borderColor: '#E7D9C8',
+  marginBottom: 12,
+  overflow: 'hidden',
+},
+
+dropdownItem: {
+  paddingVertical: 12,
+  paddingHorizontal: 14,
+  borderBottomWidth: 1,
+  borderBottomColor: '#F0E5D8',
+},
+
+dropdownItemText: {
+  fontSize: 14,
+  fontWeight: '700',
+  color: '#2A211C',
+},
+
+editButtonsRow: {
+  flexDirection: 'row',
+  gap: 12,
+  marginTop: 8,
+},
+
+cancelButton: {
+  flex: 1,
+  borderWidth: 1,
+  borderColor: '#8B1E3F',
+  borderRadius: 14,
+  paddingVertical: 12,
+  alignItems: 'center',
+},
+
+cancelButtonText: {
+  color: '#8B1E3F',
+  fontSize: 14,
+  fontWeight: '900',
+},
+
+saveButton: {
+  flex: 1,
+  backgroundColor: '#8B1E3F',
+  borderRadius: 14,
+  paddingVertical: 12,
+  alignItems: 'center',
+},
+
+saveButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '900',
+},
+
   
 });

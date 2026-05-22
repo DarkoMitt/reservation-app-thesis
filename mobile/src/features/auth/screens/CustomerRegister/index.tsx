@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 import BackButton from '../../../../shared/components/BackButton';
 import { useCustomerRegister } from './logic';
 import { styles } from './styles';
@@ -30,6 +32,11 @@ function CustomerRegisterScreen(): React.JSX.Element {
     isCityOpen,
     setIsCityOpen,
     handleCitySelect,
+
+    isBirthDatePickerVisible,
+    selectedBirthDate,
+    openBirthDatePicker,
+    handleBirthDateChange,
   } = useCustomerRegister();
 
   return (
@@ -91,10 +98,7 @@ function CustomerRegisterScreen(): React.JSX.Element {
           ) : null}
 
           <TouchableOpacity
-            style={[
-              styles.dropdownButton,
-              !form.country && styles.disabledDropdown,
-            ]}
+            style={[styles.dropdownButton, !form.country && styles.disabledDropdown]}
             activeOpacity={0.85}
             disabled={!form.country}
             onPress={() => setIsCityOpen(prev => !prev)}>
@@ -140,15 +144,26 @@ function CustomerRegisterScreen(): React.JSX.Element {
           />
           {errors.email ? <Text style={styles.error}>{errors.email}</Text> : null}
 
-          <TextInput
-            style={styles.input}
-            placeholder="Age"
-            placeholderTextColor="#9A8C7F"
-            keyboardType="number-pad"
-            value={form.age}
-            onChangeText={value => handleChange('age', value)}
-          />
-          {errors.age ? <Text style={styles.error}>{errors.age}</Text> : null}
+          <TouchableOpacity
+            style={styles.dropdownButton}
+            activeOpacity={0.85}
+            onPress={openBirthDatePicker}>
+            <Text style={form.birthDate ? styles.dropdownText : styles.dropdownPlaceholder}>
+              {form.birthDate || 'Birth date'}
+            </Text>
+            <Text style={styles.dropdownIcon}>📅</Text>
+          </TouchableOpacity>
+          {errors.birthDate ? <Text style={styles.error}>{errors.birthDate}</Text> : null}
+
+          {isBirthDatePickerVisible ? (
+            <DateTimePicker
+              value={selectedBirthDate || new Date(2000, 0, 1)}
+              mode="date"
+              display="default"
+              maximumDate={new Date()}
+              onChange={handleBirthDateChange}
+            />
+          ) : null}
 
           <TouchableOpacity
             style={styles.dropdownButton}

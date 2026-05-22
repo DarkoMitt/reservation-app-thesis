@@ -150,7 +150,14 @@ export function useRestaurantRegister() {
     if (!form.restaurantName.trim()) nextErrors.restaurantName = 'Restaurant name is required.';
     if (!form.city.trim()) nextErrors.city = 'City is required.';
     if (!form.streetAddress.trim()) nextErrors.streetAddress = 'Street address is required.';
-    if (!form.phoneNumber.trim()) nextErrors.phoneNumber = 'Phone number is required.';
+    const phoneWithoutPrefix = form.phoneNumber
+      .replace('+389', '')
+      .replace(/\D/g, '');
+    if (!form.phoneNumber.trim() || !phoneWithoutPrefix) {
+      nextErrors.phoneNumber = 'Phone number is required.';
+    } else if (phoneWithoutPrefix.length < 7) {
+      nextErrors.phoneNumber = 'Enter a valid phone number.';
+    }
     if (!form.restaurantType.trim()) nextErrors.restaurantType = 'Restaurant type is required.';
     if (!form.cuisineType.trim()) nextErrors.cuisineType = 'Cuisine type is required.';
     if (!form.maxGuests.trim()) nextErrors.maxGuests = 'Max guests is required.';
