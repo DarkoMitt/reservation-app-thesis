@@ -315,6 +315,20 @@ export function useRestaurantDashboard() {
     });
   };
 
+  const handleOpenRestaurantReviews = () => {
+  setIsProfileMenuOpen(false);
+
+  if (!restaurant) {
+    Alert.alert('Error', 'Restaurant profile is not loaded yet.');
+    return;
+  }
+
+  navigation.navigate('RestaurantReviews', {
+    restaurant,
+    user,
+  });
+};
+
   const handleLogout = () => {
     setIsProfileMenuOpen(false);
 
@@ -386,6 +400,7 @@ export function useRestaurantDashboard() {
 
     handleBack,
     handleOpenProfile,
+    handleOpenRestaurantReviews,
     handleLogout,
     handleApproveReservation,
     handleMarkVisited,

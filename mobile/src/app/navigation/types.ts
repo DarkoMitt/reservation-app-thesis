@@ -60,14 +60,23 @@ export type MainStackParamList = {
   };
 
   VisitedCustomers: {
-  restaurant: any;
-  user?: AppUser;
-};
+    restaurant: any;
+    user?: AppUser;
+  };
 
-CustomerPublicProfile: {
-  customerUserId: number;
-  user?: AppUser;
-};
+  CustomerPublicProfile: {
+    customerUserId: number;
+    user?: AppUser;
+  };
+
+  MyReviews: {
+    user: AppUser;
+  };
+
+  RestaurantReviews: {
+    restaurant: any;
+    user?: AppUser;
+  };
 };
 
 export type RootStackParamList = {

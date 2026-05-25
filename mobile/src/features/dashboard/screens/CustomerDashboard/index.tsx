@@ -23,6 +23,7 @@ function CustomerDashboard(): React.JSX.Element {
     filters,
     restaurants,
     isLoadingRestaurants,
+    handleOpenMyReviews,
     handleLogout,
     fullName,
     initials,
@@ -59,6 +60,12 @@ function CustomerDashboard(): React.JSX.Element {
               style={styles.profileMenuItem}
               onPress={handleOpenProfile}>
               <Text style={styles.profileMenuText}>Profile Settings</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.profileMenuItem}
+              onPress={handleOpenMyReviews}>
+              <Text style={styles.profileMenuText}>My Reviews</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

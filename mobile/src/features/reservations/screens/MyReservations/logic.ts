@@ -30,6 +30,7 @@ const filters = [
   'Upcoming',
   'Pending',
   'Changes',
+  'Expired',
   'Rejected',
   'Cancelled',
   'Past',
@@ -43,15 +44,17 @@ const getDisplayStatus = (reservation: Reservation) => {
   const reservationDateTime = getReservationDateTime(reservation);
   const now = new Date();
 
+  if (reservation.status === 'expired') return 'Expired';
+  if (reservation.status === 'visited') return 'Completed';
+  if (reservation.status === 'no_show') return 'No-show';
+  if (reservation.status === 'change_requested') return 'Change Requested';
+
   if (reservationDateTime < now) {
     if (reservation.status === 'rejected') return 'Expired / Rejected';
     if (reservation.status === 'cancelled') return 'Expired / Cancelled';
     if (reservation.status === 'approved') return 'Expired';
+    if (reservation.status === 'pending') return 'Expired';
   }
-
-  if (reservation.status === 'visited') return 'Completed';
-  if (reservation.status === 'no_show') return 'No-show';
-  if (reservation.status === 'change_requested') return 'Change Requested';
 
   return reservation.status;
 };
@@ -59,6 +62,10 @@ const getDisplayStatus = (reservation: Reservation) => {
 const getReservationCategory = (reservation: Reservation) => {
   const reservationDateTime = getReservationDateTime(reservation);
   const now = new Date();
+
+  if (reservation.status === 'expired') {
+    return 'Expired reservation';
+  }
 
   if (reservationDateTime < now) {
     return 'Past reservation';
@@ -129,7 +136,8 @@ export function useMyReservations() {
       reservation.restaurant_name?.toLowerCase().includes(searchValue) ||
       reservation.city?.toLowerCase().includes(searchValue) ||
       reservation.address?.toLowerCase().includes(searchValue) ||
-      reservation.status?.toLowerCase().includes(searchValue);
+      reservation.status?.toLowerCase().includes(searchValue) ||
+      reservation.display_status?.toLowerCase().includes(searchValue);
 
     if (!matchesSearch) return false;
 
@@ -141,6 +149,10 @@ export function useMyReservations() {
 
     if (selectedFilter === 'Past') {
       return reservation.reservation_category === 'Past reservation';
+    }
+
+    if (selectedFilter === 'Expired') {
+      return reservation.status === 'expired';
     }
 
     if (selectedFilter === 'Pending') {

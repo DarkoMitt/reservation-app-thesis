@@ -16,7 +16,6 @@ export function useReservationDetails() {
   const [customerToRestaurantRating, setCustomerToRestaurantRating] = useState<any>(null);
   const [restaurantToCustomerRating, setRestaurantToCustomerRating] = useState<any>(null);
 
-  const [overallRating, setOverallRating] = useState('');
   const [foodRating, setFoodRating] = useState('');
   const [serviceRating, setServiceRating] = useState('');
   const [atmosphereRating, setAtmosphereRating] = useState('');
@@ -69,10 +68,10 @@ export function useReservationDetails() {
   );
 
   const submitCustomerRating = async () => {
-    if (!overallRating || !foodRating || !serviceRating || !atmosphereRating) {
+    if (!foodRating || !serviceRating || !atmosphereRating) {
       Alert.alert(
         'Missing Rating',
-        'Please select overall, food, service and atmosphere rating.',
+        'Please select food, service and atmosphere rating.',
       );
       return;
     }
@@ -89,7 +88,6 @@ export function useReservationDetails() {
             reservationId: reservation.id,
             reviewerUserId: user.id,
             ratingType: 'customer_to_restaurant',
-            overallRating: Number(overallRating),
             foodRating: Number(foodRating),
             serviceRating: Number(serviceRating),
             atmosphereRating: Number(atmosphereRating),
@@ -109,7 +107,6 @@ export function useReservationDetails() {
       if (data.success) {
         Alert.alert('Success', 'Rating submitted successfully.');
 
-        setOverallRating('');
         setFoodRating('');
         setServiceRating('');
         setAtmosphereRating('');
@@ -145,24 +142,15 @@ export function useReservationDetails() {
   };
 
   const handleCancelReservation = () => {
-    Alert.alert(
-      'Cancel Reservation',
-      'Cancellation functionality will be connected next.',
-    );
+    Alert.alert('Cancel Reservation', 'Cancellation functionality will be connected next.');
   };
 
   const handleAcceptChange = () => {
-    Alert.alert(
-      'Accept Change',
-      'Accept change functionality will be connected next.',
-    );
+    Alert.alert('Accept Change', 'Accept change functionality will be connected next.');
   };
 
   const handleRejectChange = () => {
-    Alert.alert(
-      'Reject Change',
-      'Reject change functionality will be connected next.',
-    );
+    Alert.alert('Reject Change', 'Reject change functionality will be connected next.');
   };
 
   return {
@@ -174,8 +162,6 @@ export function useReservationDetails() {
     restaurantToCustomerRating,
     canRateRestaurant,
 
-    overallRating,
-    setOverallRating,
     foodRating,
     setFoodRating,
     serviceRating,

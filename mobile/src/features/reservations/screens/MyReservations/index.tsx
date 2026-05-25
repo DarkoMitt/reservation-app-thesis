@@ -91,6 +91,9 @@ function MyReservations(): React.JSX.Element {
             const isPast =
               reservation.reservation_category === 'Past reservation';
 
+            const isExpired =
+              reservation.status === 'expired';
+
             return (
               <TouchableOpacity
                 key={reservation.id}
@@ -134,7 +137,13 @@ function MyReservations(): React.JSX.Element {
                   Guests: {reservation.guests_count}
                 </Text>
 
-                {isPast ? (
+                {isExpired ? (
+                <Text style={styles.pastHintText}>
+                  This reservation expired because the restaurant did not respond before the confirmation deadline.
+                </Text>
+              ) : null}
+
+                {isPast && !isExpired ? (
                   <Text style={styles.pastHintText}>
                     This reservation has already passed.
                   </Text>

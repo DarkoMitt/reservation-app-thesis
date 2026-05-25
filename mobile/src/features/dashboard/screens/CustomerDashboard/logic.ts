@@ -292,6 +292,15 @@ export function useCustomerDashboard() {
     });
   };
 
+  const handleOpenMyReviews = () => {
+  setIsProfileMenuOpen(false);
+  checkUserStatus();
+
+  navigation.navigate('MyReviews', {
+    user,
+  });
+};
+
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
@@ -320,6 +329,7 @@ export function useCustomerDashboard() {
     filters,
     restaurants: filteredRestaurants,
     isLoadingRestaurants,
+    handleOpenMyReviews,
     handleLogout,
     fullName,
     initials,

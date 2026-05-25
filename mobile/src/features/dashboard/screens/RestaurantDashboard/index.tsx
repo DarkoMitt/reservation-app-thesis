@@ -48,6 +48,7 @@ function RestaurantDashboard(): React.JSX.Element {
 
     handleBack,
     handleOpenProfile,
+    handleOpenRestaurantReviews,
     handleLogout,
     handleApproveReservation,
     handleMarkVisited,
@@ -101,6 +102,12 @@ function RestaurantDashboard(): React.JSX.Element {
               style={styles.profileMenuItem}
               onPress={handleOpenProfile}>
               <Text style={styles.profileMenuText}>My Profile</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.profileMenuItem}
+              onPress={handleOpenRestaurantReviews}>
+              <Text style={styles.profileMenuText}>Reviews</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

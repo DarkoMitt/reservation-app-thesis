@@ -50,8 +50,6 @@ function ReservationDetails(): React.JSX.Element {
     restaurantToCustomerRating,
     canRateRestaurant,
 
-    overallRating,
-    setOverallRating,
     foodRating,
     setFoodRating,
     serviceRating,
@@ -211,9 +209,6 @@ function ReservationDetails(): React.JSX.Element {
                 <Text style={styles.ratingHintText}>
                   Rate your restaurant experience
                 </Text>
-
-                <Text style={styles.ratingLabel}>Overall</Text>
-                {renderStars(overallRating, setOverallRating)}
 
                 <Text style={styles.ratingLabel}>Food</Text>
                 {renderStars(foodRating, setFoodRating)}
