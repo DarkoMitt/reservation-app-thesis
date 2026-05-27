@@ -54,6 +54,9 @@ function RestaurantDashboard(): React.JSX.Element {
     handleMarkVisited,
     handleMarkNoShow,
     handleOpenCustomerProfile,
+
+    unreadNotificationsCount,
+    handleOpenNotifications,
   } = useRestaurantDashboard();
 
   if (isLoading) {
@@ -73,10 +76,6 @@ function RestaurantDashboard(): React.JSX.Element {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}>
 
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Text style={styles.backButtonText}>‹ Back</Text>
-        </TouchableOpacity>
-
         <View style={styles.topHeader}>
           <View>
             <Text style={styles.title}>
@@ -84,12 +83,31 @@ function RestaurantDashboard(): React.JSX.Element {
             </Text>
           </View>
 
-          <TouchableOpacity
-            style={styles.avatarButton}
-            activeOpacity={0.85}
-            onPress={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
-            <Text style={styles.avatarText}>{restaurantInitial}</Text>
-          </TouchableOpacity>
+          <View style={styles.headerRight}>
+            <TouchableOpacity
+              style={styles.notificationButton}
+              activeOpacity={0.8}
+              onPress={handleOpenNotifications}>
+              <Text style={styles.notificationIcon}>🔔</Text>
+
+              {unreadNotificationsCount > 0 ? (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationBadgeText}>
+                    {unreadNotificationsCount > 99
+                      ? '99+'
+                      : unreadNotificationsCount}
+                  </Text>
+                </View>
+              ) : null}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.avatarButton}
+              activeOpacity={0.85}
+              onPress={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
+              <Text style={styles.avatarText}>{restaurantInitial}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {isProfileMenuOpen ? (
@@ -331,6 +349,7 @@ function RestaurantDashboard(): React.JSX.Element {
             pastApprovedRequests.map(request => (
               <View key={request.id} style={styles.requestCard}>
                 <Text style={styles.requestName}>{request.full_name}</Text>
+
                 <Text style={styles.requestText}>
                   Date: {request.reservation_date}
                 </Text>
@@ -373,16 +392,6 @@ function RestaurantDashboard(): React.JSX.Element {
               </View>
             ))
           )}
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Restaurant Information</Text>
-          <Text style={styles.infoText}>Type: {restaurant?.restaurant_type || '-'}</Text>
-          <Text style={styles.infoText}>Cuisine: {restaurant?.cuisine_type || '-'}</Text>
-          <Text style={styles.infoText}>City: {restaurant?.city || '-'}</Text>
-          <Text style={styles.infoText}>Address: {restaurant?.address || '-'}</Text>
-          <Text style={styles.infoText}>Phone: {restaurant?.phone || '-'}</Text>
-          <Text style={styles.infoText}>Email: {restaurant?.email || '-'}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

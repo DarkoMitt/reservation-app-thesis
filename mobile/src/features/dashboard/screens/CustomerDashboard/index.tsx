@@ -30,6 +30,8 @@ function CustomerDashboard(): React.JSX.Element {
     handleOpenRestaurant,
     handleOpenMyReservations,
     handleOpenProfile,
+    unreadNotificationsCount,
+    handleOpenNotifications,
   } = useCustomerDashboard();
 
   return (
@@ -44,12 +46,29 @@ function CustomerDashboard(): React.JSX.Element {
             <Text style={styles.title}>Find your next reservation</Text>
           </View>
 
-          <TouchableOpacity
-            style={styles.profileButton}
-            activeOpacity={0.8}
-            onPress={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
-            <Text style={styles.profileInitials}>{initials}</Text>
-          </TouchableOpacity>
+          <View style={styles.headerRight}>
+            <TouchableOpacity
+              style={styles.notificationButton}
+              activeOpacity={0.8}
+              onPress={handleOpenNotifications}>
+              <Text style={styles.notificationIcon}>🔔</Text>
+
+              {unreadNotificationsCount > 0 ? (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationBadgeText}>
+                    {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+                  </Text>
+                </View>
+              ) : null}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.profileButton}
+              activeOpacity={0.8}
+              onPress={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
+              <Text style={styles.profileInitials}>{initials}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {isProfileMenuOpen && (

@@ -39,6 +39,7 @@ function ReservationDetails(): React.JSX.Element {
   const {
     reservation,
     isPastReservation,
+    isExpiredReservation,
     canCancelReservation,
     handleGoBack,
     handleOpenRestaurant,
@@ -99,7 +100,9 @@ function ReservationDetails(): React.JSX.Element {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Reservation Info</Text>
 
-          {isPastReservation ? (
+          {isExpiredReservation ? (
+            <Text style={styles.pastLabel}>Expired Reservation</Text>
+          ) : isPastReservation ? (
             <Text style={styles.pastLabel}>Past Reservation</Text>
           ) : (
             <Text style={styles.upcomingLabel}>Active / Upcoming</Text>
@@ -123,6 +126,17 @@ function ReservationDetails(): React.JSX.Element {
             </Text>
           ) : null}
         </View>
+
+        {isExpiredReservation ? (
+          <View style={styles.rejectedCard}>
+            <Text style={styles.rejectedTitle}>Reservation Expired</Text>
+
+            <Text style={styles.rejectedReason}>
+              {reservation.rejection_reason ||
+                'The restaurant did not respond before the confirmation deadline, so this reservation request was automatically cancelled.'}
+            </Text>
+          </View>
+        ) : null}
 
         {reservation.status === 'rejected' ? (
           <View style={styles.rejectedCard}>
@@ -173,6 +187,7 @@ function ReservationDetails(): React.JSX.Element {
         ) : null}
 
         {isPastReservation &&
+        !isExpiredReservation &&
         reservation.status !== 'rejected' &&
         reservation.status !== 'cancelled' ? (
           <View style={styles.ratingCard}>

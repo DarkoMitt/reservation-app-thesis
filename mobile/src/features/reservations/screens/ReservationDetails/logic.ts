@@ -26,7 +26,10 @@ export function useReservationDetails() {
   const reservationDateTime = getReservationDateTime(reservation);
   const now = new Date();
 
+  const isExpiredReservation = reservation?.status === 'expired';
+
   const isPastReservation =
+    isExpiredReservation ||
     reservation?.display_status === 'Expired' ||
     reservation?.display_status === 'Completed' ||
     reservation?.display_status === 'No-show' ||
@@ -156,6 +159,7 @@ export function useReservationDetails() {
   return {
     reservation,
     isPastReservation,
+    isExpiredReservation,
     canCancelReservation,
 
     customerToRestaurantRating,

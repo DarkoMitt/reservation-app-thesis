@@ -76,8 +76,22 @@ export function useRestaurantDashboard() {
   const [suggestedGuestsCount, setSuggestedGuestsCount] = useState('');
   const [changeReason, setChangeReason] = useState('');
 
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+
   const restaurantInitial =
     restaurant?.restaurant_name?.charAt(0)?.toUpperCase() || 'R';
+
+    const generateNotifications = async () => {
+      try {
+        await fetch(
+          'http://10.0.2.2/reservation-api/notifications/generate-notifications.php',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          },
+        );
+      } catch {}
+    };
 
   const fetchRestaurantProfile = async () => {
     if (!user?.id) {
@@ -278,6 +292,35 @@ export function useRestaurantDashboard() {
     });
   };
 
+  
+
+  const fetchUnreadNotificationsCount = async () => {
+    if (!user?.id) return;
+
+    try {
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/notifications/get-notifications.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setUnreadNotificationsCount(Number(data.unread_count || 0));
+      }
+    } catch {}
+  };
+
+  const handleOpenNotifications = () => {
+    navigation.navigate('Notifications', {
+      user,
+    });
+  };
+
   const handleBack = () => {
     navigation.dispatch(
       CommonActions.reset({
@@ -340,15 +383,17 @@ export function useRestaurantDashboard() {
     );
   };
 
-  useEffect(() => {
-    fetchRestaurantProfile();
-  }, []);
-
   useFocusEffect(
-    React.useCallback(() => {
-      fetchRestaurantProfile();
-    }, [user?.id]),
-  );
+  React.useCallback(() => {
+    const loadDashboard = async () => {
+      await generateNotifications();
+      await fetchRestaurantProfile();
+      await fetchUnreadNotificationsCount();
+    };
+
+    loadDashboard();
+  }, [user?.id]),
+);
 
   const pendingRequests = reservationRequests.filter(
     request => request.status === 'pending',
@@ -406,5 +451,8 @@ export function useRestaurantDashboard() {
     handleMarkVisited,
     handleMarkNoShow,
     handleOpenCustomerProfile,
+
+    unreadNotificationsCount,
+    handleOpenNotifications,
   };
 }

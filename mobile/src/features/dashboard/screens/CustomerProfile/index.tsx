@@ -186,6 +186,8 @@ function CustomerProfile(): React.JSX.Element {
               { label: 'Pending', value: stats?.pending_reservations ?? 0, icon: '…' },
               { label: 'Approved', value: stats?.approved_reservations ?? 0, icon: '★' },
               { label: 'Rejected', value: stats?.rejected_reservations ?? 0, icon: '-' },
+              { label: 'Changed', value: stats?.change_requested_reservations ?? 0, icon: '↔' },
+              { label: 'Expired', value: stats?.expired_reservations ?? 0, icon: '⏱' },
             ].map(item => (
               <View key={item.label} style={styles.statBox}>
                 <View style={styles.statIconCircle}>

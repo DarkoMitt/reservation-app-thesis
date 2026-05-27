@@ -25,6 +25,8 @@ type CustomerStats = {
   pending_reservations: number;
   approved_reservations: number;
   rejected_reservations: number;
+  change_requested_reservations: number;
+  expired_reservations: number;
 };
 
 export const FOOD_PREFERENCES = [

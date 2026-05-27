@@ -122,6 +122,7 @@ export function useCustomerDashboard() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
   const [hasShownBanAlert, setHasShownBanAlert] = useState(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   const filters = [
     'Best Match',
@@ -173,8 +174,19 @@ export function useCustomerDashboard() {
         );
       }
     } catch {
-      // silent check, no need to interrupt user if network fails
     }
+  };
+
+  const generateNotifications = async () => {
+    try {
+      await fetch(
+        'http://10.0.2.2/reservation-api/notifications/generate-notifications.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    } catch {}
   };
 
   const fetchRestaurants = async () => {
@@ -211,9 +223,37 @@ export function useCustomerDashboard() {
     }
   };
 
+    const fetchUnreadNotificationsCount = async () => {
+      if (!user?.id) return;
+
+      try {
+        const response = await fetch(
+          'http://10.0.2.2/reservation-api/notifications/get-notifications.php',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id }),
+          },
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          setUnreadNotificationsCount(Number(data.unread_count || 0));
+        }
+      } catch {}
+    };
+
   useEffect(() => {
-    fetchRestaurants();
-    checkUserStatus();
+    const loadDashboard = async () => {
+      await generateNotifications();
+
+      fetchRestaurants();
+      checkUserStatus();
+      fetchUnreadNotificationsCount();
+    };
+
+    loadDashboard();
 
     const statusInterval = setInterval(() => {
       checkUserStatus();
@@ -270,6 +310,12 @@ export function useCustomerDashboard() {
 
     navigation.navigate('RestaurantDetails', {
       restaurant,
+      user,
+    });
+  };
+
+  const handleOpenNotifications = () => {
+  navigation.navigate('Notifications', {
       user,
     });
   };
@@ -336,5 +382,7 @@ export function useCustomerDashboard() {
     handleOpenRestaurant,
     handleOpenProfile,
     handleOpenMyReservations,
+    unreadNotificationsCount,
+    handleOpenNotifications,
   };
 }

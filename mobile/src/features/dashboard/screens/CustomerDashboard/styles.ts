@@ -237,4 +237,46 @@ loadingText: {
   color: '#6E6258',
   fontWeight: '600',
 },
+
+headerRight: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+notificationButton: {
+  width: 46,
+  height: 46,
+  marginRight: 10,
+  justifyContent: 'center',
+  alignItems: 'center',
+  position: 'relative',
+},
+
+notificationIcon: {
+  fontSize: 24,
+},
+
+notificationBadge: {
+  position: 'absolute',
+  top: 3,
+  right: 2,
+
+  minWidth: 18,
+  height: 18,
+
+  borderRadius: 9,
+
+  backgroundColor: '#D62839',
+
+  justifyContent: 'center',
+  alignItems: 'center',
+
+  paddingHorizontal: 4,
+},
+
+notificationBadgeText: {
+  color: '#FFFFFF',
+  fontSize: 10,
+  fontWeight: '800',
+},
 });

@@ -26,7 +26,6 @@ export const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingVertical: 8,
     paddingHorizontal: 4,
-    marginBottom: 12,
   },
 
   backButtonText: {
@@ -409,4 +408,46 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+
+  headerRight: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+notificationButton: {
+  width: 46,
+  height: 46,
+  marginRight: 10,
+  justifyContent: 'center',
+  alignItems: 'center',
+  position: 'relative',
+},
+
+notificationIcon: {
+  fontSize: 24,
+},
+
+notificationBadge: {
+  position: 'absolute',
+  top: 3,
+  right: 2,
+
+  minWidth: 18,
+  height: 18,
+
+  borderRadius: 9,
+
+  backgroundColor: '#D62839',
+
+  justifyContent: 'center',
+  alignItems: 'center',
+
+  paddingHorizontal: 4,
+},
+
+notificationBadgeText: {
+  color: '#FFFFFF',
+  fontSize: 10,
+  fontWeight: '800',
+},
 });

@@ -18,6 +18,8 @@ import CustomerPublicProfile from '../../features/dashboard/screens/CustomerPubl
 import MyReviews from '../../features/reviews/screens/MyReviews';
 import RestaurantReviews from '../../features/reviews/screens/RestaurantReviews';
 
+import Notifications from '../../features/notifications/screens/Notifications';
+
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 function MainNavigator(): React.JSX.Element {
@@ -37,6 +39,8 @@ function MainNavigator(): React.JSX.Element {
 
       <Stack.Screen name="MyReviews" component={MyReviews} />
       <Stack.Screen name="RestaurantReviews" component={RestaurantReviews} />
+
+      <Stack.Screen name="Notifications" component={Notifications} />
     </Stack.Navigator>
   );
 }
