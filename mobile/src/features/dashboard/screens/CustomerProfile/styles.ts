@@ -279,5 +279,50 @@ saveButtonText: {
   fontWeight: '900',
 },
 
-  
+  trustHistoryItem: {
+  backgroundColor: '#F7F1E8',
+  borderRadius: 16,
+  padding: 14,
+  marginBottom: 10,
+},
+
+trustHistoryHeader: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 6,
+},
+
+trustHistoryChange: {
+  fontSize: 16,
+  fontWeight: '900',
+  marginRight: 10,
+},
+
+positiveChange: {
+  color: '#1F8A4C',
+},
+
+negativeChange: {
+  color: '#C62828',
+},
+
+trustHistoryReason: {
+  flex: 1,
+  fontSize: 14,
+  fontWeight: '800',
+  color: '#2A211C',
+},
+
+trustHistoryScore: {
+  fontSize: 13,
+  color: '#4B4038',
+  fontWeight: '700',
+},
+
+trustHistoryDate: {
+  marginTop: 4,
+  fontSize: 12,
+  color: '#8B8178',
+  fontWeight: '600',
+},
 });

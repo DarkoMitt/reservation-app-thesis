@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
 
   content: {
     paddingHorizontal: 22,
-    paddingTop: 28,
+    paddingTop: 40,
     paddingBottom: 40,
   },
 

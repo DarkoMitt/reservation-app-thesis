@@ -245,4 +245,86 @@ ratingDetailText: {
   fontWeight: '700',
   marginBottom: 8,
 },
+
+timeRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 14,
+},
+
+timeInput: {
+  flex: 1,
+  height: 48,
+  borderRadius: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  backgroundColor: '#FFFFFF',
+  justifyContent: 'center',
+  paddingHorizontal: 14,
+},
+
+timeInputText: {
+  fontSize: 14,
+  color: '#2A211C',
+  fontWeight: '700',
+},
+
+timeSeparator: {
+  marginHorizontal: 10,
+  fontSize: 18,
+  fontWeight: '900',
+  color: '#6E6258',
+},
+
+modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.35)',
+  justifyContent: 'center',
+  paddingHorizontal: 24,
+},
+
+timeModal: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 22,
+  padding: 18,
+  maxHeight: '70%',
+},
+
+timeModalTitle: {
+  fontSize: 20,
+  fontWeight: '900',
+  color: '#2A211C',
+  marginBottom: 12,
+},
+
+timeOptionsList: {
+  maxHeight: 360,
+},
+
+timeOption: {
+  paddingVertical: 14,
+  borderBottomWidth: 1,
+  borderBottomColor: '#EFE7DD',
+},
+
+timeOptionText: {
+  fontSize: 16,
+  fontWeight: '700',
+  color: '#2A211C',
+  textAlign: 'center',
+},
+
+closeTimeButton: {
+  marginTop: 14,
+  backgroundColor: '#8B1E3F',
+  borderRadius: 14,
+  paddingVertical: 13,
+  alignItems: 'center',
+},
+
+closeTimeButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '900',
+},
 });

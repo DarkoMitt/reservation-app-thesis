@@ -32,6 +32,7 @@ function CustomerProfile(): React.JSX.Element {
     handleCancelEdit,
     handleSaveProfile,
     isSaving,
+    trustHistory,
   } = useCustomerProfile();
 
   if (isLoading) {
@@ -200,6 +201,41 @@ function CustomerProfile(): React.JSX.Element {
                 </View>
               </View>
             ))}
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Trust Score History</Text>
+
+            {trustHistory.length === 0 ? (
+              <Text style={styles.infoText}>No trust score changes yet.</Text>
+            ) : (
+              trustHistory.map(item => (
+                <View key={item.id} style={styles.trustHistoryItem}>
+                  <View style={styles.trustHistoryHeader}>
+                    <Text
+                      style={[
+                        styles.trustHistoryChange,
+                        item.change_value > 0
+                          ? styles.positiveChange
+                          : styles.negativeChange,
+                      ]}>
+                      {item.change_value > 0 ? '+' : ''}
+                      {item.change_value}
+                    </Text>
+
+                    <Text style={styles.trustHistoryReason}>{item.reason}</Text>
+                  </View>
+
+                  <Text style={styles.trustHistoryScore}>
+                    {item.old_score} → {item.new_score}
+                  </Text>
+
+                  <Text style={styles.trustHistoryDate}>
+                    {new Date(item.created_at).toLocaleString()}
+                  </Text>
+                </View>
+              ))
+            )}
           </View>
         </View>
       </ScrollView>

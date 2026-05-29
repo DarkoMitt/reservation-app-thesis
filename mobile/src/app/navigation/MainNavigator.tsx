@@ -20,6 +20,8 @@ import RestaurantReviews from '../../features/reviews/screens/RestaurantReviews'
 
 import Notifications from '../../features/notifications/screens/Notifications';
 
+import PredictionDetails from '../../features/prediction/screens/PredictionDetails';
+
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 function MainNavigator(): React.JSX.Element {
@@ -41,6 +43,8 @@ function MainNavigator(): React.JSX.Element {
       <Stack.Screen name="RestaurantReviews" component={RestaurantReviews} />
 
       <Stack.Screen name="Notifications" component={Notifications} />
+
+      <Stack.Screen name="PredictionDetails" component={PredictionDetails} />
     </Stack.Navigator>
   );
 }

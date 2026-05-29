@@ -54,6 +54,7 @@ function RestaurantDashboard(): React.JSX.Element {
     handleMarkVisited,
     handleMarkNoShow,
     handleOpenCustomerProfile,
+    handleOpenPredictionDetails,
 
     unreadNotificationsCount,
     handleOpenNotifications,
@@ -186,6 +187,9 @@ function RestaurantDashboard(): React.JSX.Element {
 
                   <Text style={styles.requestRisk}>
                     Risk: {request.no_show_risk || 'low'}
+                    {request.risk_percentage
+                      ? ` (${request.risk_percentage}%)`
+                      : ''}
                   </Text>
                 </View>
 
@@ -204,6 +208,15 @@ function RestaurantDashboard(): React.JSX.Element {
                 <Text style={styles.requestText}>
                   No-shows: {request.customer_no_show_count || 0}
                 </Text>
+
+                <TouchableOpacity
+                  style={styles.viewProfileButton}
+                  activeOpacity={0.85}
+                  onPress={() => handleOpenPredictionDetails(request)}>
+                  <Text style={styles.viewProfileButtonText}>
+                    View Prediction Details
+                  </Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.viewProfileButton}

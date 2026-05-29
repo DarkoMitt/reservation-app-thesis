@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { useRestaurantProfile } from './logic';
 import { styles } from './styles';
@@ -27,10 +28,15 @@ function RestaurantProfile(): React.JSX.Element {
     setDescription,
     maxGuests,
     setMaxGuests,
+
+    activeTimePicker,
+    timePickerDate,
+    openTimePicker,
+    handleTimePickerChange,
+
     monThuHours,
-    setMonThuHours,
     friSunHours,
-    setFriSunHours,
+
     restaurantImages,
     menuImages,
     hasSmokingArea,
@@ -164,22 +170,52 @@ function RestaurantProfile(): React.JSX.Element {
           />
 
           <Text style={styles.label}>Mon - Thu</Text>
-          <TextInput
-            style={styles.input}
-            value={monThuHours}
-            onChangeText={setMonThuHours}
-            placeholder="09:00 - 23:00"
-            placeholderTextColor="#8B8178"
-          />
+
+          <View style={styles.timeRow}>
+            <TouchableOpacity
+              style={styles.timeInput}
+              activeOpacity={0.85}
+              onPress={() => openTimePicker('monThuStart')}>
+              <Text style={styles.timeInputText}>
+                {monThuHours.split(' - ')[0] || 'Start'}
+              </Text>
+            </TouchableOpacity>
+
+            <Text style={styles.timeSeparator}>-</Text>
+
+            <TouchableOpacity
+              style={styles.timeInput}
+              activeOpacity={0.85}
+              onPress={() => openTimePicker('monThuEnd')}>
+              <Text style={styles.timeInputText}>
+                {monThuHours.split(' - ')[1] || 'End'}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           <Text style={styles.label}>Fri - Sun</Text>
-          <TextInput
-            style={styles.input}
-            value={friSunHours}
-            onChangeText={setFriSunHours}
-            placeholder="09:00 - 01:00"
-            placeholderTextColor="#8B8178"
-          />
+
+          <View style={styles.timeRow}>
+            <TouchableOpacity
+              style={styles.timeInput}
+              activeOpacity={0.85}
+              onPress={() => openTimePicker('friSunStart')}>
+              <Text style={styles.timeInputText}>
+                {friSunHours.split(' - ')[0] || 'Start'}
+              </Text>
+            </TouchableOpacity>
+
+            <Text style={styles.timeSeparator}>-</Text>
+
+            <TouchableOpacity
+              style={styles.timeInput}
+              activeOpacity={0.85}
+              onPress={() => openTimePicker('friSunEnd')}>
+              <Text style={styles.timeInputText}>
+                {friSunHours.split(' - ')[1] || 'End'}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           <Text style={styles.label}>Restaurant Description</Text>
           <TextInput
@@ -272,8 +308,17 @@ function RestaurantProfile(): React.JSX.Element {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {activeTimePicker !== null ? (
+        <DateTimePicker
+          value={timePickerDate}
+          mode="time"
+          is24Hour
+          display="clock"
+          onChange={handleTimePickerChange}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
-
 export default RestaurantProfile;

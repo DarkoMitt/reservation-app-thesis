@@ -145,16 +145,144 @@ export function useReservationDetails() {
   };
 
   const handleCancelReservation = () => {
-    Alert.alert('Cancel Reservation', 'Cancellation functionality will be connected next.');
-  };
+  Alert.alert(
+    'Cancel Reservation',
+    'Are you sure you want to cancel this reservation?',
+    [
+      {
+        text: 'No',
+        style: 'cancel',
+      },
+      {
+        text: 'Yes, Cancel',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const response = await fetch(
+              'http://10.0.2.2/reservation-api/reservations/cancel-reservation.php',
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  reservationId: reservation.id,
+                  cancellationReason: 'Cancelled by customer.',
+                }),
+              },
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+              Alert.alert(
+                'Reservation Cancelled',
+                data.trustPenalty > 0
+                  ? `Reservation cancelled successfully. Trust penalty: -${data.trustPenalty}`
+                  : 'Reservation cancelled successfully.',
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => navigation.goBack(),
+                  },
+                ],
+              );
+            } else {
+              Alert.alert(
+                'Error',
+                data.message || 'Failed to cancel reservation.',
+              );
+            }
+          } catch {
+            Alert.alert(
+              'Error',
+              'Something went wrong while cancelling reservation.',
+            );
+          }
+        },
+      },
+    ],
+  );
+};
 
   const handleAcceptChange = () => {
-    Alert.alert('Accept Change', 'Accept change functionality will be connected next.');
-  };
+  Alert.alert(
+    'Accept Suggested Change',
+    'Are you sure you want to accept the restaurant suggested changes?',
+    [
+      { text: 'No', style: 'cancel' },
+      {
+        text: 'Yes, Accept',
+        onPress: async () => {
+          try {
+            const response = await fetch(
+              'http://10.0.2.2/reservation-api/reservations/respond-change-request.php',
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  reservationId: reservation.id,
+                  action: 'accept',
+                }),
+              },
+            );
 
-  const handleRejectChange = () => {
-    Alert.alert('Reject Change', 'Reject change functionality will be connected next.');
-  };
+            const data = await response.json();
+
+            if (data.success) {
+              Alert.alert('Success', data.message, [
+                { text: 'OK', onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert('Error', data.message || 'Failed to accept change.');
+            }
+          } catch {
+            Alert.alert('Error', 'Something went wrong while accepting change.');
+          }
+        },
+      },
+    ],
+  );
+};
+
+const handleRejectChange = () => {
+  Alert.alert(
+    'Reject Suggested Change',
+    'Are you sure you want to reject the restaurant suggested changes?',
+    [
+      { text: 'No', style: 'cancel' },
+      {
+        text: 'Yes, Reject',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const response = await fetch(
+              'http://10.0.2.2/reservation-api/reservations/respond-change-request.php',
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  reservationId: reservation.id,
+                  action: 'reject',
+                }),
+              },
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+              Alert.alert('Success', data.message, [
+                { text: 'OK', onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert('Error', data.message || 'Failed to reject change.');
+            }
+          } catch {
+            Alert.alert('Error', 'Something went wrong while rejecting change.');
+          }
+        },
+      },
+    ],
+  );
+};
 
   return {
     reservation,

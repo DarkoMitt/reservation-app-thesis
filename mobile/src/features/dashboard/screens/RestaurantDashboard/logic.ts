@@ -33,6 +33,10 @@ type ReservationRequest = {
   guests_count: number;
   status: string;
   no_show_risk: string;
+  risk_percentage?: number;
+  prediction_factors?: string[];
+  prediction_explanation?: string | null;
+  prediction_updated_at?: string | null;
   trust_score: number;
   special_request: string | null;
   rejection_reason?: string | null;
@@ -410,6 +414,12 @@ export function useRestaurantDashboard() {
     });
   };
 
+  const handleOpenPredictionDetails = (reservation: ReservationRequest) => {
+    navigation.navigate('PredictionDetails', {
+      reservation,
+    });
+  };
+
   return {
     restaurant,
     pendingRequests,
@@ -451,7 +461,7 @@ export function useRestaurantDashboard() {
     handleMarkVisited,
     handleMarkNoShow,
     handleOpenCustomerProfile,
-
+    handleOpenPredictionDetails,
     unreadNotificationsCount,
     handleOpenNotifications,
   };

@@ -29,6 +29,17 @@ type CustomerStats = {
   expired_reservations: number;
 };
 
+type TrustHistoryItem = {
+  id: number;
+  user_id: number;
+  reservation_id: number | null;
+  change_value: number;
+  old_score: number;
+  new_score: number;
+  reason: string;
+  created_at: string;
+};
+
 export const FOOD_PREFERENCES = [
   'No preferences',
   'Vegetarian',
@@ -56,6 +67,8 @@ export function useCustomerProfile() {
   const [editedPreferences, setEditedPreferences] = useState('');
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const [trustHistory, setTrustHistory] = useState<TrustHistoryItem[]>([]);
 
   const fetchCustomerProfile = async () => {
     if (!user?.id) {
@@ -118,6 +131,27 @@ export function useCustomerProfile() {
     setIsEditing(false);
   };
 
+  const fetchTrustHistory = async () => {
+  if (!user?.id) return;
+
+  try {
+    const response = await fetch(
+      'http://10.0.2.2/reservation-api/customer/get-trust-history.php',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id }),
+      },
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+      setTrustHistory(data.history || []);
+    }
+  } catch {}
+};
+
   const handleSaveProfile = async () => {
     if (!user?.id) return;
 
@@ -171,6 +205,7 @@ export function useCustomerProfile() {
 
   useEffect(() => {
     fetchCustomerProfile();
+    fetchTrustHistory();
   }, []);
 
   return {
@@ -192,5 +227,6 @@ export function useCustomerProfile() {
     handleCancelEdit,
     handleSaveProfile,
     isSaving,
+    trustHistory,
   };
 }

@@ -81,6 +81,10 @@ export type MainStackParamList = {
   Notifications: {
     user: AppUser;
   };
+
+  PredictionDetails: {
+    reservation: any;
+  };
 };
 
 export type RootStackParamList = {

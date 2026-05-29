@@ -34,6 +34,13 @@ type RatingSummary = {
   most_common_price_per_person: number | null;
 };
 
+type TimePickerType =
+  | 'monThuStart'
+  | 'monThuEnd'
+  | 'friSunStart'
+  | 'friSunEnd'
+  | null;
+
 const parseImages = (value?: string): string[] => {
   if (!value) return [];
 
@@ -71,12 +78,98 @@ export function useRestaurantProfile() {
   const [maxGuests, setMaxGuests] = useState(String(restaurant?.max_guests || ''));
 
   const [monThuHours, setMonThuHours] = useState(
-    restaurant?.mon_thu_hours || '',
+    restaurant?.mon_thu_hours || '09:00 - 23:00',
   );
 
   const [friSunHours, setFriSunHours] = useState(
-    restaurant?.fri_sun_hours || '',
+    restaurant?.fri_sun_hours || '09:00 - 23:00',
   );
+
+  const [activeTimePicker, setActiveTimePicker] =
+    useState<TimePickerType>(null);
+
+  const [timePickerDate, setTimePickerDate] = useState(new Date());
+
+  const getTimeFromHours = (
+    currentValue: string,
+    type: 'start' | 'end',
+  ) => {
+    const [start = '09:00', end = '23:00'] = currentValue.split(' - ');
+    const selected = type === 'start' ? start : end;
+
+    const [hours, minutes] = selected.split(':').map(Number);
+
+    const date = new Date();
+    date.setHours(Number.isNaN(hours) ? 9 : hours);
+    date.setMinutes(Number.isNaN(minutes) ? 0 : minutes);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+
+    return date;
+  };
+
+  const openTimePicker = (picker: TimePickerType) => {
+    setActiveTimePicker(picker);
+
+    if (picker === 'monThuStart') {
+      setTimePickerDate(getTimeFromHours(monThuHours, 'start'));
+    }
+
+    if (picker === 'monThuEnd') {
+      setTimePickerDate(getTimeFromHours(monThuHours, 'end'));
+    }
+
+    if (picker === 'friSunStart') {
+      setTimePickerDate(getTimeFromHours(friSunHours, 'start'));
+    }
+
+    if (picker === 'friSunEnd') {
+      setTimePickerDate(getTimeFromHours(friSunHours, 'end'));
+    }
+  };
+
+  const updateWorkingHours = (
+    currentValue: string,
+    selectedTime: string,
+    type: 'start' | 'end',
+  ) => {
+    const [start = '09:00', end = '23:00'] = currentValue.split(' - ');
+
+    if (type === 'start') {
+      return `${selectedTime} - ${end}`;
+    }
+
+    return `${start} - ${selectedTime}`;
+  };
+
+  const handleTimePickerChange = (_event: any, selectedDate?: Date) => {
+    if (!selectedDate) {
+      setActiveTimePicker(null);
+      return;
+    }
+
+    const hours = String(selectedDate.getHours()).padStart(2, '0');
+    const minutes = String(selectedDate.getMinutes()).padStart(2, '0');
+    const selectedTime = `${hours}:${minutes}`;
+
+    if (activeTimePicker === 'monThuStart') {
+      setMonThuHours(updateWorkingHours(monThuHours, selectedTime, 'start'));
+    }
+
+    if (activeTimePicker === 'monThuEnd') {
+      setMonThuHours(updateWorkingHours(monThuHours, selectedTime, 'end'));
+    }
+
+    if (activeTimePicker === 'friSunStart') {
+      setFriSunHours(updateWorkingHours(friSunHours, selectedTime, 'start'));
+    }
+
+    if (activeTimePicker === 'friSunEnd') {
+      setFriSunHours(updateWorkingHours(friSunHours, selectedTime, 'end'));
+    }
+
+    setActiveTimePicker(null);
+  };
 
   const [restaurantImages, setRestaurantImages] = useState<string[]>(
     parseImages(restaurant?.restaurant_images),
@@ -277,10 +370,17 @@ export function useRestaurantProfile() {
     setDescription,
     maxGuests,
     setMaxGuests,
+
+    activeTimePicker,
+    timePickerDate,
+    openTimePicker,
+    handleTimePickerChange,
+
     monThuHours,
     setMonThuHours,
     friSunHours,
     setFriSunHours,
+
     restaurantImages,
     menuImages,
     hasSmokingArea,
