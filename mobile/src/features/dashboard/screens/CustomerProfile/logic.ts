@@ -27,6 +27,7 @@ type CustomerStats = {
   rejected_reservations: number;
   change_requested_reservations: number;
   expired_reservations: number;
+  waitlisted_reservations: number;
 };
 
 type TrustHistoryItem = {

@@ -23,6 +23,7 @@ type Reservation = {
   cuisine_type: string;
   display_status?: string;
   reservation_category?: string;
+  waitlist_position?: number;
 };
 
 const filters = [
@@ -34,6 +35,7 @@ const filters = [
   'Rejected',
   'Cancelled',
   'Past',
+  'Waitlisted',
 ];
 
 const getReservationDateTime = (reservation: Reservation) => {
@@ -48,6 +50,7 @@ const getDisplayStatus = (reservation: Reservation) => {
   if (reservation.status === 'visited') return 'Completed';
   if (reservation.status === 'no_show') return 'No-show';
   if (reservation.status === 'change_requested') return 'Change Requested';
+  if (reservation.status === 'waitlisted') return 'Waitlisted';
 
   if (reservationDateTime < now) {
     if (reservation.status === 'rejected') return 'Expired / Rejected';
@@ -169,6 +172,10 @@ export function useMyReservations() {
 
     if (selectedFilter === 'Cancelled') {
       return reservation.status === 'cancelled';
+    }
+
+    if (selectedFilter === 'Waitlisted') {
+      return reservation.status === 'waitlisted';
     }
 
     return true;

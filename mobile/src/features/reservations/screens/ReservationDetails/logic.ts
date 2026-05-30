@@ -37,7 +37,7 @@ export function useReservationDetails() {
 
   const canCancelReservation =
     !isPastReservation &&
-    (reservation?.status === 'pending' || reservation?.status === 'approved');
+    (reservation?.status === 'pending' || reservation?.status === 'approved' || reservation?.status === 'waitlisted');
 
   const canRateRestaurant =
     reservation?.status === 'visited' && !customerToRestaurantRating;

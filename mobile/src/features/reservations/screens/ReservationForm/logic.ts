@@ -215,17 +215,6 @@ export function useReservationForm() {
       return;
     }
 
-    if (
-      availableGuests !== null &&
-      Number(guestsCount) > availableGuests
-    ) {
-      Alert.alert(
-        'Not Enough Capacity',
-        `Only ${availableGuests} seats are currently available for this time slot.`,
-      );
-      return;
-    }
-
     if (selectedDate && selectedTime) {
       const now = new Date();
       const minimumAllowedTime = new Date(
@@ -275,19 +264,30 @@ export function useReservationForm() {
       const data = await response.json();
 
       if (data.success) {
-        Alert.alert(
-          'Reservation Sent',
-          'Your reservation request has been sent to the restaurant.',
-          [
-            {
-              text: 'OK',
-              onPress: () =>
-                navigation.navigate('CustomerDashboard', {
-                  user,
-                }),
-            },
-          ],
-        );
+  if (data.status === 'waitlisted') {
+    Alert.alert(
+      'Added to Waitlist',
+      data.message ||
+        'The restaurant is full for this time slot. Your request has been added to the waitlist.',
+      [
+        {
+          text: 'OK',
+          onPress: () => navigation.goBack(),
+        },
+      ],
+    );
+  } else {
+    Alert.alert(
+      'Reservation Sent',
+      data.message || 'Reservation request sent successfully.',
+      [
+        {
+          text: 'OK',
+          onPress: () => navigation.goBack(),
+        },
+      ],
+    );
+  }
       } else {
         Alert.alert(
           'Error',

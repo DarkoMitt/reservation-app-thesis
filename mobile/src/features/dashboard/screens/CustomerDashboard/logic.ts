@@ -102,11 +102,113 @@ const getRestaurantDisplayStatus = (restaurant: Restaurant) => {
   return '🟢 Open now';
 };
 
+const normalizeText = (value?: string) => {
+  return String(value || '').toLowerCase().trim();
+};
+
+const getUserPreferences = (user: any): string[] => {
+  const rawPreferences = user?.preferences;
+
+  if (!rawPreferences) {
+    return [];
+  }
+
+  if (Array.isArray(rawPreferences)) {
+    return rawPreferences.map(preference => normalizeText(preference));
+  }
+
+  try {
+    const parsed = JSON.parse(rawPreferences);
+
+    if (Array.isArray(parsed)) {
+      return parsed.map(preference => normalizeText(preference));
+    }
+  } catch {}
+
+  return String(rawPreferences)
+    .split(',')
+    .map(preference => normalizeText(preference))
+    .filter(Boolean);
+};
+
+const preferenceCuisineMap: Record<string, string[]> = {
+  vegetarian: ['mediterranean', 'italian', 'asian', 'mixed'],
+  vegan: ['mediterranean', 'asian', 'mixed'],
+  halal: ['asian', 'mediterranean', 'mixed'],
+  'gluten-free': ['mediterranean', 'mixed'],
+  'dairy-free': ['asian', 'mediterranean', 'mixed'],
+  seafood: ['mediterranean'],
+  'no pork': ['mediterranean', 'asian', 'mixed'],
+  'no spicy food': ['italian', 'mediterranean', 'traditional'],
+  'healthy food': ['mediterranean', 'asian', 'mixed'],
+};
+
+const calculateBestMatchScore = (
+  restaurant: Restaurant,
+  preferences: string[],
+) => {
+  if (preferences.length === 0 || preferences.includes('no preferences')) {
+    return 0;
+  }
+
+  const cuisine = normalizeText(restaurant.cuisine_type);
+  const restaurantType = normalizeText(restaurant.restaurant_type);
+  const description = normalizeText(restaurant.description);
+
+  let score = 0;
+
+  preferences.forEach(preference => {
+    const mappedCuisines = preferenceCuisineMap[preference] || [];
+
+    if (mappedCuisines.includes(cuisine)) {
+      score += 4;
+    }
+
+    if (mappedCuisines.includes(restaurantType)) {
+      score += 2;
+    }
+
+    if (description.includes(preference)) {
+      score += 2;
+    }
+
+    if (cuisine.includes(preference) || restaurantType.includes(preference)) {
+      score += 3;
+    }
+
+    if (preference === 'seafood' && description.includes('fish')) {
+      score += 2;
+    }
+
+    if (preference === 'healthy food' && description.includes('healthy')) {
+      score += 2;
+    }
+
+    if (preference === 'halal' && description.includes('halal')) {
+      score += 4;
+    }
+
+    if (preference === 'no pork' && description.includes('pork')) {
+      score -= 5;
+    }
+
+    if (preference === 'no spicy food' && description.includes('spicy')) {
+      score -= 3;
+    }
+  });
+
+  score += Number(restaurant.average_rating || 0);
+
+  return Math.max(score, 0);
+};
+
 export function useCustomerDashboard() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
 
   const user = route.params?.user;
+
+  const userPreferences = getUserPreferences(user);
 
   const fullName = user
     ? `${user.first_name} ${user.last_name}`
@@ -173,8 +275,7 @@ export function useCustomerDashboard() {
           { cancelable: false },
         );
       }
-    } catch {
-    }
+    } catch {}
   };
 
   const generateNotifications = async () => {
@@ -209,6 +310,10 @@ export function useCustomerDashboard() {
           (restaurant: Restaurant) => ({
             ...restaurant,
             displayStatus: getRestaurantDisplayStatus(restaurant),
+            match_score: calculateBestMatchScore(
+              restaurant,
+              userPreferences,
+            ),
           }),
         );
 
@@ -223,26 +328,26 @@ export function useCustomerDashboard() {
     }
   };
 
-    const fetchUnreadNotificationsCount = async () => {
-      if (!user?.id) return;
+  const fetchUnreadNotificationsCount = async () => {
+    if (!user?.id) return;
 
-      try {
-        const response = await fetch(
-          'http://10.0.2.2/reservation-api/notifications/get-notifications.php',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: user.id }),
-          },
-        );
+    try {
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/notifications/get-notifications.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id }),
+        },
+      );
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (data.success) {
-          setUnreadNotificationsCount(Number(data.unread_count || 0));
-        }
-      } catch {}
-    };
+      if (data.success) {
+        setUnreadNotificationsCount(Number(data.unread_count || 0));
+      }
+    } catch {}
+  };
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -287,7 +392,14 @@ export function useCustomerDashboard() {
     })
     .sort((a, b) => {
       if (selectedFilter === 'Best Match') {
-        return Number(b.match_score || 0) - Number(a.match_score || 0);
+        const scoreDifference =
+          Number(b.match_score || 0) - Number(a.match_score || 0);
+
+        if (scoreDifference !== 0) {
+          return scoreDifference;
+        }
+
+        return Number(b.average_rating || 0) - Number(a.average_rating || 0);
       }
 
       if (selectedFilter === 'Highest Rated') {
@@ -315,7 +427,7 @@ export function useCustomerDashboard() {
   };
 
   const handleOpenNotifications = () => {
-  navigation.navigate('Notifications', {
+    navigation.navigate('Notifications', {
       user,
     });
   };
@@ -339,13 +451,13 @@ export function useCustomerDashboard() {
   };
 
   const handleOpenMyReviews = () => {
-  setIsProfileMenuOpen(false);
-  checkUserStatus();
+    setIsProfileMenuOpen(false);
+    checkUserStatus();
 
-  navigation.navigate('MyReviews', {
-    user,
-  });
-};
+    navigation.navigate('MyReviews', {
+      user,
+    });
+  };
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [

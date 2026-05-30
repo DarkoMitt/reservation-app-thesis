@@ -137,6 +137,12 @@ function MyReservations(): React.JSX.Element {
                   Guests: {reservation.guests_count}
                 </Text>
 
+                {reservation.status === 'waitlisted' ? (
+                <Text style={styles.infoText}>
+                  Waitlist Position: #{reservation.waitlist_position || '-'}
+                </Text>
+              ) : null}
+
                 {isExpired ? (
                 <Text style={styles.pastHintText}>
                   This reservation expired because the restaurant did not respond before the confirmation deadline.

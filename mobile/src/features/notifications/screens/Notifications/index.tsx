@@ -18,6 +18,7 @@ const getNotificationIcon = (type: string) => {
   if (type.includes('visited')) return '⭐';
   if (type.includes('no_show')) return '⚠️';
   if (type.includes('new_reservation')) return '📅';
+  if (type.includes('waitlist')) return '⏳';
   return '🔔';
 };
 
@@ -28,6 +29,7 @@ function Notifications(): React.JSX.Element {
     isLoading,
     isMarkingAll,
     handleBack,
+    handleNotificationPress,
     markNotificationRead,
     markAllNotificationsRead,
   } = useNotifications();
@@ -88,7 +90,7 @@ function Notifications(): React.JSX.Element {
                   styles.notificationCard,
                   isUnread && styles.unreadNotificationCard,
                 ]}
-                onPress={() => markNotificationRead(notification.id)}>
+                onPress={() => handleNotificationPress(notification)}>
                 <View style={styles.notificationRow}>
                   <View style={styles.iconCircle}>
                     <Text style={styles.notificationIcon}>

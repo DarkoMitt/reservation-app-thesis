@@ -46,6 +46,7 @@ type ReservationRequest = {
   customer_trust_score?: number;
   customer_no_show_count?: number;
   customer_total_reservations?: number;
+  waitlist_position?: number;
   is_new_customer?: number;
   has_restaurant_customer_rating?: number;
 };
@@ -77,6 +78,74 @@ export function useRestaurantDashboard() {
   const [selectedChangeRequestId, setSelectedChangeRequestId] = useState<number | null>(null);
   const [suggestedDate, setSuggestedDate] = useState('');
   const [suggestedTime, setSuggestedTime] = useState('');
+
+  const [isSuggestedDatePickerOpen, setIsSuggestedDatePickerOpen] = useState(false);
+  const [isSuggestedTimePickerOpen, setIsSuggestedTimePickerOpen] = useState(false);
+
+  const [suggestedDatePickerValue, setSuggestedDatePickerValue] = useState(new Date());
+  const [suggestedTimePickerValue, setSuggestedTimePickerValue] = useState(new Date());
+
+  const formatDateForApi = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const formatTimeForApi = (date: Date) => {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${hours}:${minutes}`;
+  };
+
+  const openSuggestedDatePicker = () => {
+    if (suggestedDate) {
+      const parsedDate = new Date(suggestedDate);
+
+      if (!Number.isNaN(parsedDate.getTime())) {
+        setSuggestedDatePickerValue(parsedDate);
+      }
+    }
+
+    setIsSuggestedDatePickerOpen(true);
+  };
+
+  const openSuggestedTimePicker = () => {
+    if (suggestedTime) {
+      const [hours, minutes] = suggestedTime.split(':').map(Number);
+      const date = new Date();
+
+      date.setHours(Number.isNaN(hours) ? 9 : hours);
+      date.setMinutes(Number.isNaN(minutes) ? 0 : minutes);
+      date.setSeconds(0);
+      date.setMilliseconds(0);
+
+      setSuggestedTimePickerValue(date);
+    }
+
+    setIsSuggestedTimePickerOpen(true);
+  };
+
+  const handleSuggestedDatePickerChange = (_event: any, selectedDate?: Date) => {
+    setIsSuggestedDatePickerOpen(false);
+
+    if (!selectedDate) return;
+
+    setSuggestedDatePickerValue(selectedDate);
+    setSuggestedDate(formatDateForApi(selectedDate));
+  };
+
+  const handleSuggestedTimePickerChange = (_event: any, selectedDate?: Date) => {
+    setIsSuggestedTimePickerOpen(false);
+
+    if (!selectedDate) return;
+
+    setSuggestedTimePickerValue(selectedDate);
+    setSuggestedTime(formatTimeForApi(selectedDate));
+  };
+
   const [suggestedGuestsCount, setSuggestedGuestsCount] = useState('');
   const [changeReason, setChangeReason] = useState('');
 
@@ -85,17 +154,17 @@ export function useRestaurantDashboard() {
   const restaurantInitial =
     restaurant?.restaurant_name?.charAt(0)?.toUpperCase() || 'R';
 
-    const generateNotifications = async () => {
-      try {
-        await fetch(
-          'http://10.0.2.2/reservation-api/notifications/generate-notifications.php',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-          },
-        );
-      } catch {}
-    };
+  const generateNotifications = async () => {
+    try {
+      await fetch(
+        'http://10.0.2.2/reservation-api/notifications/generate-notifications.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    } catch {}
+  };
 
   const fetchRestaurantProfile = async () => {
     if (!user?.id) {
@@ -296,8 +365,6 @@ export function useRestaurantDashboard() {
     });
   };
 
-  
-
   const fetchUnreadNotificationsCount = async () => {
     if (!user?.id) return;
 
@@ -363,18 +430,18 @@ export function useRestaurantDashboard() {
   };
 
   const handleOpenRestaurantReviews = () => {
-  setIsProfileMenuOpen(false);
+    setIsProfileMenuOpen(false);
 
-  if (!restaurant) {
-    Alert.alert('Error', 'Restaurant profile is not loaded yet.');
-    return;
-  }
+    if (!restaurant) {
+      Alert.alert('Error', 'Restaurant profile is not loaded yet.');
+      return;
+    }
 
-  navigation.navigate('RestaurantReviews', {
-    restaurant,
-    user,
-  });
-};
+    navigation.navigate('RestaurantReviews', {
+      restaurant,
+      user,
+    });
+  };
 
   const handleLogout = () => {
     setIsProfileMenuOpen(false);
@@ -388,19 +455,23 @@ export function useRestaurantDashboard() {
   };
 
   useFocusEffect(
-  React.useCallback(() => {
-    const loadDashboard = async () => {
-      await generateNotifications();
-      await fetchRestaurantProfile();
-      await fetchUnreadNotificationsCount();
-    };
+    React.useCallback(() => {
+      const loadDashboard = async () => {
+        await generateNotifications();
+        await fetchRestaurantProfile();
+        await fetchUnreadNotificationsCount();
+      };
 
-    loadDashboard();
-  }, [user?.id]),
-);
+      loadDashboard();
+    }, [user?.id]),
+  );
 
   const pendingRequests = reservationRequests.filter(
     request => request.status === 'pending',
+  );
+
+  const waitlistedRequests = reservationRequests.filter(
+    request => request.status === 'waitlisted',
   );
 
   const pastApprovedRequests = reservationRequests.filter(
@@ -423,6 +494,7 @@ export function useRestaurantDashboard() {
   return {
     restaurant,
     pendingRequests,
+    waitlistedRequests,
     pastApprovedRequests,
     isLoading,
     isLoadingRequests,
@@ -442,6 +514,14 @@ export function useRestaurantDashboard() {
 
     selectedChangeRequestId,
     suggestedDate,
+    isSuggestedDatePickerOpen,
+    isSuggestedTimePickerOpen,
+    suggestedDatePickerValue,
+    suggestedTimePickerValue,
+    openSuggestedDatePicker,
+    openSuggestedTimePicker,
+    handleSuggestedDatePickerChange,
+    handleSuggestedTimePickerChange,
     setSuggestedDate,
     suggestedTime,
     setSuggestedTime,

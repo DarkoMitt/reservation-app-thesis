@@ -450,4 +450,10 @@ notificationBadgeText: {
   fontSize: 10,
   fontWeight: '800',
 },
+
+pickerInputText: {
+  fontSize: 14,
+  color: '#2A211C',
+  fontWeight: '700',
+},
 });

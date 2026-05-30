@@ -323,5 +323,29 @@ activePriceOptionText: {
   color: '#FFFFFF',
 },
 
+waitlistInfoBox: {
+  backgroundColor: '#FFF7E6',
+  borderRadius: 18,
+  padding: 14,
+  marginTop: 12,
+  borderWidth: 1,
+  borderColor: '#F0C36D',
+},
+
+waitlistTitle: {
+  fontSize: 15,
+  fontWeight: '900',
+  color: '#8B5E00',
+  marginBottom: 6,
+},
+
+waitlistText: {
+  fontSize: 13,
+  lineHeight: 20,
+  color: '#5A4630',
+  fontWeight: '600',
+  marginBottom: 4,
+},
+
 
 });

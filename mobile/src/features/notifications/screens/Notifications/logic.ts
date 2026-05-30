@@ -127,6 +127,46 @@ export function useNotifications() {
     navigation.goBack();
   };
 
+  const handleNotificationPress = async (notification: NotificationItem) => {
+    if (!user?.id) return;
+
+    try {
+      await markNotificationRead(notification.id);
+
+      if (user.role === 'customer' && notification.related_reservation_id) {
+        const response = await fetch(
+          'http://10.0.2.2/reservation-api/reservations/get-reservation-by-id.php',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              reservationId: notification.related_reservation_id,
+            }),
+          },
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          navigation.navigate('ReservationDetails', {
+            reservation: data.reservation,
+            user,
+          });
+        }
+
+        return;
+      }
+
+      if (user.role === 'restaurant') {
+        navigation.navigate('RestaurantDashboard', {
+          user,
+        });
+      }
+    } catch {
+      Alert.alert('Error', 'Something went wrong while opening notification.');
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       fetchNotifications();
@@ -139,6 +179,7 @@ export function useNotifications() {
     isLoading,
     isMarkingAll,
     handleBack,
+    handleNotificationPress,
     markNotificationRead,
     markAllNotificationsRead,
   };

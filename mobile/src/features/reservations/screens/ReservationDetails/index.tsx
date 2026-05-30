@@ -120,6 +120,22 @@ function ReservationDetails(): React.JSX.Element {
             Guests: {reservation.guests_count}
           </Text>
 
+          {reservation.status === 'waitlisted' ? (
+            <View style={styles.waitlistInfoBox}>
+              <Text style={styles.waitlistTitle}>Waitlisted Reservation</Text>
+
+              <Text style={styles.waitlistText}>
+                Position: #{reservation.waitlist_position || '-'}
+              </Text>
+
+              <Text style={styles.waitlistText}>
+                The restaurant is currently full for this time slot. If enough seats become
+                available, your request will automatically move to pending restaurant
+                confirmation.
+              </Text>
+            </View>
+          ) : null}
+
           {reservation.special_request ? (
             <Text style={styles.infoText}>
               Request: {reservation.special_request}

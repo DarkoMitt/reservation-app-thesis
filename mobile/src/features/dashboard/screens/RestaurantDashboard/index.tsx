@@ -11,11 +11,13 @@ import {
 
 import { useRestaurantDashboard } from './logic';
 import { styles } from './styles';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 function RestaurantDashboard(): React.JSX.Element {
   const {
     restaurant,
     pendingRequests,
+    waitlistedRequests,
     pastApprovedRequests,
     isLoading,
     isLoadingRequests,
@@ -36,6 +38,14 @@ function RestaurantDashboard(): React.JSX.Element {
     selectedChangeRequestId,
     suggestedDate,
     setSuggestedDate,
+    isSuggestedDatePickerOpen,
+    isSuggestedTimePickerOpen,
+    suggestedDatePickerValue,
+    suggestedTimePickerValue,
+    openSuggestedDatePicker,
+    openSuggestedTimePicker,
+    handleSuggestedDatePickerChange,
+    handleSuggestedTimePickerChange,
     suggestedTime,
     setSuggestedTime,
     suggestedGuestsCount,
@@ -162,6 +172,11 @@ function RestaurantDashboard(): React.JSX.Element {
             <Text style={styles.statValue}>{pendingRequests.length}</Text>
             <Text style={styles.statLabel}>Pending Requests</Text>
           </View>
+
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{waitlistedRequests.length}</Text>
+            <Text style={styles.statLabel}>Waitlist</Text>
+          </View>
         </View>
 
         <View style={styles.card}>
@@ -269,22 +284,24 @@ function RestaurantDashboard(): React.JSX.Element {
                     <Text style={styles.changeOfferTitle}>Offer Changes</Text>
 
                     <Text style={styles.rejectReasonLabel}>Suggested Date</Text>
-                    <TextInput
+                    <TouchableOpacity
                       style={styles.inputSmall}
-                      value={suggestedDate}
-                      onChangeText={setSuggestedDate}
-                      placeholder="YYYY-MM-DD"
-                      placeholderTextColor="#8B8178"
-                    />
+                      activeOpacity={0.85}
+                      onPress={openSuggestedDatePicker}>
+                      <Text style={styles.pickerInputText}>
+                        {suggestedDate || 'YYYY-MM-DD'}
+                      </Text>
+                    </TouchableOpacity>
 
                     <Text style={styles.rejectReasonLabel}>Suggested Time</Text>
-                    <TextInput
+                    <TouchableOpacity
                       style={styles.inputSmall}
-                      value={suggestedTime}
-                      onChangeText={setSuggestedTime}
-                      placeholder="HH:MM"
-                      placeholderTextColor="#8B8178"
-                    />
+                      activeOpacity={0.85}
+                      onPress={openSuggestedTimePicker}>
+                      <Text style={styles.pickerInputText}>
+                        {suggestedTime || 'HH:MM'}
+                      </Text>
+                    </TouchableOpacity>
 
                     <Text style={styles.rejectReasonLabel}>Suggested Guests</Text>
                     <TextInput
@@ -352,6 +369,80 @@ function RestaurantDashboard(): React.JSX.Element {
         </View>
 
         <View style={styles.card}>
+          <Text style={styles.cardTitle}>Waitlist Requests</Text>
+
+          {isLoadingRequests ? (
+            <ActivityIndicator size="small" color="#8B1E3F" />
+          ) : waitlistedRequests.length === 0 ? (
+            <Text style={styles.description}>
+              No customers are currently waiting for available seats.
+            </Text>
+          ) : (
+            waitlistedRequests.map(request => (
+              <View key={request.id} style={styles.requestCard}>
+                <View style={styles.requestHeader}>
+                  <View>
+                    <Text style={styles.requestName}>{request.full_name}</Text>
+                    <Text style={styles.newCustomerBadge}>
+                      Waitlist #{request.waitlist_position || '-'}
+                    </Text>
+                  </View>
+
+                  <Text style={styles.requestRisk}>
+                    Risk: {request.no_show_risk || 'low'}
+                    {request.risk_percentage
+                      ? ` (${request.risk_percentage}%)`
+                      : ''}
+                  </Text>
+                </View>
+
+                <Text style={styles.requestText}>
+                  Date: {request.reservation_date}
+                </Text>
+                <Text style={styles.requestText}>
+                  Time: {request.reservation_time}
+                </Text>
+                <Text style={styles.requestText}>
+                  Guests Needed: {request.guests_count}
+                </Text>
+                <Text style={styles.requestText}>
+                  Trust Score: {request.customer_trust_score || 20}
+                </Text>
+                <Text style={styles.requestText}>
+                  No-shows: {request.customer_no_show_count || 0}
+                </Text>
+
+                <TouchableOpacity
+                  style={styles.viewProfileButton}
+                  activeOpacity={0.85}
+                  onPress={() => handleOpenPredictionDetails(request)}>
+                  <Text style={styles.viewProfileButtonText}>
+                    View Prediction Details
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.viewProfileButton}
+                  activeOpacity={0.85}
+                  onPress={() =>
+                    handleOpenCustomerProfile(request.customer_user_id)
+                  }>
+                  <Text style={styles.viewProfileButtonText}>
+                    View Customer Profile
+                  </Text>
+                </TouchableOpacity>
+
+                {request.special_request ? (
+                  <Text style={styles.requestText}>
+                    Request: {request.special_request}
+                  </Text>
+                ) : null}
+              </View>
+            ))
+          )}
+        </View>
+
+        <View style={styles.card}>
           <Text style={styles.cardTitle}>Past Approved Reservations</Text>
 
           {pastApprovedRequests.length === 0 ? (
@@ -407,6 +498,24 @@ function RestaurantDashboard(): React.JSX.Element {
           )}
         </View>
       </ScrollView>
+      {isSuggestedDatePickerOpen ? (
+        <DateTimePicker
+          value={suggestedDatePickerValue}
+          mode="date"
+          display="calendar"
+          onChange={handleSuggestedDatePickerChange}
+        />
+      ) : null}
+
+      {isSuggestedTimePickerOpen ? (
+        <DateTimePicker
+          value={suggestedTimePickerValue}
+          mode="time"
+          is24Hour
+          display="clock"
+          onChange={handleSuggestedTimePickerChange}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
