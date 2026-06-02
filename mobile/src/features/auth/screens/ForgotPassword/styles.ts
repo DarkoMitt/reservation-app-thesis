@@ -9,28 +9,42 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 40,
+    justifyContent: 'center',
+  },
+
+  content: {
+    gap: 16,
   },
 
   backText: {
     fontSize: 16,
     color: '#8B1E3F',
-    marginBottom: 20,
     fontWeight: '600',
+  },
+
+  header: {
+    gap: 8,
   },
 
   title: {
     fontSize: 32,
     fontWeight: '800',
     color: '#2A211C',
-    marginBottom: 12,
   },
 
   subtitle: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#6E6258',
     lineHeight: 22,
-    marginBottom: 30,
+  },
+
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#D8CFC5',
+    padding: 18,
+    gap: 14,
   },
 
   input: {
@@ -38,11 +52,10 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#D8CFC5',
     borderRadius: 14,
-    backgroundColor: '#FFF',
+    backgroundColor: '#FFFDFC',
     paddingHorizontal: 16,
     fontSize: 16,
     color: '#2A211C',
-    marginBottom: 24,
   },
 
   button: {
@@ -51,6 +64,7 @@ export const styles = StyleSheet.create({
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 4,
   },
 
   buttonText: {

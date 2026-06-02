@@ -13,44 +13,56 @@ export const styles = StyleSheet.create({
   },
 
   content: {
-    gap: 18,
+    gap: 20,
+  },
+
+  header: {
+    gap: 8,
   },
 
   title: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '800',
     color: '#2A211C',
   },
 
   subtitle: {
-    fontSize: 15,
+    fontSize: 16,
     lineHeight: 22,
     color: '#6E6258',
-    marginBottom: 12,
+  },
+
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#D8CFC5',
+    padding: 18,
+    gap: 16,
   },
 
   form: {
-    gap: 16,
+    gap: 14,
   },
 
   input: {
     height: 56,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    backgroundColor: '#FFFDFC',
     paddingHorizontal: 16,
-    fontSize: 15,
+    fontSize: 16,
     color: '#2A211C',
     borderWidth: 1,
-    borderColor: '#E7DED3',
+    borderColor: '#D8CFC5',
   },
 
   loginButton: {
     height: 56,
-    borderRadius: 16,
+    borderRadius: 14,
     backgroundColor: '#8B1E3F',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 6,
   },
 
   loginButtonText: {
@@ -63,8 +75,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#8B1E3F',
     fontSize: 14,
-    fontWeight: '600',
-    marginTop: 8,
+    fontWeight: '700',
   },
 
   forgotPasswordText: {
@@ -72,7 +83,6 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     textAlign: 'right',
-    marginTop: -6,
-    marginBottom: 18,
+    marginTop: 2,
   },
 });

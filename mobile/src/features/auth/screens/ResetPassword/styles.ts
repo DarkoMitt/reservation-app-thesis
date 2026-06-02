@@ -9,51 +9,63 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 40,
+    justifyContent: 'center',
+  },
+
+  content: {
+    gap: 16,
   },
 
   backText: {
     fontSize: 16,
     color: '#8B1E3F',
-    marginBottom: 20,
     fontWeight: '600',
+  },
+
+  header: {
+    gap: 8,
   },
 
   title: {
     fontSize: 32,
     fontWeight: '800',
     color: '#2A211C',
-    marginBottom: 10,
   },
 
   subtitle: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#6E6258',
     lineHeight: 22,
   },
 
   emailText: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#8B1E3F',
-    fontWeight: '800',
-    marginTop: 4,
-    marginBottom: 28,
+    fontWeight: '700',
+  },
+
+  codeCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#D8CFC5',
+    padding: 16,
   },
 
   codeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 18,
+    marginBottom: 16,
   },
 
   codeInput: {
-    width: 46,
+    width: 45,
     height: 54,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: '#D8CFC5',
-    backgroundColor: '#FFFFFF',
-    fontSize: 22,
+    backgroundColor: '#FFFDFC',
+    fontSize: 21,
     fontWeight: '800',
     color: '#2A211C',
   },
@@ -76,11 +88,10 @@ export const styles = StyleSheet.create({
   },
 
   resendText: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#8B1E3F',
-    fontWeight: '800',
+    fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 28,
   },
 
   passwordBox: {
@@ -88,14 +99,13 @@ export const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E7DED3',
-    marginBottom: 22,
+    borderColor: '#D8CFC5',
   },
 
   passwordLabel: {
     fontSize: 14,
     color: '#2A211C',
-    fontWeight: '800',
+    fontWeight: '700',
     marginBottom: 8,
   },
 
@@ -104,9 +114,9 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#D8CFC5',
     borderRadius: 14,
-    backgroundColor: '#FDFBF8',
+    backgroundColor: '#FFFDFC',
     paddingHorizontal: 14,
-    fontSize: 15,
+    fontSize: 16,
     color: '#2A211C',
     marginBottom: 16,
   },
@@ -122,6 +132,6 @@ export const styles = StyleSheet.create({
   resetButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
   },
 });
