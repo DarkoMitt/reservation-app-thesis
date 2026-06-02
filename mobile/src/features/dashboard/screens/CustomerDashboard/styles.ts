@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingTop: 40,
-    paddingBottom: 32,
+    paddingBottom: 140,
   },
 
   header: {
@@ -250,10 +250,37 @@ notificationButton: {
   justifyContent: 'center',
   alignItems: 'center',
   position: 'relative',
+  borderWidth: 1,
+  borderColor: '#D8CFC5',
+  borderRadius: 14,
+  backgroundColor: '#FFFFFF',
 },
 
-notificationIcon: {
-  fontSize: 24,
+notificationIconWrap: {
+  width: 18,
+  height: 18,
+  alignItems: 'center',
+  justifyContent: 'flex-start',
+},
+
+notificationBellBody: {
+  width: 14,
+  height: 12,
+  borderWidth: 1.8,
+  borderColor: '#6E6258',
+  borderTopLeftRadius: 8,
+  borderTopRightRadius: 8,
+  borderBottomLeftRadius: 4,
+  borderBottomRightRadius: 4,
+  borderBottomWidth: 1.2,
+},
+
+notificationBellClapper: {
+  width: 4,
+  height: 4,
+  borderRadius: 2,
+  backgroundColor: '#6E6258',
+  marginTop: 1,
 },
 
 notificationBadge: {
@@ -278,5 +305,50 @@ notificationBadgeText: {
   color: '#FFFFFF',
   fontSize: 10,
   fontWeight: '800',
+},
+
+bottomNavContainer: {
+  position: 'absolute',
+  left: 16,
+  right: 16,
+  bottom: 12,
+  backgroundColor: '#FFFFFF',
+  borderWidth: 1,
+  borderColor: '#D8CFC5',
+  borderRadius: 24,
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 8,
+  paddingHorizontal: 8,
+},
+
+bottomNavItem: {
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingVertical: 8,
+  borderRadius: 16,
+},
+
+bottomNavItemActive: {
+  backgroundColor: '#F3E7EA',
+},
+
+bottomNavIcon: {
+  fontSize: 14,
+  color: '#6E6258',
+  marginBottom: 2,
+  fontWeight: '700',
+},
+
+bottomNavText: {
+  fontSize: 11,
+  color: '#6E6258',
+  fontWeight: '700',
+},
+
+bottomNavTextActive: {
+  color: '#8B1E3F',
 },
 });

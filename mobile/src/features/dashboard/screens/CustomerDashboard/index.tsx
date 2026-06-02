@@ -51,7 +51,10 @@ function CustomerDashboard(): React.JSX.Element {
               style={styles.notificationButton}
               activeOpacity={0.8}
               onPress={handleOpenNotifications}>
-              <Text style={styles.notificationIcon}>🔔</Text>
+              <View style={styles.notificationIconWrap}>
+                <View style={styles.notificationBellBody} />
+                <View style={styles.notificationBellClapper} />
+              </View>
 
               {unreadNotificationsCount > 0 ? (
                 <View style={styles.notificationBadge}>
@@ -194,6 +197,47 @@ function CustomerDashboard(): React.JSX.Element {
           </View>
         )}
       </ScrollView>
+
+      <View style={styles.bottomNavContainer}>
+        <TouchableOpacity
+          style={[styles.bottomNavItem, styles.bottomNavItemActive]}
+          activeOpacity={0.85}>
+          <Text style={[styles.bottomNavIcon, styles.bottomNavTextActive]}>⌂</Text>
+          <Text style={[styles.bottomNavText, styles.bottomNavTextActive]}>Home</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.bottomNavItem}
+          activeOpacity={0.85}
+          onPress={handleOpenMyReservations}>
+          <Text style={styles.bottomNavIcon}>◷</Text>
+          <Text style={styles.bottomNavText}>Reservations</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.bottomNavItem}
+          activeOpacity={0.85}
+          onPress={handleOpenMyReviews}>
+          <Text style={styles.bottomNavIcon}>★</Text>
+          <Text style={styles.bottomNavText}>Reviews</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.bottomNavItem}
+          activeOpacity={0.85}
+          onPress={handleOpenProfile}>
+          <Text style={styles.bottomNavIcon}>◉</Text>
+          <Text style={styles.bottomNavText}>Profile</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.bottomNavItem}
+          activeOpacity={0.85}
+          onPress={handleLogout}>
+          <Text style={styles.bottomNavIcon}>↩</Text>
+          <Text style={styles.bottomNavText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
