@@ -20,6 +20,7 @@ function LoginScreen(): React.JSX.Element {
     setPassword,
     handleLogin,
     handleGoToRegister,
+    handleForgotPassword,
   } = useLogin();
 
   return (
@@ -51,6 +52,14 @@ function LoginScreen(): React.JSX.Element {
               value={password}
               onChangeText={setPassword}
             />
+
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={handleForgotPassword}>
+              <Text style={styles.forgotPasswordText}>
+                Forgot your password?
+              </Text>
+            </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.loginButton}

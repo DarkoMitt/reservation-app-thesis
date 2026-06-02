@@ -5,6 +5,10 @@ export type AuthStackParamList = {
   CustomerRegister: undefined;
   RestaurantRegister: undefined;
   Login: undefined;
+  ForgotPassword: undefined;
+  ResetPassword: {
+    email: string;
+  };
 };
 
 export type AppUser = {

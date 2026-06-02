@@ -66,4 +66,13 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 8,
   },
+
+  forgotPasswordText: {
+    color: '#8B1E3F',
+    fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'right',
+    marginTop: -6,
+    marginBottom: 18,
+  },
 });

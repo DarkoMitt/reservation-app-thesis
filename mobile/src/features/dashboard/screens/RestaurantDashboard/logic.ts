@@ -455,16 +455,13 @@ export function useRestaurantDashboard() {
   };
 
   useFocusEffect(
-    React.useCallback(() => {
-      const loadDashboard = async () => {
-        await generateNotifications();
-        await fetchRestaurantProfile();
-        await fetchUnreadNotificationsCount();
-      };
+  React.useCallback(() => {
+    generateNotifications();
 
-      loadDashboard();
-    }, [user?.id]),
-  );
+    fetchRestaurantProfile();
+    fetchUnreadNotificationsCount();
+  }, [user?.id]),
+);
 
   const pendingRequests = reservationRequests.filter(
     request => request.status === 'pending',

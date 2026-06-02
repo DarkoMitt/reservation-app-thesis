@@ -91,6 +91,10 @@ export function useLogin() {
     navigation.navigate('ChooseRole' as never);
   };
 
+  const handleForgotPassword = () => {
+    navigation.navigate('ForgotPassword' as never);
+  };
+
   return {
     email,
     password,
@@ -98,5 +102,8 @@ export function useLogin() {
     setPassword,
     handleLogin,
     handleGoToRegister,
+    handleForgotPassword,
   };
+
+  
 }
