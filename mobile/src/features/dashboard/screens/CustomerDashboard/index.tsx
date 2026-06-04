@@ -12,10 +12,59 @@ import {
 import { useCustomerDashboard } from './logic';
 import { styles } from './styles';
 
+const getRestaurantTypeIcon = (type?: string) => {
+  const value = (type || '').toLowerCase();
+
+  if (value.includes('cafe') || value.includes('coffee')) return '☕';
+  if (value.includes('bar') || value.includes('lounge')) return '🍸';
+  if (value.includes('fast')) return '🍔';
+  if (value.includes('pizza')) return '🍕';
+  if (value.includes('bakery')) return '🥐';
+
+  return '🍽️';
+};
+
+const getStatusStyle = (status?: string) => {
+  const value = (status || '').toLowerCase();
+
+  if (value.includes('open')) {
+    return {
+      label: 'Open Now',
+      badgeStyle: styles.statusBadgeOpen,
+      dotStyle: styles.statusDotOpen,
+      textStyle: styles.statusTextOpen,
+    };
+  }
+
+  if (value.includes('busy') || value.includes('fully')) {
+    return {
+      label: value.includes('fully') ? 'Fully Booked' : 'Busy',
+      badgeStyle: styles.statusBadgeBusy,
+      dotStyle: styles.statusDotBusy,
+      textStyle: styles.statusTextBusy,
+    };
+  }
+
+  return {
+    label: 'Closed',
+    badgeStyle: styles.statusBadgeClosed,
+    dotStyle: styles.statusDotClosed,
+    textStyle: styles.statusTextClosed,
+  };
+};
+
+const getReservationsText = (count?: number) => {
+  const value = Number(count || 0);
+
+  if (value === 1) {
+    return '1 Reservation';
+  }
+
+  return `${value} Reservations`;
+};
+
 function CustomerDashboard(): React.JSX.Element {
   const {
-    isProfileMenuOpen,
-    setIsProfileMenuOpen,
     search,
     setSearch,
     selectedFilter,
@@ -25,8 +74,6 @@ function CustomerDashboard(): React.JSX.Element {
     isLoadingRestaurants,
     handleOpenMyReviews,
     handleLogout,
-    fullName,
-    initials,
     handleOpenRestaurant,
     handleOpenMyReservations,
     handleOpenProfile,
@@ -42,7 +89,7 @@ function CustomerDashboard(): React.JSX.Element {
         showsVerticalScrollIndicator={false}>
 
         <View style={styles.header}>
-          <View>
+          <View style={styles.headerTitleBox}>
             <Text style={styles.title}>Find your next reservation</Text>
           </View>
 
@@ -59,50 +106,15 @@ function CustomerDashboard(): React.JSX.Element {
               {unreadNotificationsCount > 0 ? (
                 <View style={styles.notificationBadge}>
                   <Text style={styles.notificationBadgeText}>
-                    {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+                    {unreadNotificationsCount > 99
+                      ? '99+'
+                      : unreadNotificationsCount}
                   </Text>
                 </View>
               ) : null}
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.profileButton}
-              activeOpacity={0.8}
-              onPress={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
-              <Text style={styles.profileInitials}>{initials}</Text>
-            </TouchableOpacity>
           </View>
         </View>
-
-        {isProfileMenuOpen && (
-          <View style={styles.profileMenu}>
-            <Text style={styles.profileName}>{fullName}</Text>
-
-            <TouchableOpacity
-              style={styles.profileMenuItem}
-              onPress={handleOpenProfile}>
-              <Text style={styles.profileMenuText}>Profile Settings</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.profileMenuItem}
-              onPress={handleOpenMyReviews}>
-              <Text style={styles.profileMenuText}>My Reviews</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.profileMenuItem}
-              onPress={handleOpenMyReservations}>
-              <Text style={styles.profileMenuText}>My Reservations</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.profileMenuItem}
-              onPress={handleLogout}>
-              <Text style={styles.logoutText}>Logout</Text>
-            </TouchableOpacity>
-          </View>
-        )}
 
         <TextInput
           style={styles.searchInput}
@@ -148,52 +160,102 @@ function CustomerDashboard(): React.JSX.Element {
             <ActivityIndicator size="large" color="#8B1E3F" />
             <Text style={styles.loadingText}>Loading restaurants...</Text>
           </View>
+        ) : restaurants.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>No restaurants found</Text>
+            <Text style={styles.emptyText}>
+              Try changing the search or selected filter.
+            </Text>
+          </View>
         ) : (
           <View style={styles.cardsWrapper}>
-            {restaurants.map(restaurant => (
-              <View key={restaurant.id} style={styles.card}>
-                <View style={styles.imagePlaceholder}>
-                  <Text style={styles.imageText}>
-                    {restaurant.restaurant_type || 'Restaurant'}
-                  </Text>
-                </View>
+            {restaurants.map(restaurant => {
+              const status = getStatusStyle(restaurant.displayStatus);
+              const rating = Number(restaurant.average_rating || 0).toFixed(1);
+              const reservationsCount = Number(restaurant.visit_count || 0);
 
-                <View style={styles.cardBody}>
-                  <View style={styles.cardHeader}>
-                    <View>
-                      <Text style={styles.restaurantName}>
-                        {restaurant.restaurant_name}
-                      </Text>
-
-                      <Text style={styles.restaurantMeta}>
-                        {restaurant.city} - {restaurant.address}
+              return (
+                <View key={restaurant.id} style={styles.card}>
+                  <View style={styles.cardTopRow}>
+                    <View style={styles.typeIconCircle}>
+                      <Text style={styles.typeIcon}>
+                        {getRestaurantTypeIcon(restaurant.restaurant_type)}
                       </Text>
                     </View>
 
-                    <Text style={styles.rating}>
-                      ★ {Number(restaurant.average_rating || 0).toFixed(1)}
-                    </Text>
+                    <View style={[styles.statusBadge, status.badgeStyle]}>
+                      <View style={[styles.statusDot, status.dotStyle]} />
+                      <Text style={[styles.statusBadgeText, status.textStyle]}>
+                        {status.label}
+                      </Text>
+                    </View>
                   </View>
 
-                  <Text style={styles.foodType}>
-                    {restaurant.cuisine_type || 'Cuisine not added'}
+                  <Text style={styles.restaurantName}>
+                    {restaurant.restaurant_name}
                   </Text>
 
-                  <View style={styles.cardFooter}>
-                    <Text style={styles.status}>
-                      {restaurant.displayStatus || 'Status unknown'}
+                  <View style={styles.locationRow}>
+                    <Text style={styles.locationIcon}>⌖</Text>
+                    <Text style={styles.restaurantMeta}>
+                      {restaurant.city || 'City not added'}
                     </Text>
-
-                    <TouchableOpacity
-                      style={styles.viewButton}
-                      activeOpacity={0.85}
-                      onPress={() => handleOpenRestaurant(restaurant)}>
-                      <Text style={styles.viewButtonText}>View</Text>
-                    </TouchableOpacity>
                   </View>
+
+                  <View style={styles.cuisineRow}>
+                    <View style={styles.cuisineChip}>
+                      <Text style={styles.cuisineChipText}>
+                        {restaurant.cuisine_type || 'Cuisine not added'}
+                      </Text>
+                    </View>
+
+                    <View style={styles.typeChip}>
+                      <Text style={styles.typeChipText}>
+                        {restaurant.restaurant_type || 'Restaurant'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.divider} />
+
+                  <View style={styles.statsRow}>
+                    <View style={styles.statItem}>
+                      <Text style={styles.statIcon}>●</Text>
+                      <Text style={styles.statValue}>{status.label}</Text>
+                      <Text style={styles.statLabel}>Status</Text>
+                    </View>
+
+                    <View style={styles.statDivider} />
+
+                    <View style={styles.statItem}>
+                      <Text style={styles.statIcon}>★</Text>
+                      <Text style={styles.statValue}>{rating}</Text>
+                      <Text style={styles.statLabel}>Avg rating</Text>
+                    </View>
+
+                    <View style={styles.statDivider} />
+
+                    <View style={styles.statItem}>
+                      <Text style={styles.statIcon}>👥</Text>
+                      <Text style={styles.statValue}>
+                        {reservationsCount}
+                      </Text>
+                      <Text style={styles.statLabel}>Reservations</Text>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.viewButton}
+                    activeOpacity={0.85}
+                    onPress={() => handleOpenRestaurant(restaurant)}>
+                    <Text style={styles.viewButtonText}>
+                      👁 View Restaurant
+                    </Text>
+                    <Text style={styles.viewButtonArrow}>›</Text>
+                  </TouchableOpacity>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         )}
       </ScrollView>
@@ -203,7 +265,9 @@ function CustomerDashboard(): React.JSX.Element {
           style={[styles.bottomNavItem, styles.bottomNavItemActive]}
           activeOpacity={0.85}>
           <Text style={[styles.bottomNavIcon, styles.bottomNavTextActive]}>⌂</Text>
-          <Text style={[styles.bottomNavText, styles.bottomNavTextActive]}>Home</Text>
+          <Text style={[styles.bottomNavText, styles.bottomNavTextActive]}>
+            Home
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity

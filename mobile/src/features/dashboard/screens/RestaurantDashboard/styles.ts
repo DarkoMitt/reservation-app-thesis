@@ -415,15 +415,14 @@ export const styles = StyleSheet.create({
 },
 
 notificationButton: {
-  width: 46,
-  height: 46,
-  marginRight: 10,
+  width: 44,
+  height: 44,
   justifyContent: 'center',
   alignItems: 'center',
   position: 'relative',
   borderWidth: 1,
-  borderColor: '#D8CFC5',
-  borderRadius: 14,
+  borderColor: '#E7DED3',
+  borderRadius: 16,
   backgroundColor: '#FFFFFF',
 },
 

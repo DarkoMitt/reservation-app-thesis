@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingTop: 40,
-    paddingBottom: 140,
+    paddingBottom: 145,
   },
 
   header: {
@@ -22,68 +22,84 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  greeting: {
-    fontSize: 14,
-    color: '#6E6258',
-    marginBottom: 4,
+  headerTitleBox: {
+    flex: 1,
+    paddingRight: 14,
   },
 
   title: {
     fontSize: 24,
-    fontWeight: '800',
+    fontWeight: '900',
     color: '#2A211C',
+    lineHeight: 30,
   },
 
-  profileButton: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: '#8B1E3F',
-    justifyContent: 'center',
+  headerRight: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
 
-  profileInitials: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
-  },
-
-  profileMenu: {
-    marginTop: 14,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 14,
+  notificationButton: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
     borderWidth: 1,
     borderColor: '#E7DED3',
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
   },
 
-  profileName: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#2A211C',
-    marginBottom: 10,
+  notificationIconWrap: {
+    width: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
 
-  profileMenuItem: {
-    paddingVertical: 10,
+  notificationBellBody: {
+    width: 14,
+    height: 12,
+    borderWidth: 1.8,
+    borderColor: '#6E6258',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
+    borderBottomWidth: 1.2,
   },
 
-  profileMenuText: {
-    fontSize: 14,
-    color: '#4B4038',
-    fontWeight: '600',
+  notificationBellClapper: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#6E6258',
+    marginTop: 1,
   },
 
-  logoutText: {
-    fontSize: 14,
-    color: '#8B1E3F',
-    fontWeight: '800',
+  notificationBadge: {
+    position: 'absolute',
+    top: 3,
+    right: 2,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#D62839',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+
+  notificationBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '900',
   },
 
   searchInput: {
-    height: 54,
-    borderRadius: 16,
+    height: 56,
+    borderRadius: 18,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
     fontSize: 14,
@@ -91,6 +107,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E7DED3',
     marginTop: 22,
+    fontWeight: '600',
   },
 
   filtersRow: {
@@ -115,7 +132,7 @@ export const styles = StyleSheet.create({
   filterText: {
     fontSize: 13,
     color: '#6E6258',
-    fontWeight: '700',
+    fontWeight: '800',
   },
 
   activeFilterText: {
@@ -130,225 +147,330 @@ export const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 19,
-    fontWeight: '800',
+    fontSize: 20,
+    fontWeight: '900',
     color: '#2A211C',
   },
 
   sectionSubtitle: {
     fontSize: 13,
     color: '#6E6258',
-    fontWeight: '600',
+    fontWeight: '700',
   },
 
   cardsWrapper: {},
 
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    overflow: 'hidden',
+    borderRadius: 26,
+    padding: 18,
     borderWidth: 1,
     borderColor: '#E7DED3',
+    marginBottom: 18,
+
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    elevation: 4,
+  },
+
+  cardTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
   },
 
-  imagePlaceholder: {
-    height: 128,
-    backgroundColor: '#D7BFA6',
+  typeIconCircle: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    backgroundColor: '#F4E2D7',
     justifyContent: 'center',
     alignItems: 'center',
   },
 
-  imageText: {
-    color: '#2A211C',
-    fontWeight: '800',
-    fontSize: 16,
+  typeIcon: {
+    fontSize: 30,
   },
 
-  cardBody: {
-    padding: 16,
-  },
-
-  cardHeader: {
+  statusBadge: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
   },
 
-  restaurantName: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#2A211C',
-    marginBottom: 4,
+  statusBadgeOpen: {
+    backgroundColor: '#E3F6E8',
   },
 
-  restaurantMeta: {
+  statusBadgeBusy: {
+    backgroundColor: '#FFF0DC',
+  },
+
+  statusBadgeClosed: {
+    backgroundColor: '#F1F1F1',
+  },
+
+  statusDot: {
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    marginRight: 7,
+  },
+
+  statusDotOpen: {
+    backgroundColor: '#1E9A4B',
+  },
+
+  statusDotBusy: {
+    backgroundColor: '#F27C22',
+  },
+
+  statusDotClosed: {
+    backgroundColor: '#8A8A8A',
+  },
+
+  statusBadgeText: {
     fontSize: 13,
+    fontWeight: '900',
+  },
+
+  statusTextOpen: {
+    color: '#137A38',
+  },
+
+  statusTextBusy: {
+    color: '#D86400',
+  },
+
+  statusTextClosed: {
     color: '#6E6258',
   },
 
-  rating: {
-    fontSize: 13,
-    fontWeight: '800',
+  restaurantName: {
+    fontSize: 30,
+    fontWeight: '900',
     color: '#2A211C',
+    marginBottom: 8,
+    letterSpacing: -0.4,
   },
 
-  foodType: {
-    fontSize: 13,
-    color: '#4B4038',
-    marginTop: 12,
-    fontWeight: '600',
-  },
-
-  cardFooter: {
-    marginTop: 16,
+  locationRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 14,
   },
 
-  status: {
-    fontSize: 13,
-    color: '#4B4038',
+  locationIcon: {
+    fontSize: 16,
+    color: '#8B1E3F',
+    marginRight: 6,
+    fontWeight: '900',
+  },
+
+  restaurantMeta: {
+    fontSize: 15,
+    color: '#6E6258',
     fontWeight: '700',
+  },
+
+  cuisineRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 14,
+  },
+
+  cuisineChip: {
+    backgroundColor: '#F6EEE7',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+  },
+
+  cuisineChipText: {
+    fontSize: 13,
+    color: '#68152F',
+    fontWeight: '800',
+  },
+
+  typeChip: {
+    backgroundColor: '#F9F4EE',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#EFE2D7',
+  },
+
+  typeChipText: {
+    fontSize: 13,
+    color: '#6E6258',
+    fontWeight: '800',
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: '#EFE6DC',
+    marginBottom: 14,
+  },
+
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF8F0',
+    borderRadius: 18,
+    paddingVertical: 12,
+    marginBottom: 16,
+  },
+
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+
+  statIcon: {
+    fontSize: 15,
+    color: '#8B1E3F',
+    fontWeight: '900',
+    marginBottom: 4,
+  },
+
+  statValue: {
+    fontSize: 13,
+    color: '#2A211C',
+    fontWeight: '900',
+    textAlign: 'center',
+  },
+
+  statLabel: {
+    fontSize: 11,
+    color: '#8B8178',
+    fontWeight: '700',
+    marginTop: 2,
+    textAlign: 'center',
+  },
+
+  statDivider: {
+    width: 1,
+    height: 34,
+    backgroundColor: '#E7DED3',
   },
 
   viewButton: {
     backgroundColor: '#8B1E3F',
+    height: 54,
+    borderRadius: 18,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 14,
   },
 
   viewButtonText: {
     color: '#FFFFFF',
-    fontWeight: '800',
-    fontSize: 13,
+    fontWeight: '900',
+    fontSize: 15,
+  },
+
+  viewButtonArrow: {
+    position: 'absolute',
+    right: 18,
+    color: '#FFFFFF',
+    fontSize: 30,
+    fontWeight: '400',
   },
 
   loadingBox: {
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingVertical: 30,
-},
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 34,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#E7DED3',
+  },
 
-loadingText: {
-  marginTop: 10,
-  fontSize: 14,
-  color: '#6E6258',
-  fontWeight: '600',
-},
+  loadingText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: '#6E6258',
+    fontWeight: '700',
+  },
 
-headerRight: {
-  flexDirection: 'row',
-  alignItems: 'center',
-},
+  emptyCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#E7DED3',
+    padding: 22,
+  },
 
-notificationButton: {
-  width: 46,
-  height: 46,
-  marginRight: 10,
-  justifyContent: 'center',
-  alignItems: 'center',
-  position: 'relative',
-  borderWidth: 1,
-  borderColor: '#D8CFC5',
-  borderRadius: 14,
-  backgroundColor: '#FFFFFF',
-},
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#2A211C',
+    marginBottom: 8,
+  },
 
-notificationIconWrap: {
-  width: 18,
-  height: 18,
-  alignItems: 'center',
-  justifyContent: 'flex-start',
-},
+  emptyText: {
+    fontSize: 14,
+    color: '#6E6258',
+    lineHeight: 22,
+    fontWeight: '600',
+  },
 
-notificationBellBody: {
-  width: 14,
-  height: 12,
-  borderWidth: 1.8,
-  borderColor: '#6E6258',
-  borderTopLeftRadius: 8,
-  borderTopRightRadius: 8,
-  borderBottomLeftRadius: 4,
-  borderBottomRightRadius: 4,
-  borderBottomWidth: 1.2,
-},
+  bottomNavContainer: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    bottom: 12,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D8CFC5',
+    borderRadius: 24,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+  },
 
-notificationBellClapper: {
-  width: 4,
-  height: 4,
-  borderRadius: 2,
-  backgroundColor: '#6E6258',
-  marginTop: 1,
-},
+  bottomNavItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 16,
+  },
 
-notificationBadge: {
-  position: 'absolute',
-  top: 3,
-  right: 2,
+  bottomNavItemActive: {
+    backgroundColor: '#F3E7EA',
+  },
 
-  minWidth: 18,
-  height: 18,
+  bottomNavIcon: {
+    fontSize: 14,
+    color: '#6E6258',
+    marginBottom: 2,
+    fontWeight: '700',
+  },
 
-  borderRadius: 9,
+  bottomNavText: {
+    fontSize: 11,
+    color: '#6E6258',
+    fontWeight: '700',
+  },
 
-  backgroundColor: '#D62839',
-
-  justifyContent: 'center',
-  alignItems: 'center',
-
-  paddingHorizontal: 4,
-},
-
-notificationBadgeText: {
-  color: '#FFFFFF',
-  fontSize: 10,
-  fontWeight: '800',
-},
-
-bottomNavContainer: {
-  position: 'absolute',
-  left: 16,
-  right: 16,
-  bottom: 12,
-  backgroundColor: '#FFFFFF',
-  borderWidth: 1,
-  borderColor: '#D8CFC5',
-  borderRadius: 24,
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingVertical: 8,
-  paddingHorizontal: 8,
-},
-
-bottomNavItem: {
-  flex: 1,
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingVertical: 8,
-  borderRadius: 16,
-},
-
-bottomNavItemActive: {
-  backgroundColor: '#F3E7EA',
-},
-
-bottomNavIcon: {
-  fontSize: 14,
-  color: '#6E6258',
-  marginBottom: 2,
-  fontWeight: '700',
-},
-
-bottomNavText: {
-  fontSize: 11,
-  color: '#6E6258',
-  fontWeight: '700',
-},
-
-bottomNavTextActive: {
-  color: '#8B1E3F',
-},
+  bottomNavTextActive: {
+    color: '#8B1E3F',
+  },
 });

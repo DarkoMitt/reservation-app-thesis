@@ -22,10 +22,6 @@ function RestaurantDashboard(): React.JSX.Element {
     isLoading,
     isLoadingRequests,
     isUpdatingRequest,
-
-    isProfileMenuOpen,
-    setIsProfileMenuOpen,
-    restaurantInitial,
     handleOpenVisitedCustomers,
 
     selectedRejectRequestId,
@@ -115,46 +111,8 @@ function RestaurantDashboard(): React.JSX.Element {
               ) : null}
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.avatarButton}
-              activeOpacity={0.85}
-              onPress={() => setIsProfileMenuOpen(!isProfileMenuOpen)}>
-              <Text style={styles.avatarText}>{restaurantInitial}</Text>
-            </TouchableOpacity>
           </View>
         </View>
-
-        {isProfileMenuOpen ? (
-          <View style={styles.profileMenu}>
-            <Text style={styles.profileMenuName}>
-              {restaurant?.restaurant_name || 'Restaurant'}
-            </Text>
-
-            <TouchableOpacity
-              style={styles.profileMenuItem}
-              onPress={handleOpenProfile}>
-              <Text style={styles.profileMenuText}>My Profile</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.profileMenuItem}
-              onPress={handleOpenRestaurantReviews}>
-              <Text style={styles.profileMenuText}>Reviews</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.profileMenuItem}
-              onPress={handleOpenVisitedCustomers}>
-              <Text style={styles.profileMenuText}>Visited Customers</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.profileMenuItem}
-              onPress={handleLogout}>
-              <Text style={styles.profileMenuLogout}>Logout</Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
 
         <View style={styles.statusCard}>
           <Text style={styles.statusLabel}>Account Status</Text>
