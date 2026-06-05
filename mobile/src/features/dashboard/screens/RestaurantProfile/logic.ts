@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Platform } from 'react-native';
 import { appAlert as Alert } from '../../../../shared/services/appAlert';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import {
+  CommonActions,
+  useRoute,
+  useNavigation,
+} from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
 
 type RestaurantProfile = {
@@ -41,7 +46,7 @@ type TimePickerType =
   | 'friSunEnd'
   | null;
 
-  export const cuisineOptions = [
+export const cuisineOptions = [
   'Traditional',
   'Balkan',
   'Italian',
@@ -69,10 +74,7 @@ const parseImages = (value?: string): string[] => {
 
 const calculateCompletion = (fields: Array<string | string[]>) => {
   const completedFields = fields.filter(field => {
-    if (Array.isArray(field)) {
-      return field.length > 0;
-    }
-
+    if (Array.isArray(field)) return field.length > 0;
     return field && field.trim().length > 0;
   }).length;
 
@@ -84,15 +86,11 @@ export function useRestaurantProfile() {
   const navigation = useNavigation<any>();
 
   const restaurant = route.params?.restaurant as RestaurantProfile;
+  const user = route.params?.user;
 
   const [cuisineType, setCuisineType] = useState(restaurant?.cuisine_type || '');
-
   const [isCuisineDropdownOpen, setIsCuisineDropdownOpen] = useState(false);
-
-  const handleSelectCuisineType = (selectedCuisineType: string) => {
-    setCuisineType(selectedCuisineType);
-    setIsCuisineDropdownOpen(false);
-  };
+  const [previewImageUri, setPreviewImageUri] = useState<string | null>(null);
 
   const [address, setAddress] = useState(restaurant?.address || '');
   const [city, setCity] = useState(restaurant?.city || '');
@@ -103,23 +101,59 @@ export function useRestaurantProfile() {
   const [monThuHours, setMonThuHours] = useState(
     restaurant?.mon_thu_hours || '09:00 - 23:00',
   );
-
   const [friSunHours, setFriSunHours] = useState(
     restaurant?.fri_sun_hours || '09:00 - 23:00',
   );
 
-  const [activeTimePicker, setActiveTimePicker] =
-    useState<TimePickerType>(null);
-
+  const [activeTimePicker, setActiveTimePicker] = useState<TimePickerType>(null);
   const [timePickerDate, setTimePickerDate] = useState(new Date());
 
-  const getTimeFromHours = (
-    currentValue: string,
-    type: 'start' | 'end',
-  ) => {
+  const [restaurantImages, setRestaurantImages] = useState<string[]>(
+    parseImages(restaurant?.restaurant_images),
+  );
+
+  const [menuImages, setMenuImages] = useState<string[]>(
+    parseImages(restaurant?.menu_images),
+  );
+
+  const [hasSmokingArea, setHasSmokingArea] = useState(
+    Boolean(Number(restaurant?.has_smoking_area)),
+  );
+  const [hasOutdoorSeating, setHasOutdoorSeating] = useState(
+    Boolean(Number(restaurant?.has_outdoor_seating)),
+  );
+  const [hasParking, setHasParking] = useState(
+    Boolean(Number(restaurant?.has_parking)),
+  );
+  const [hasWifi, setHasWifi] = useState(Boolean(Number(restaurant?.has_wifi)));
+
+  const [ratingSummary, setRatingSummary] = useState<RatingSummary | null>(null);
+  const [showRatingDetails, setShowRatingDetails] = useState(false);
+
+  const initialCompletion = calculateCompletion([
+    restaurant?.cuisine_type || '',
+    restaurant?.address || '',
+    restaurant?.city || '',
+    restaurant?.phone || '',
+    restaurant?.description || '',
+    String(restaurant?.max_guests || ''),
+    restaurant?.mon_thu_hours || '',
+    restaurant?.fri_sun_hours || '',
+    parseImages(restaurant?.restaurant_images),
+    parseImages(restaurant?.menu_images),
+  ]);
+
+  const [profileCompletion, setProfileCompletion] = useState(initialCompletion);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSelectCuisineType = (selectedCuisineType: string) => {
+    setCuisineType(selectedCuisineType);
+    setIsCuisineDropdownOpen(false);
+  };
+
+  const getTimeFromHours = (currentValue: string, type: 'start' | 'end') => {
     const [start = '09:00', end = '23:00'] = currentValue.split(' - ');
     const selected = type === 'start' ? start : end;
-
     const [hours, minutes] = selected.split(':').map(Number);
 
     const date = new Date();
@@ -134,21 +168,10 @@ export function useRestaurantProfile() {
   const openTimePicker = (picker: TimePickerType) => {
     setActiveTimePicker(picker);
 
-    if (picker === 'monThuStart') {
-      setTimePickerDate(getTimeFromHours(monThuHours, 'start'));
-    }
-
-    if (picker === 'monThuEnd') {
-      setTimePickerDate(getTimeFromHours(monThuHours, 'end'));
-    }
-
-    if (picker === 'friSunStart') {
-      setTimePickerDate(getTimeFromHours(friSunHours, 'start'));
-    }
-
-    if (picker === 'friSunEnd') {
-      setTimePickerDate(getTimeFromHours(friSunHours, 'end'));
-    }
+    if (picker === 'monThuStart') setTimePickerDate(getTimeFromHours(monThuHours, 'start'));
+    if (picker === 'monThuEnd') setTimePickerDate(getTimeFromHours(monThuHours, 'end'));
+    if (picker === 'friSunStart') setTimePickerDate(getTimeFromHours(friSunHours, 'start'));
+    if (picker === 'friSunEnd') setTimePickerDate(getTimeFromHours(friSunHours, 'end'));
   };
 
   const updateWorkingHours = (
@@ -157,12 +180,7 @@ export function useRestaurantProfile() {
     type: 'start' | 'end',
   ) => {
     const [start = '09:00', end = '23:00'] = currentValue.split(' - ');
-
-    if (type === 'start') {
-      return `${selectedTime} - ${end}`;
-    }
-
-    return `${start} - ${selectedTime}`;
+    return type === 'start' ? `${selectedTime} - ${end}` : `${start} - ${selectedTime}`;
   };
 
   const handleTimePickerChange = (_event: any, selectedDate?: Date) => {
@@ -194,47 +212,6 @@ export function useRestaurantProfile() {
     setActiveTimePicker(null);
   };
 
-  const [restaurantImages, setRestaurantImages] = useState<string[]>(
-    parseImages(restaurant?.restaurant_images),
-  );
-
-  const [menuImages, setMenuImages] = useState<string[]>(
-    parseImages(restaurant?.menu_images),
-  );
-
-  const [hasSmokingArea, setHasSmokingArea] = useState(
-    Boolean(Number(restaurant?.has_smoking_area)),
-  );
-
-  const [hasOutdoorSeating, setHasOutdoorSeating] = useState(
-    Boolean(Number(restaurant?.has_outdoor_seating)),
-  );
-
-  const [hasParking, setHasParking] = useState(
-    Boolean(Number(restaurant?.has_parking)),
-  );
-
-  const [hasWifi, setHasWifi] = useState(Boolean(Number(restaurant?.has_wifi)));
-
-  const [ratingSummary, setRatingSummary] = useState<RatingSummary | null>(null);
-  const [showRatingDetails, setShowRatingDetails] = useState(false);
-
-  const initialCompletion = calculateCompletion([
-    restaurant?.cuisine_type || '',
-    restaurant?.address || '',
-    restaurant?.city || '',
-    restaurant?.phone || '',
-    restaurant?.description || '',
-    String(restaurant?.max_guests || ''),
-    restaurant?.mon_thu_hours || '',
-    restaurant?.fri_sun_hours || '',
-    parseImages(restaurant?.restaurant_images),
-    parseImages(restaurant?.menu_images),
-  ]);
-
-  const [profileCompletion, setProfileCompletion] = useState(initialCompletion);
-  const [isSaving, setIsSaving] = useState(false);
-
   const fetchRatingSummary = async () => {
     if (!restaurant?.restaurant_id) return;
 
@@ -243,12 +220,8 @@ export function useRestaurantProfile() {
         'http://10.0.2.2/reservation-api/ratings/get-restaurant-rating-summary.php',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            restaurantId: restaurant.restaurant_id,
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ restaurantId: restaurant.restaurant_id }),
         },
       );
 
@@ -266,38 +239,107 @@ export function useRestaurantProfile() {
     fetchRatingSummary();
   }, []);
 
-  const handleGoBack = () => {
-    navigation.goBack();
-  };
+  const uploadImageToBackend = async (
+  imageBase64: string,
+  imageType: string | undefined,
+  fileName: string | undefined,
+  type: 'restaurant' | 'menu',
+) => {
+  if (!restaurant?.restaurant_id) {
+    throw new Error('Restaurant ID is missing.');
+  }
 
-  const pickImages = async (type: 'restaurant' | 'menu') => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.8,
-      selectionLimit: 5,
-    });
+  const endpoint =
+    type === 'restaurant'
+      ? 'upload-restaurant-image.php'
+      : 'upload-menu-image.php';
 
-    if (result.didCancel) return;
+  const response = await fetch(
+    `http://10.0.2.2/reservation-api/restaurant/${endpoint}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        restaurantId: restaurant.restaurant_id,
+        imageBase64,
+        imageType: imageType || 'image/jpeg',
+        fileName: fileName || `${type}_${Date.now()}.jpg`,
+      }),
+    },
+  );
 
-    const assets = result.assets || [];
-    const allowedTypes = ['image/jpeg', 'image/png'];
+  const data = await response.json();
 
-    const validImages = assets
-      .filter(asset => asset.uri)
-      .filter(asset => !asset.type || allowedTypes.includes(asset.type))
-      .map(asset => asset.uri as string);
+  if (!data.success) {
+    throw new Error(data.message || 'Image upload failed.');
+  }
 
-    if (validImages.length === 0) {
-      Alert.alert('Invalid File', 'Only JPG and PNG images are allowed.');
-      return;
-    }
+  return data.imageUrl as string;
+};
+
+const pickImages = async (type: 'restaurant' | 'menu') => {
+  if (!restaurant?.restaurant_id) {
+    Alert.alert('Error', 'Restaurant profile is missing.');
+    return;
+  }
+
+  const result = await launchImageLibrary({
+    mediaType: 'photo',
+    quality: 0.8,
+    selectionLimit: 1,
+    includeBase64: true,
+  });
+
+  if (result.didCancel) return;
+
+  const assets = result.assets || [];
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+
+  const validImages = assets.filter(asset => {
+    if (!asset.base64) return false;
+    if (!asset.type) return true;
+    return allowedTypes.includes(asset.type);
+  });
+
+  if (validImages.length === 0) {
+    Alert.alert('Invalid File', 'Only JPG and PNG images are allowed.');
+    return;
+  }
+
+  try {
+    setIsSaving(true);
+
+    const uploadedUrls: string[] = [];
+
+      for (const asset of validImages) {
+        const uploadedUrl = await uploadImageToBackend(
+          asset.base64 as string,
+          asset.type,
+          asset.fileName,
+          type,
+        );
+
+        uploadedUrls.push(uploadedUrl);
+      }
 
     if (type === 'restaurant') {
-      setRestaurantImages(prev => [...prev, ...validImages]);
+      setRestaurantImages(prev => [...prev, ...uploadedUrls]);
     } else {
-      setMenuImages(prev => [...prev, ...validImages]);
+      setMenuImages(prev => [...prev, ...uploadedUrls]);
     }
-  };
+
+    Alert.alert('Success', 'Images uploaded successfully.');
+  } catch (error: any) {
+    Alert.alert(
+      'Upload Error',
+      error?.message || 'Something went wrong while uploading images.',
+    );
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   const removeRestaurantImage = (imageUri: string) => {
     setRestaurantImages(prev => prev.filter(image => image !== imageUri));
@@ -320,9 +362,7 @@ export function useRestaurantProfile() {
         'http://10.0.2.2/reservation-api/restaurant/update-restaurant-profile.php',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             restaurantId: restaurant.restaurant_id,
             cuisineType,
@@ -380,13 +420,101 @@ export function useRestaurantProfile() {
     }
   };
 
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
+
+  const handleOpenImagePreview = (imageUri: string) => {
+    setPreviewImageUri(imageUri);
+  };
+
+  const handleCloseImagePreview = () => {
+    setPreviewImageUri(null);
+  };
+
+  const handleOpenHome = () => {
+    navigation.navigate('RestaurantDashboard', { user });
+  };
+
+  const handleOpenRestaurantReviews = () => {
+    navigation.navigate('RestaurantReviews', { restaurant, user });
+  };
+
+  const handleOpenVisitedCustomers = () => {
+    navigation.navigate('VisitedCustomers', { restaurant, user });
+  };
+
+  const handleOpenProfile = () => {
+    navigation.navigate('RestaurantProfile', { restaurant, user });
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              }),
+            );
+          },
+        },
+      ],
+    );
+  };
+
+  const bottomNavItems = useMemo(
+    () => [
+      {
+        key: 'home',
+        label: 'Home',
+        icon: '⌂',
+        onPress: handleOpenHome,
+      },
+      {
+        key: 'reviews',
+        label: 'Reviews',
+        icon: '★',
+        onPress: handleOpenRestaurantReviews,
+      },
+      {
+        key: 'visited',
+        label: 'Visited',
+        icon: '•',
+        onPress: handleOpenVisitedCustomers,
+      },
+      {
+        key: 'profile',
+        label: 'Profile',
+        icon: '◉',
+        isActive: true,
+        onPress: handleOpenProfile,
+      },
+      {
+        key: 'logout',
+        label: 'Logout',
+        icon: '↩',
+        onPress: handleLogout,
+      },
+    ],
+    [restaurant, user],
+  );
+
   return {
     cuisineType,
+    setCuisineType,
     cuisineOptions,
     isCuisineDropdownOpen,
     setIsCuisineDropdownOpen,
     handleSelectCuisineType,
-    setCuisineType,
+
     address,
     setAddress,
     city,
@@ -410,6 +538,10 @@ export function useRestaurantProfile() {
 
     restaurantImages,
     menuImages,
+    previewImageUri,
+    handleOpenImagePreview,
+    handleCloseImagePreview,
+
     hasSmokingArea,
     setHasSmokingArea,
     hasOutdoorSeating,
@@ -418,16 +550,19 @@ export function useRestaurantProfile() {
     setHasParking,
     hasWifi,
     setHasWifi,
+
     ratingSummary,
     showRatingDetails,
     setShowRatingDetails,
     profileCompletion,
     isSaving,
+
     handleSave,
     handleGoBack,
     pickRestaurantImages: () => pickImages('restaurant'),
     pickMenuImages: () => pickImages('menu'),
     removeRestaurantImage,
     removeMenuImage,
+    bottomNavItems,
   };
 }

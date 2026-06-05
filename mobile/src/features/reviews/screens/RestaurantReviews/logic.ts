@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  CommonActions,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import { appAlert as Alert } from '../../../../shared/services/appAlert';
-import { useNavigation, useRoute } from '@react-navigation/native';
 
 type Review = {
   id: number;
@@ -26,6 +30,7 @@ type ReviewSummary = {
   atmosphereRating: string;
   mostCommonPrice: number | null;
 };
+
 
 const calculateMostCommonPrice = (reviews: Review[]) => {
   const prices = reviews
@@ -98,6 +103,7 @@ export function useRestaurantReviews() {
   const restaurant = route.params?.restaurant;
 
   const [reviews, setReviews] = useState<Review[]>([]);
+  const user = route.params?.user;
   const [summary, setSummary] = useState<ReviewSummary>({
     totalReviews: 0,
     overallRating: '0.0',
@@ -153,8 +159,84 @@ export function useRestaurantReviews() {
   const handleOpenCustomerProfile = (customerUserId: number) => {
     navigation.navigate('CustomerPublicProfile', {
       customerUserId,
+      user,
     });
   };
+
+  const handleOpenHome = () => {
+    navigation.navigate('RestaurantDashboard', { user });
+  };
+
+  const handleOpenRestaurantReviews = () => {
+    navigation.navigate('RestaurantReviews', { restaurant, user });
+  };
+
+  const handleOpenVisitedCustomers = () => {
+    navigation.navigate('VisitedCustomers', { restaurant, user });
+  };
+
+  const handleOpenProfile = () => {
+    navigation.navigate('RestaurantProfile', { restaurant, user });
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              }),
+            );
+          },
+        },
+      ],
+    );
+  };
+
+  const bottomNavItems = useMemo(
+    () => [
+      {
+        key: 'home',
+        label: 'Home',
+        icon: '⌂',
+        onPress: handleOpenHome,
+      },
+      {
+        key: 'reviews',
+        label: 'Reviews',
+        icon: '★',
+        isActive: true,
+        onPress: handleOpenRestaurantReviews,
+      },
+      {
+        key: 'visited',
+        label: 'Visited',
+        icon: '•',
+        onPress: handleOpenVisitedCustomers,
+      },
+      {
+        key: 'profile',
+        label: 'Profile',
+        icon: '◉',
+        onPress: handleOpenProfile,
+      },
+      {
+        key: 'logout',
+        label: 'Logout',
+        icon: '↩',
+        onPress: handleLogout,
+      },
+    ],
+    [restaurant, user],
+  );
 
   useEffect(() => {
     fetchReviews();
@@ -166,5 +248,6 @@ export function useRestaurantReviews() {
     isLoading,
     handleBack,
     handleOpenCustomerProfile,
+    bottomNavItems,
   };
 }

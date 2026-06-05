@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { appAlert as Alert } from '../../../../shared/services/appAlert';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 type Reservation = {
   id: number;
@@ -194,6 +194,83 @@ export function useMyReservations() {
     });
   };
 
+  const handleOpenHome = () => {
+    navigation.navigate('CustomerDashboard', {
+      user,
+    });
+  };
+
+  const handleOpenMyReviews = () => {
+    navigation.navigate('MyReviews', {
+      user,
+    });
+  };
+
+  const handleOpenProfile = () => {
+    navigation.navigate('CustomerProfile', {
+      user,
+    });
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              }),
+            );
+          },
+        },
+      ],
+    );
+  };
+
+  const bottomNavItems = useMemo(
+    () => [
+      {
+        key: 'home',
+        label: 'Home',
+        icon: '⌂',
+        onPress: handleOpenHome,
+      },
+      {
+        key: 'reservations',
+        label: 'Reservations',
+        icon: '◷',
+        isActive: true,
+        onPress: () => {},
+      },
+      {
+        key: 'reviews',
+        label: 'Reviews',
+        icon: '★',
+        onPress: handleOpenMyReviews,
+      },
+      {
+        key: 'profile',
+        label: 'Profile',
+        icon: '◉',
+        onPress: handleOpenProfile,
+      },
+      {
+        key: 'logout',
+        label: 'Logout',
+        icon: '↩',
+        onPress: handleLogout,
+      },
+    ],
+    [user],
+  );
+
   return {
     filters,
     search,
@@ -204,5 +281,6 @@ export function useMyReservations() {
     isLoading,
     handleGoBack,
     handleOpenReservation,
+    bottomNavItems,
   };
 }

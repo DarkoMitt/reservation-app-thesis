@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  CommonActions,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
+
 import { appAlert as Alert } from '../../../../shared/services/appAlert';
-import { useNavigation, useRoute } from '@react-navigation/native';
 
 type CustomerProfile = {
   id: number;
@@ -106,6 +111,27 @@ export function useCustomerProfile() {
     }
   };
 
+  const fetchTrustHistory = async () => {
+    if (!user?.id) return;
+
+    try {
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/customer/get-trust-history.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setTrustHistory(data.history || []);
+      }
+    } catch {}
+  };
+
   const getTrustLevel = () => {
     const score = Number(customer?.trust_score || 0);
 
@@ -131,27 +157,6 @@ export function useCustomerProfile() {
     setIsPreferencesOpen(false);
     setIsEditing(false);
   };
-
-  const fetchTrustHistory = async () => {
-  if (!user?.id) return;
-
-  try {
-    const response = await fetch(
-      'http://10.0.2.2/reservation-api/customer/get-trust-history.php',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id }),
-      },
-    );
-
-    const data = await response.json();
-
-    if (data.success) {
-      setTrustHistory(data.history || []);
-    }
-  } catch {}
-};
 
   const handleSaveProfile = async () => {
     if (!user?.id) return;
@@ -204,6 +209,83 @@ export function useCustomerProfile() {
     navigation.goBack();
   };
 
+  const handleOpenHome = () => {
+    navigation.navigate('CustomerDashboard', {
+      user,
+    });
+  };
+
+  const handleOpenMyReservations = () => {
+    navigation.navigate('MyReservations', {
+      user,
+    });
+  };
+
+  const handleOpenMyReviews = () => {
+    navigation.navigate('MyReviews', {
+      user,
+    });
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              }),
+            );
+          },
+        },
+      ],
+    );
+  };
+
+  const bottomNavItems = useMemo(
+    () => [
+      {
+        key: 'home',
+        label: 'Home',
+        icon: '⌂',
+        onPress: handleOpenHome,
+      },
+      {
+        key: 'reservations',
+        label: 'Reservations',
+        icon: '◷',
+        onPress: handleOpenMyReservations,
+      },
+      {
+        key: 'reviews',
+        label: 'Reviews',
+        icon: '★',
+        onPress: handleOpenMyReviews,
+      },
+      {
+        key: 'profile',
+        label: 'Profile',
+        icon: '◉',
+        isActive: true,
+        onPress: () => {},
+      },
+      {
+        key: 'logout',
+        label: 'Logout',
+        icon: '↩',
+        onPress: handleLogout,
+      },
+    ],
+    [user],
+  );
+
   useEffect(() => {
     fetchCustomerProfile();
     fetchTrustHistory();
@@ -229,5 +311,6 @@ export function useCustomerProfile() {
     handleSaveProfile,
     isSaving,
     trustHistory,
+    bottomNavItems,
   };
 }

@@ -1,6 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  CommonActions,
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
+
 import { appAlert as Alert } from '../../../../shared/services/appAlert';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 type ReservationRequest = {
   id: number;
@@ -135,6 +141,81 @@ export function useVisitedCustomers() {
   });
   };
 
+  const handleOpenHome = () => {
+    navigation.navigate('RestaurantDashboard', { user });
+  };
+
+  const handleOpenRestaurantReviews = () => {
+    navigation.navigate('RestaurantReviews', { restaurant, user });
+  };
+
+  const handleOpenVisitedCustomers = () => {
+    navigation.navigate('VisitedCustomers', { restaurant, user });
+  };
+
+  const handleOpenProfile = () => {
+    navigation.navigate('RestaurantProfile', { restaurant, user });
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              }),
+            );
+          },
+        },
+      ],
+    );
+  };
+
+  const bottomNavItems = useMemo(
+    () => [
+      {
+        key: 'home',
+        label: 'Home',
+        icon: '⌂',
+        onPress: handleOpenHome,
+      },
+      {
+        key: 'reviews',
+        label: 'Reviews',
+        icon: '★',
+        onPress: handleOpenRestaurantReviews,
+      },
+      {
+        key: 'visited',
+        label: 'Visited',
+        icon: '•',
+        isActive: true,
+        onPress: handleOpenVisitedCustomers,
+      },
+      {
+        key: 'profile',
+        label: 'Profile',
+        icon: '◉',
+        onPress: handleOpenProfile,
+      },
+      {
+        key: 'logout',
+        label: 'Logout',
+        icon: '↩',
+        onPress: handleLogout,
+      },
+    ],
+    [restaurant, user],
+  );
+
   useEffect(() => {
     fetchVisitedCustomers();
   }, []);
@@ -163,5 +244,6 @@ export function useVisitedCustomers() {
     submitCustomerRating,
     handleBack,
     handleOpenCustomerProfile,
+    bottomNavItems,
   };
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import AppBottomNav from '../../../../shared/components/AppBottomNav';
 import {
   Image,
   SafeAreaView,
@@ -8,6 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Modal,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -43,6 +45,9 @@ function RestaurantProfile(): React.JSX.Element {
 
     restaurantImages,
     menuImages,
+    previewImageUri,
+    handleOpenImagePreview,
+    handleCloseImagePreview,
     hasSmokingArea,
     setHasSmokingArea,
     hasOutdoorSeating,
@@ -62,6 +67,7 @@ function RestaurantProfile(): React.JSX.Element {
     pickMenuImages,
     removeRestaurantImage,
     removeMenuImage,
+    bottomNavItems,
   } = useRestaurantProfile();
 
   return (
@@ -269,13 +275,20 @@ function RestaurantProfile(): React.JSX.Element {
           <TouchableOpacity
             style={styles.imageButton}
             activeOpacity={0.85}
+            disabled={isSaving}
             onPress={pickRestaurantImages}>
-            <Text style={styles.imageButtonText}>Add Restaurant Images</Text>
+            <Text style={styles.imageButtonText}>
+              {isSaving ? 'Uploading...' : 'Add Restaurant Images'}
+            </Text>
           </TouchableOpacity>
 
           <View style={styles.galleryGrid}>
             {restaurantImages.map(imageUri => (
-              <View key={imageUri} style={styles.thumbnailWrapper}>
+              <TouchableOpacity
+                key={imageUri}
+                style={styles.thumbnailWrapper}
+                activeOpacity={0.85}
+                onPress={() => handleOpenImagePreview(imageUri)}>
                 <Image source={{ uri: imageUri }} style={styles.thumbnailImage} />
 
                 <TouchableOpacity
@@ -283,7 +296,7 @@ function RestaurantProfile(): React.JSX.Element {
                   onPress={() => removeRestaurantImage(imageUri)}>
                   <Text style={styles.removeImageText}>×</Text>
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
 
@@ -292,13 +305,20 @@ function RestaurantProfile(): React.JSX.Element {
           <TouchableOpacity
             style={styles.imageButton}
             activeOpacity={0.85}
+            disabled={isSaving}
             onPress={pickMenuImages}>
-            <Text style={styles.imageButtonText}>Add Menu Images</Text>
+            <Text style={styles.imageButtonText}>
+              {isSaving ? 'Uploading...' : 'Add Menu Images'}
+            </Text>
           </TouchableOpacity>
 
           <View style={styles.galleryGrid}>
             {menuImages.map(imageUri => (
-              <View key={imageUri} style={styles.thumbnailWrapper}>
+              <TouchableOpacity
+                key={imageUri}
+                style={styles.thumbnailWrapper}
+                activeOpacity={0.85}
+                onPress={() => handleOpenImagePreview(imageUri)}>
                 <Image source={{ uri: imageUri }} style={styles.thumbnailImage} />
 
                 <TouchableOpacity
@@ -306,7 +326,7 @@ function RestaurantProfile(): React.JSX.Element {
                   onPress={() => removeMenuImage(imageUri)}>
                   <Text style={styles.removeImageText}>×</Text>
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </View>
@@ -355,6 +375,30 @@ function RestaurantProfile(): React.JSX.Element {
           onChange={handleTimePickerChange}
         />
       ) : null}
+
+      <Modal
+        visible={!!previewImageUri}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseImagePreview}>
+        <View style={styles.imagePreviewOverlay}>
+          <TouchableOpacity
+            style={styles.imagePreviewCloseButton}
+            activeOpacity={0.85}
+            onPress={handleCloseImagePreview}>
+            <Text style={styles.imagePreviewCloseText}>×</Text>
+          </TouchableOpacity>
+
+          {previewImageUri ? (
+            <Image
+              source={{ uri: previewImageUri }}
+              style={styles.fullPreviewImage}
+            />
+          ) : null}
+        </View>
+      </Modal>
+
+      <AppBottomNav items={bottomNavItems} />
     </SafeAreaView>
   );
 }

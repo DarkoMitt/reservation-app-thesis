@@ -1,4 +1,5 @@
 import React from 'react';
+import AppBottomNav from '../../../../shared/components/AppBottomNav';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -16,6 +17,7 @@ function MyReviews(): React.JSX.Element {
     reviews,
     isLoading,
     handleBack,
+    bottomNavItems,
   } = useMyReviews();
 
   if (isLoading) {
@@ -24,6 +26,8 @@ function MyReviews(): React.JSX.Element {
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#8B1E3F" />
         </View>
+
+        <AppBottomNav items={bottomNavItems} />
       </SafeAreaView>
     );
   }
@@ -137,6 +141,7 @@ function MyReviews(): React.JSX.Element {
           ))
         )}
       </ScrollView>
+      <AppBottomNav items={bottomNavItems} />
     </SafeAreaView>
   );
 }

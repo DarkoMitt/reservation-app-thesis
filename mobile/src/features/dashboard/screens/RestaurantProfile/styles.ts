@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingTop: 40,
-    paddingBottom: 40,
+    paddingBottom: 145,
   },
 
   title: {
@@ -388,5 +388,40 @@ dropdownItemText: {
 activeDropdownItemText: {
   color: '#8B1E3F',
   fontWeight: '900',
+},
+
+imagePreviewOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(42, 33, 28, 0.92)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 18,
+},
+
+fullPreviewImage: {
+  width: '100%',
+  height: '72%',
+  borderRadius: 22,
+  resizeMode: 'contain',
+},
+
+imagePreviewCloseButton: {
+  position: 'absolute',
+  top: 48,
+  right: 24,
+  width: 42,
+  height: 42,
+  borderRadius: 21,
+  backgroundColor: '#FFFFFF',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 10,
+},
+
+imagePreviewCloseText: {
+  fontSize: 30,
+  color: '#8B1E3F',
+  fontWeight: '900',
+  lineHeight: 32,
 },
 });

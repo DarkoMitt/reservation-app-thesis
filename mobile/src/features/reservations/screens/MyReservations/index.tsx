@@ -1,4 +1,5 @@
 import React from 'react';
+import AppBottomNav from '../../../../shared/components/AppBottomNav';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -23,6 +24,7 @@ function MyReservations(): React.JSX.Element {
     isLoading,
     handleGoBack,
     handleOpenReservation,
+    bottomNavItems,
   } = useMyReservations();
 
   return (
@@ -163,6 +165,7 @@ function MyReservations(): React.JSX.Element {
           })
         )}
       </ScrollView>
+      <AppBottomNav items={bottomNavItems} />
     </SafeAreaView>
   );
 }

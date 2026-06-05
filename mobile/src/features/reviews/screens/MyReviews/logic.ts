@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  CommonActions,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
+
 import { appAlert as Alert } from '../../../../shared/services/appAlert';
-import { useNavigation, useRoute } from '@react-navigation/native';
 
 type Review = {
   id: number;
@@ -63,6 +68,83 @@ export function useMyReviews() {
     navigation.goBack();
   };
 
+  const handleOpenHome = () => {
+    navigation.navigate('CustomerDashboard', {
+      user,
+    });
+  };
+
+  const handleOpenMyReservations = () => {
+    navigation.navigate('MyReservations', {
+      user,
+    });
+  };
+
+  const handleOpenProfile = () => {
+    navigation.navigate('CustomerProfile', {
+      user,
+    });
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              }),
+            );
+          },
+        },
+      ],
+    );
+  };
+
+  const bottomNavItems = useMemo(
+    () => [
+      {
+        key: 'home',
+        label: 'Home',
+        icon: '⌂',
+        onPress: handleOpenHome,
+      },
+      {
+        key: 'reservations',
+        label: 'Reservations',
+        icon: '◷',
+        onPress: handleOpenMyReservations,
+      },
+      {
+        key: 'reviews',
+        label: 'Reviews',
+        icon: '★',
+        isActive: true,
+        onPress: () => {},
+      },
+      {
+        key: 'profile',
+        label: 'Profile',
+        icon: '◉',
+        onPress: handleOpenProfile,
+      },
+      {
+        key: 'logout',
+        label: 'Logout',
+        icon: '↩',
+        onPress: handleLogout,
+      },
+    ],
+    [user],
+  );
+
   useEffect(() => {
     fetchMyReviews();
   }, []);
@@ -71,5 +153,6 @@ export function useMyReviews() {
     reviews,
     isLoading,
     handleBack,
+    bottomNavItems,
   };
 }
