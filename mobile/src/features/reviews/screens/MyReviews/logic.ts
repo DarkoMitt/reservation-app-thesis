@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { appAlert as Alert } from '../../../../shared/services/appAlert';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 type Review = {

@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -98,10 +99,9 @@ function CustomerDashboard(): React.JSX.Element {
               style={styles.notificationButton}
               activeOpacity={0.8}
               onPress={handleOpenNotifications}>
-              <View style={styles.notificationIconWrap}>
-                <View style={styles.notificationBellBody} />
-                <View style={styles.notificationBellClapper} />
-              </View>
+              <Text style={{ fontSize: 20 }}>
+                🔔
+              </Text>
 
               {unreadNotificationsCount > 0 ? (
                 <View style={styles.notificationBadge}>

@@ -18,6 +18,10 @@ function RestaurantProfile(): React.JSX.Element {
   const {
     cuisineType,
     setCuisineType,
+    cuisineOptions,
+    isCuisineDropdownOpen,
+    setIsCuisineDropdownOpen,
+    handleSelectCuisineType,
     address,
     setAddress,
     city,
@@ -124,13 +128,46 @@ function RestaurantProfile(): React.JSX.Element {
 
         <View style={styles.card}>
           <Text style={styles.label}>Cuisine Type</Text>
-          <TextInput
-            style={styles.input}
-            value={cuisineType}
-            onChangeText={setCuisineType}
-            placeholder="Example: Italian, Grill, Seafood..."
-            placeholderTextColor="#8B8178"
-          />
+
+            <TouchableOpacity
+              style={styles.dropdownButton}
+              activeOpacity={0.85}
+              onPress={() => setIsCuisineDropdownOpen(!isCuisineDropdownOpen)}>
+              <Text
+                style={[
+                  styles.dropdownButtonText,
+                  !cuisineType && styles.dropdownPlaceholderText,
+                ]}>
+                {cuisineType || 'Select cuisine type'}
+              </Text>
+
+              <Text style={styles.dropdownArrow}>
+                {isCuisineDropdownOpen ? '▲' : '▼'}
+              </Text>
+            </TouchableOpacity>
+
+            {isCuisineDropdownOpen ? (
+              <View style={styles.dropdownList}>
+                {cuisineOptions.map(option => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.dropdownItem,
+                      cuisineType === option && styles.activeDropdownItem,
+                    ]}
+                    activeOpacity={0.85}
+                    onPress={() => handleSelectCuisineType(option)}>
+                    <Text
+                      style={[
+                        styles.dropdownItemText,
+                        cuisineType === option && styles.activeDropdownItemText,
+                      ]}>
+                      {option}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : null}
 
           <Text style={styles.label}>City</Text>
           <TextInput

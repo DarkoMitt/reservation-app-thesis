@@ -327,4 +327,66 @@ closeTimeButtonText: {
   fontSize: 14,
   fontWeight: '900',
 },
+
+dropdownButton: {
+  height: 54,
+  borderRadius: 16,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  backgroundColor: '#FFFFFF',
+  paddingHorizontal: 16,
+  marginBottom: 14,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+},
+
+dropdownButtonText: {
+  fontSize: 14,
+  color: '#2A211C',
+  fontWeight: '700',
+},
+
+dropdownPlaceholderText: {
+  color: '#8B8178',
+  fontWeight: '600',
+},
+
+dropdownArrow: {
+  fontSize: 12,
+  color: '#8B1E3F',
+  fontWeight: '900',
+},
+
+dropdownList: {
+  backgroundColor: '#FFFFFF',
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  borderRadius: 16,
+  marginTop: -6,
+  marginBottom: 14,
+  overflow: 'hidden',
+},
+
+dropdownItem: {
+  paddingVertical: 14,
+  paddingHorizontal: 16,
+  borderBottomWidth: 1,
+  borderBottomColor: '#F0E7DD',
+},
+
+activeDropdownItem: {
+  backgroundColor: '#F3E7EA',
+},
+
+dropdownItemText: {
+  fontSize: 14,
+  color: '#4B4038',
+  fontWeight: '700',
+},
+
+activeDropdownItemText: {
+  color: '#8B1E3F',
+  fontWeight: '900',
+},
 });

@@ -95,10 +95,9 @@ function RestaurantDashboard(): React.JSX.Element {
               style={styles.notificationButton}
               activeOpacity={0.8}
               onPress={handleOpenNotifications}>
-              <View style={styles.notificationIconWrap}>
-                <View style={styles.notificationBellBody} />
-                <View style={styles.notificationBellClapper} />
-              </View>
+              <Text style={{ fontSize: 20 }}>
+                🔔
+              </Text>
 
               {unreadNotificationsCount > 0 ? (
                 <View style={styles.notificationBadge}>

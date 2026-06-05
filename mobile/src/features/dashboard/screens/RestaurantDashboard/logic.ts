@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { appAlert as Alert } from '../../../../shared/services/appAlert';
 import {
   CommonActions,
   useFocusEffect,
@@ -444,13 +444,28 @@ export function useRestaurantDashboard() {
   };
 
   const handleLogout = () => {
-    setIsProfileMenuOpen(false);
-
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'Auth' }],
-      }),
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              }),
+            );
+          },
+        },
+      ],
+      'confirm',
     );
   };
 

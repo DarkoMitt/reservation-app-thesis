@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
 
   content: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 40,
     paddingBottom: 40,
   },
 
@@ -182,5 +182,27 @@ rejectConfirmButton: {
   paddingVertical: 12,
   borderRadius: 12,
   alignItems: 'center',
+},
+
+headerRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'flex-start',
+  marginBottom: 20,
+},
+
+logoutButton: {
+  backgroundColor: '#FFFFFF',
+  borderWidth: 1,
+  borderColor: '#8B1E3F',
+  paddingHorizontal: 14,
+  paddingVertical: 10,
+  borderRadius: 14,
+},
+
+logoutButtonText: {
+  color: '#8B1E3F',
+  fontSize: 13,
+  fontWeight: '900',
 },
 });

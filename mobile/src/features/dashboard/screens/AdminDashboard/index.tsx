@@ -24,6 +24,7 @@ function AdminDashboard(): React.JSX.Element {
     setRejectionReason,
     closeRejectModal,
     submitRejectRestaurant,
+    handleLogout,
   } = useAdminDashboard();
 
   return (
@@ -32,8 +33,19 @@ function AdminDashboard(): React.JSX.Element {
         style={styles.screen}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Admin Dashboard</Text>
-        <Text style={styles.subtitle}>Pending restaurant approvals</Text>
+        <View style={styles.headerRow}>
+          <View>
+            <Text style={styles.title}>Admin Dashboard</Text>
+            <Text style={styles.subtitle}>Pending restaurant approvals</Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.logoutButton}
+            activeOpacity={0.85}
+            onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>

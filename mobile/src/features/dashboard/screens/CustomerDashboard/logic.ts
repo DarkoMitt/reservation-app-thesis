@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { appAlert as Alert } from '../../../../shared/services/appAlert';
 import {
   CommonActions,
   useNavigation,
@@ -272,7 +272,7 @@ export function useCustomerDashboard() {
               onPress: forceLogoutAfterBan,
             },
           ],
-          { cancelable: false },
+          'warning',
         );
       }
     } catch {}
@@ -319,10 +319,20 @@ export function useCustomerDashboard() {
 
         setRestaurants(restaurantsWithStatus);
       } else {
-        Alert.alert('Error', data.message || 'Failed to load restaurants.');
+        Alert.alert(
+          'Error',
+          data.message || 'Failed to load restaurants.',
+          [{ text: 'OK' }],
+          'error',
+        );
       }
     } catch (error) {
-      Alert.alert('Error', 'Something went wrong while loading restaurants.');
+      Alert.alert(
+        'Error',
+        'Something went wrong while loading restaurants.',
+        [{ text: 'OK' }],
+        'error'
+      );
     } finally {
       setIsLoadingRestaurants(false);
     }
@@ -460,21 +470,29 @@ export function useCustomerDashboard() {
   };
 
   const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Logout',
-        style: 'destructive',
-        onPress: () => {
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{ name: 'Auth' }],
-            }),
-          );
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
         },
-      },
-    ]);
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              }),
+            );
+          },
+        },
+      ],
+      'confirm',
+    );
   };
 
   return {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { appAlert as Alert } from '../../../../shared/services/appAlert';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 type ReservationRequest = {

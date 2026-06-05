@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, TextInput } from 'react-native';
+import { appAlert as Alert } from '../../../../shared/services/appAlert';
+import { TextInput } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 
 const CODE_LENGTH = 6;

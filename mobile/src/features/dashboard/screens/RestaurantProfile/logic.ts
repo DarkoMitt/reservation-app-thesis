@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { appAlert as Alert } from '../../../../shared/services/appAlert';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
 
@@ -41,6 +41,21 @@ type TimePickerType =
   | 'friSunEnd'
   | null;
 
+  export const cuisineOptions = [
+  'Traditional',
+  'Balkan',
+  'Italian',
+  'Mediterranean',
+  'Asian',
+  'Fast Food',
+  'Mixed',
+  'Vegetarian',
+  'Vegan',
+  'Halal',
+  'Gluten-free',
+  'Seafood',
+];
+
 const parseImages = (value?: string): string[] => {
   if (!value) return [];
 
@@ -71,6 +86,14 @@ export function useRestaurantProfile() {
   const restaurant = route.params?.restaurant as RestaurantProfile;
 
   const [cuisineType, setCuisineType] = useState(restaurant?.cuisine_type || '');
+
+  const [isCuisineDropdownOpen, setIsCuisineDropdownOpen] = useState(false);
+
+  const handleSelectCuisineType = (selectedCuisineType: string) => {
+    setCuisineType(selectedCuisineType);
+    setIsCuisineDropdownOpen(false);
+  };
+
   const [address, setAddress] = useState(restaurant?.address || '');
   const [city, setCity] = useState(restaurant?.city || '');
   const [phone, setPhone] = useState(restaurant?.phone || '');
@@ -359,6 +382,10 @@ export function useRestaurantProfile() {
 
   return {
     cuisineType,
+    cuisineOptions,
+    isCuisineDropdownOpen,
+    setIsCuisineDropdownOpen,
+    handleSelectCuisineType,
     setCuisineType,
     address,
     setAddress,

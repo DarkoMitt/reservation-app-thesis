@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { appAlert as Alert } from '../../../../shared/services/appAlert';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 export type PendingRestaurant = {
   restaurant_id: number;
@@ -19,6 +20,7 @@ export type PendingRestaurant = {
 };
 
 export function useAdminDashboard() {
+  const navigation = useNavigation<any>();
   const [pendingRestaurants, setPendingRestaurants] = useState<PendingRestaurant[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
@@ -129,6 +131,28 @@ const submitRejectRestaurant = async () => {
   }
 };
 
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              }),
+            );
+          },
+        },
+      ],
+    );
+  };
+
   useEffect(() => {
     fetchPendingRestaurants();
   }, []);
@@ -138,6 +162,7 @@ const submitRejectRestaurant = async () => {
     isLoading,
     fetchPendingRestaurants,
     handleApproveRestaurant,
+    handleLogout,
     isRejectModalVisible,
     rejectionReason,
     setRejectionReason,

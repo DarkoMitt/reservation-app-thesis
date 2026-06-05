@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
+import { appAlert as Alert } from '../../../../shared/services/appAlert';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 
 export function useLogin() {
