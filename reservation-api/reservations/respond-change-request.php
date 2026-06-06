@@ -6,6 +6,8 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST");
 
 require_once "../config/database.php";
+require_once "../helpers/create-notification.php";
+require_once "../helpers/process-waitlist.php";
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -23,14 +25,29 @@ if (!$reservationId || !$action || !in_array($action, ["accept", "reject"])) {
 try {
     $stmt = $pdo->prepare("
         SELECT
-            id,
-            status,
-            suggested_date,
-            suggested_time,
-            suggested_guests_count,
-            change_expires_at
+            reservations.id,
+            reservations.status,
+            reservations.customer_user_id,
+            reservations.restaurant_id,
+            reservations.reservation_date,
+            reservations.reservation_time,
+            reservations.guests_count,
+            reservations.suggested_date,
+            reservations.suggested_time,
+            reservations.suggested_guests_count,
+            reservations.change_expires_at,
+
+            restaurants.restaurant_name,
+            restaurants.user_id AS restaurant_user_id,
+
+            users.first_name,
+            users.last_name
         FROM reservations
-        WHERE id = ?
+        INNER JOIN restaurants
+            ON restaurants.id = reservations.restaurant_id
+        INNER JOIN users
+            ON users.id = reservations.customer_user_id
+        WHERE reservations.id = ?
         LIMIT 1
     ");
 
@@ -53,6 +70,12 @@ try {
         exit;
     }
 
+    $customerName = trim($reservation["first_name"] . " " . $reservation["last_name"]);
+    $restaurantUserId = (int)$reservation["restaurant_user_id"];
+    $restaurantId = (int)$reservation["restaurant_id"];
+    $reservationDate = $reservation["reservation_date"];
+    $reservationTime = $reservation["reservation_time"];
+
     if ($reservation["change_expires_at"] && strtotime($reservation["change_expires_at"]) < time()) {
         $expireStmt = $pdo->prepare("
             UPDATE reservations
@@ -68,6 +91,24 @@ try {
         ");
 
         $expireStmt->execute([$reservationId]);
+
+        createNotification(
+            $pdo,
+            $restaurantUserId,
+            "restaurant",
+            "Change Request Expired",
+            $customerName . " did not respond to your suggested reservation change in time.",
+            "change_request_expired",
+            (int)$reservationId,
+            $restaurantId
+        );
+
+        processWaitlist(
+            $pdo,
+            $restaurantId,
+            $reservationDate,
+            $reservationTime
+        );
 
         echo json_encode([
             "success" => false,
@@ -95,6 +136,17 @@ try {
 
         $acceptStmt->execute([$reservationId]);
 
+        createNotification(
+            $pdo,
+            $restaurantUserId,
+            "restaurant",
+            "Change Request Accepted",
+            $customerName . " accepted your suggested reservation change.",
+            "change_request_accepted",
+            (int)$reservationId,
+            $restaurantId
+        );
+
         echo json_encode([
             "success" => true,
             "message" => "Suggested changes accepted successfully."
@@ -116,6 +168,24 @@ try {
     ");
 
     $rejectStmt->execute([$reservationId]);
+
+    createNotification(
+        $pdo,
+        $restaurantUserId,
+        "restaurant",
+        "Change Request Rejected",
+        $customerName . " rejected your suggested reservation change.",
+        "change_request_rejected",
+        (int)$reservationId,
+        $restaurantId
+    );
+
+    processWaitlist(
+        $pdo,
+        $restaurantId,
+        $reservationDate,
+        $reservationTime
+    );
 
     echo json_encode([
         "success" => true,

@@ -30,21 +30,27 @@ if (empty($emailOrPhone) || empty($password)) {
 
 try {
     $stmt = $pdo->prepare("
-    SELECT 
-        users.id,
-        users.first_name,
-        users.last_name,
-        users.phone,
-        users.email,
-        users.password,
-        users.role,
-        users.status,
-        restaurants.rejection_reason
-    FROM users
-    LEFT JOIN restaurants ON restaurants.user_id = users.id
-    WHERE users.email = ? OR users.phone = ?
-    LIMIT 1
-");
+        SELECT 
+            users.id,
+            users.first_name,
+            users.last_name,
+            users.phone,
+            users.email,
+            users.password,
+            users.role,
+            users.status,
+            users.no_show_count,
+            users.trust_score,
+            restaurants.rejection_reason,
+            customer_profiles.preferences
+        FROM users
+        LEFT JOIN restaurants 
+            ON restaurants.user_id = users.id
+        LEFT JOIN customer_profiles
+            ON customer_profiles.user_id = users.id
+        WHERE users.email = ? OR users.phone = ?
+        LIMIT 1
+    ");
 
     $stmt->execute([$emailOrPhone, $emailOrPhone]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -57,6 +63,14 @@ try {
         exit;
     }
 
+    if ($user["status"] === "banned") {
+        echo json_encode([
+            "success" => false,
+            "message" => "Your account has been banned after receiving 5 no-show reports from restaurants."
+        ]);
+        exit;
+    }
+
     unset($user["password"]);
 
     echo json_encode([
@@ -64,6 +78,7 @@ try {
         "message" => "Login successful.",
         "user" => $user
     ]);
+
 } catch (PDOException $e) {
     echo json_encode([
         "success" => false,

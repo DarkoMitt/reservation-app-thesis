@@ -8,10 +8,7 @@ header("Access-Control-Allow-Methods: POST");
 require_once "../config/database.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    echo json_encode([
-        "success" => false,
-        "message" => "Use POST request."
-    ]);
+    echo json_encode(["success" => false, "message" => "Use POST request."]);
     exit;
 }
 
@@ -20,7 +17,6 @@ $data = json_decode(file_get_contents("php://input"), true);
 $restaurantName = trim($data["restaurantName"] ?? "");
 $restaurantType = trim($data["restaurantType"] ?? "");
 $cuisineType = trim($data["cuisineType"] ?? "");
-$country = trim($data["country"] ?? "");
 $city = trim($data["city"] ?? "");
 $address = trim($data["address"] ?? "");
 $phone = trim($data["phone"] ?? "");
@@ -29,6 +25,7 @@ $password = $data["password"] ?? "";
 $description = trim($data["description"] ?? "");
 $maxGuests = trim($data["maxGuests"] ?? "");
 $workingHours = trim($data["workingHours"] ?? "");
+$businessRegistrationNumber = trim($data["businessRegistrationNumber"] ?? "");
 
 if (
     empty($restaurantName) ||
@@ -47,12 +44,11 @@ if (
 }
 
 try {
-
     $checkUser = $pdo->prepare("
-    SELECT id FROM users 
-    WHERE (email = ? OR phone = ?)
-    AND status != 'rejected'
-");
+        SELECT id FROM users 
+        WHERE (email = ? OR phone = ?)
+        AND status != 'rejected'
+    ");
 
     $checkUser->execute([$email, $phone]);
 
@@ -123,7 +119,6 @@ try {
     ]);
 
 } catch (PDOException $e) {
-
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
