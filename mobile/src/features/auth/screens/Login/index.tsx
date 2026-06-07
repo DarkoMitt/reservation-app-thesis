@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -25,26 +26,37 @@ function LoginScreen(): React.JSX.Element {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}>
-        <View style={styles.content}>
+      <ImageBackground
+        source={require('../../../../assets/images/login-background.png')}
+        style={styles.backgroundImage}
+        imageStyle={styles.backgroundImageStyle}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>Welcome Back</Text>
+
             <Text style={styles.subtitle}>
-              Login to continue using Reservation App.
+              Login to continue managing your reservations.
             </Text>
           </View>
 
           <View style={styles.card}>
-            <View style={styles.form}>
+            <View style={styles.inputBox}>
+              <Text style={styles.inputIcon}>✉</Text>
+
               <TextInput
                 placeholder="Email or Phone Number"
                 placeholderTextColor="#8B8178"
                 style={styles.input}
                 value={email}
                 onChangeText={setEmail}
+                autoCapitalize="none"
               />
+            </View>
+
+            <View style={styles.inputBox}>
+              <Text style={styles.inputIcon}>🔒</Text>
 
               <TextInput
                 placeholder="Password"
@@ -54,33 +66,43 @@ function LoginScreen(): React.JSX.Element {
                 value={password}
                 onChangeText={setPassword}
               />
-
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={handleForgotPassword}>
-                <Text style={styles.forgotPasswordText}>
-                  Forgot your password?
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.loginButton}
-                activeOpacity={0.85}
-                onPress={handleLogin}>
-                <Text style={styles.loginButtonText}>Login</Text>
-              </TouchableOpacity>
             </View>
+
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={handleForgotPassword}>
+              <Text style={styles.forgotPasswordText}>
+                Forgot your password?
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.loginButton}
+              activeOpacity={0.85}
+              onPress={handleLogin}>
+              <Text style={styles.loginButtonText}>Log In</Text>
+            </TouchableOpacity>
+
+            <View style={styles.dividerRow}>
+              <View style={styles.divider} />
+              <Text style={styles.dividerText}>OR</Text>
+              <View style={styles.divider} />
+            </View>
+
+            <Text style={styles.registerHint}>
+              Don’t have an account?
+            </Text>
 
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={handleGoToRegister}>
               <Text style={styles.registerText}>
-                Don’t have an account? Register
+                Create Account →
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </ImageBackground>
     </SafeAreaView>
   );
 }

@@ -4,57 +4,171 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F7F1E8',
+  },
+
+  content: {
+    flexGrow: 1,
     paddingHorizontal: 24,
+    paddingTop: 54,
+    paddingBottom: 34,
     justifyContent: 'center',
   },
-  content: {
-    width: '100%',
-    gap: 18,
+
+  logoBox: {
+    alignItems: 'center',
+    marginBottom: 12,
   },
-  header: {
-    gap: 8,
+
+  logoImage: {
+    width: 86,
+    height: 64,
+    resizeMode: 'contain',
   },
+
   title: {
-    fontSize: 32,
-    fontWeight: '800',
+    fontSize: 36,
+    fontWeight: '900',
     color: '#2A211C',
+    textAlign: 'center',
+    marginTop: 6,
   },
+
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 22,
     color: '#6E6258',
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 26,
+    paddingHorizontal: 12,
   },
-  card: {
+
+  roleCard: {
+    minHeight: 154,
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#D8CFC5',
-    padding: 18,
-    gap: 12,
+    borderColor: '#E7DED3',
+    padding: 14,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#2A211C',
+    shadowOpacity: 0.1,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 4,
   },
-  primaryButton: {
+
+  customerCard: {
     backgroundColor: '#8B1E3F',
-    height: 56,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderColor: '#8B1E3F',
   },
-  secondaryButton: {
-    backgroundColor: '#B24B66',
-    height: 56,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
+
+  roleImage: {
+    width: 108,
+    height: 108,
+    borderRadius: 20,
+    resizeMode: 'cover',
+    backgroundColor: '#F3E7EA',
   },
-  buttonText: {
+
+  roleContent: {
+    flex: 1,
+    marginLeft: 14,
+  },
+
+  roleTitle: {
+    fontSize: 19,
+    fontWeight: '900',
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
+    marginBottom: 10,
   },
+
+  restaurantRoleTitle: {
+    fontSize: 19,
+    fontWeight: '900',
+    color: '#8B1E3F',
+    marginBottom: 10,
+  },
+
+  roleText: {
+    fontSize: 13,
+    color: '#FFFFFF',
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+
+  roleTextDark: {
+    fontSize: 13,
+    color: '#4B4038',
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+
+  arrow: {
+    fontSize: 34,
+    color: '#FFFFFF',
+    fontWeight: '300',
+  },
+
+  arrowDark: {
+    fontSize: 34,
+    color: '#8B1E3F',
+    fontWeight: '300',
+  },
+
+  loginHint: {
+    textAlign: 'center',
+    color: '#6E6258',
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 10,
+  },
+
   loginText: {
     textAlign: 'center',
     color: '#8B1E3F',
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '900',
+    marginTop: 6,
+  },
+
+  brandBadge: {
+    width: 86,
+    height: 86,
+    borderRadius: 43,
+    backgroundColor: '#8B1E3F',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 14,
+    shadowColor: '#8B1E3F',
+    shadowOpacity: 0.22,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 4,
+  },
+
+  brandLogo: {
+    width: 58,
+    height: 58,
+    resizeMode: 'contain',
+  },
+
+  appName: {
+    fontSize: 38,
+    fontWeight: '900',
+    color: '#2A211C',
+    textAlign: 'center',
+  },
+
+  tagline: {
+    fontSize: 15,
+    color: '#8B1E3F',
+    fontWeight: '800',
+    textAlign: 'center',
+    marginTop: 6,
+    marginBottom: 8,
   },
 });
