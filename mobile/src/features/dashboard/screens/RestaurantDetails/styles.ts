@@ -389,4 +389,70 @@ ratingDetailText: {
   fontWeight: '700',
   marginBottom: 8,
 },
+
+galleryRow: {
+  gap: 12,
+  paddingRight: 4,
+},
+
+galleryImageWrapper: {
+  width: 138,
+  height: 110,
+  borderRadius: 18,
+  overflow: 'hidden',
+  backgroundColor: '#EFE5DA',
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+menuImageWrapper: {
+  width: 118,
+  height: 150,
+  borderRadius: 18,
+  overflow: 'hidden',
+  backgroundColor: '#EFE5DA',
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+galleryImage: {
+  width: '100%',
+  height: '100%',
+  resizeMode: 'cover',
+},
+
+imagePreviewOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(42, 33, 28, 0.92)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 18,
+},
+
+fullPreviewImage: {
+  width: '100%',
+  height: '72%',
+  borderRadius: 22,
+  resizeMode: 'contain',
+},
+
+imagePreviewCloseButton: {
+  position: 'absolute',
+  top: 48,
+  right: 24,
+  width: 42,
+  height: 42,
+  borderRadius: 21,
+  backgroundColor: '#FFFFFF',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 10,
+},
+
+imagePreviewCloseText: {
+  fontSize: 30,
+  color: '#8B1E3F',
+  fontWeight: '900',
+  lineHeight: 32,
+},
 });

@@ -33,6 +33,17 @@ type CustomerReservation = {
   created_at: string;
 };
 
+const parseImages = (value?: string): string[] => {
+  if (!value) return [];
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
 const getStatusLabel = (status?: string) => {
   switch (status) {
     case 'pending':
@@ -55,6 +66,11 @@ export function useRestaurantDetails() {
   const restaurant = route.params?.restaurant;
   const user = route.params?.user;
 
+  const restaurantImages = parseImages(restaurant?.restaurant_images);
+  const menuImages = parseImages(restaurant?.menu_images);
+
+  const [previewImageUri, setPreviewImageUri] = useState<string | null>(null);
+
   const [activeReservation, setActiveReservation] =
     useState<CustomerReservation | null>(null);
 
@@ -69,9 +85,7 @@ export function useRestaurantDetails() {
   const [isRespondingChange, setIsRespondingChange] = useState(false);
 
   const fetchRatingSummary = async () => {
-    if (!restaurant?.id) {
-      return;
-    }
+    if (!restaurant?.id) return;
 
     try {
       const response = await fetch(
@@ -92,15 +106,13 @@ export function useRestaurantDetails() {
       if (data.success) {
         setRatingSummary(data.summary);
       }
-    } catch (error) {
+    } catch {
       setRatingSummary(null);
     }
   };
 
   const fetchReservationStatus = async () => {
-    if (!restaurant?.id || !user?.id) {
-      return;
-    }
+    if (!restaurant?.id || !user?.id) return;
 
     try {
       setIsLoadingReservation(true);
@@ -125,16 +137,10 @@ export function useRestaurantDetails() {
         setActiveReservation(data.activeReservation);
         setLastRejectedReservation(data.lastRejectedReservation);
       } else {
-        Alert.alert(
-          'Error',
-          data.message || 'Failed to load reservation status.',
-        );
+        Alert.alert('Error', data.message || 'Failed to load reservation status.');
       }
-    } catch (error) {
-      Alert.alert(
-        'Error',
-        'Something went wrong while loading reservation status.',
-      );
+    } catch {
+      Alert.alert('Error', 'Something went wrong while loading reservation status.');
     } finally {
       setIsLoadingReservation(false);
     }
@@ -148,9 +154,7 @@ export function useRestaurantDetails() {
   );
 
   const handleGoBack = () => {
-    navigation.navigate('CustomerDashboard', {
-      user,
-    });
+    navigation.navigate('CustomerDashboard', { user });
   };
 
   const handleReserve = () => {
@@ -158,6 +162,14 @@ export function useRestaurantDetails() {
       restaurant,
       user,
     });
+  };
+
+  const handleOpenImagePreview = (imageUri: string) => {
+    setPreviewImageUri(imageUri);
+  };
+
+  const handleCloseImagePreview = () => {
+    setPreviewImageUri(null);
   };
 
   const respondToChangeRequest = async (action: 'accept' | 'reject') => {
@@ -198,7 +210,7 @@ export function useRestaurantDetails() {
         Alert.alert('Error', data.message || 'Failed to respond to changes.');
         fetchReservationStatus();
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Something went wrong while responding to changes.');
     } finally {
       setIsRespondingChange(false);
@@ -230,6 +242,9 @@ export function useRestaurantDetails() {
   return {
     restaurant,
     user,
+    restaurantImages,
+    menuImages,
+    previewImageUri,
     activeReservation,
     lastRejectedReservation,
     ratingSummary,
@@ -241,6 +256,8 @@ export function useRestaurantDetails() {
     rejectedStatusLabel,
     handleGoBack,
     handleReserve,
+    handleOpenImagePreview,
+    handleCloseImagePreview,
     handleAcceptChange,
     handleRejectChange,
   };

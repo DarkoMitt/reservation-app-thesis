@@ -1,6 +1,8 @@
 import React from 'react';
 import {
   ActivityIndicator,
+  Image,
+  Modal,
   SafeAreaView,
   ScrollView,
   Text,
@@ -27,6 +29,12 @@ function RestaurantDetails(): React.JSX.Element {
     handleReserve,
     handleAcceptChange,
     handleRejectChange,
+
+    restaurantImages,
+    menuImages,
+    previewImageUri,
+    handleOpenImagePreview,
+    handleCloseImagePreview,
   } = useRestaurantDetails();
 
   const restaurantName =
@@ -124,6 +132,62 @@ function RestaurantDetails(): React.JSX.Element {
             </View>
           ) : null}
         </View>
+
+                <View style={styles.card}>
+            <Text style={styles.cardTitle}>Restaurant Photos</Text>
+
+            {restaurantImages.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.galleryRow}>
+                {restaurantImages.map(imageUri => (
+                  <TouchableOpacity
+                    key={imageUri}
+                    activeOpacity={0.85}
+                    style={styles.galleryImageWrapper}
+                    onPress={() => handleOpenImagePreview(imageUri)}>
+                    <Image
+                      source={{ uri: imageUri }}
+                      style={styles.galleryImage}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            ) : (
+              <Text style={styles.description}>
+                This restaurant has not added photos yet.
+              </Text>
+            )}
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Menu Photos</Text>
+
+            {menuImages.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.galleryRow}>
+                {menuImages.map(imageUri => (
+                  <TouchableOpacity
+                    key={imageUri}
+                    activeOpacity={0.85}
+                    style={styles.menuImageWrapper}
+                    onPress={() => handleOpenImagePreview(imageUri)}>
+                    <Image
+                      source={{ uri: imageUri }}
+                      style={styles.galleryImage}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            ) : (
+              <Text style={styles.description}>
+                This restaurant has not added menu photos yet.
+              </Text>
+            )}
+          </View>
 
         {isLoadingReservation ? (
           <View style={styles.reservationStatusCard}>
@@ -267,6 +331,27 @@ function RestaurantDetails(): React.JSX.Element {
           )}
         </View>
       </ScrollView>
+            <Modal
+              visible={!!previewImageUri}
+              transparent
+              animationType="fade"
+              onRequestClose={handleCloseImagePreview}>
+              <View style={styles.imagePreviewOverlay}>
+                <TouchableOpacity
+                  style={styles.imagePreviewCloseButton}
+                  activeOpacity={0.85}
+                  onPress={handleCloseImagePreview}>
+                  <Text style={styles.imagePreviewCloseText}>×</Text>
+                </TouchableOpacity>
+
+                {previewImageUri ? (
+                  <Image
+                    source={{ uri: previewImageUri }}
+                    style={styles.fullPreviewImage}
+                  />
+                ) : null}
+              </View>
+            </Modal>
     </SafeAreaView>
   );
 }
