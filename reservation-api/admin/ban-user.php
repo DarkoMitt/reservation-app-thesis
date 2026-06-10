@@ -21,8 +21,10 @@ if (!$userId) {
 try {
     $stmt = $pdo->prepare("
         UPDATE users
-        SET status = 'banned'
-        WHERE id = ?
+            SET
+                status = 'banned',
+                ban_reason = 'admin_ban'
+            WHERE id = ?
     ");
 
     $stmt->execute([$userId]);

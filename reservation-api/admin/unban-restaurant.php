@@ -39,22 +39,31 @@ try {
 
     $pdo->beginTransaction();
 
+    $updateUser = $pdo->prepare("
+        UPDATE users
+        SET
+            status = 'active',
+            ban_reason = NULL
+        WHERE id = ?
+    ");
+
+    $updateUser->execute([
+        $restaurant["user_id"]
+    ]);
+
     $updateRestaurant = $pdo->prepare("
         UPDATE restaurants
-        SET status = 'approved'
+        SET
+            status = 'approved',
+            rejection_reason = NULL
         WHERE id = ?
-        AND status = 'banned'
     ");
 
     $updateRestaurant->execute([$restaurantId]);
 
-    $updateUser = $pdo->prepare("
-        UPDATE users
-        SET status = 'active'
-        WHERE id = ?
-    ");
-
-    $updateUser->execute([$restaurant["user_id"]]);
+    $updateRestaurant->execute([
+        $restaurantId
+    ]);
 
     $pdo->commit();
 

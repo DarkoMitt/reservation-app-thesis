@@ -1,0 +1,117 @@
+{
+    "dataset_type": "synthetic prototype dataset",
+    "total_rows": 2000,
+    "train_rows": 1600,
+    "test_rows": 400,
+    "features": [
+        "trust_score",
+        "no_show_count",
+        "cancelled_reservations",
+        "visited_reservations",
+        "is_new_customer"
+    ],
+    "target": "no_show",
+    "tested_models": {
+        "Logistic Regression": {
+            "accuracy": 0.945,
+            "precision": 0.9231,
+            "recall": 0.8727,
+            "f1_score": 0.8972,
+            "classification_report": {
+                "0": {
+                    "precision": 0.9527027027027027,
+                    "recall": 0.9724137931034482,
+                    "f1-score": 0.962457337883959,
+                    "support": 290.0
+                },
+                "1": {
+                    "precision": 0.9230769230769231,
+                    "recall": 0.8727272727272727,
+                    "f1-score": 0.897196261682243,
+                    "support": 110.0
+                },
+                "accuracy": 0.945,
+                "macro avg": {
+                    "precision": 0.937889812889813,
+                    "recall": 0.9225705329153604,
+                    "f1-score": 0.929826799783101,
+                    "support": 400.0
+                },
+                "weighted avg": {
+                    "precision": 0.9445556133056133,
+                    "recall": 0.945,
+                    "f1-score": 0.9445105419284872,
+                    "support": 400.0
+                }
+            }
+        },
+        "Random Forest": {
+            "accuracy": 0.9875,
+            "precision": 0.9817,
+            "recall": 0.9727,
+            "f1_score": 0.9772,
+            "classification_report": {
+                "0": {
+                    "precision": 0.9896907216494846,
+                    "recall": 0.993103448275862,
+                    "f1-score": 0.9913941480206541,
+                    "support": 290.0
+                },
+                "1": {
+                    "precision": 0.981651376146789,
+                    "recall": 0.9727272727272728,
+                    "f1-score": 0.9771689497716894,
+                    "support": 110.0
+                },
+                "accuracy": 0.9875,
+                "macro avg": {
+                    "precision": 0.9856710488981368,
+                    "recall": 0.9829153605015675,
+                    "f1-score": 0.9842815488961718,
+                    "support": 400.0
+                },
+                "weighted avg": {
+                    "precision": 0.9874799016362432,
+                    "recall": 0.9875,
+                    "f1-score": 0.9874822185021889,
+                    "support": 400.0
+                }
+            }
+        },
+        "Gradient Boosting": {
+            "accuracy": 0.9875,
+            "precision": 0.9907,
+            "recall": 0.9636,
+            "f1_score": 0.977,
+            "classification_report": {
+                "0": {
+                    "precision": 0.9863481228668942,
+                    "recall": 0.996551724137931,
+                    "f1-score": 0.9914236706689536,
+                    "support": 290.0
+                },
+                "1": {
+                    "precision": 0.9906542056074766,
+                    "recall": 0.9636363636363636,
+                    "f1-score": 0.9769585253456221,
+                    "support": 110.0
+                },
+                "accuracy": 0.9875,
+                "macro avg": {
+                    "precision": 0.9885011642371855,
+                    "recall": 0.9800940438871473,
+                    "f1-score": 0.9841910980072879,
+                    "support": 400.0
+                },
+                "weighted avg": {
+                    "precision": 0.9875322956205542,
+                    "recall": 0.9875,
+                    "f1-score": 0.9874457557050376,
+                    "support": 400.0
+                }
+            }
+        }
+    },
+    "best_model": "Random Forest",
+    "selection_metric": "f1_score"
+}

@@ -49,7 +49,9 @@ try {
 
     $updateUser = $pdo->prepare("
         UPDATE users
-        SET status = 'banned'
+        SET
+            status = 'banned',
+            ban_reason = 'admin_ban'
         WHERE id = ?
     ");
 

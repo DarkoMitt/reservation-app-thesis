@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { appAlert as Alert } from '../../../../shared/services/appAlert';
 import {
   CommonActions,
+  useFocusEffect,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
@@ -132,14 +133,14 @@ const getUserPreferences = (user: any): string[] => {
 };
 
 const preferenceCuisineMap: Record<string, string[]> = {
-  vegetarian: ['mediterranean', 'italian', 'asian', 'mixed'],
+  vegetarian: ['mediterranean', 'italian', 'asian', 'traditional', 'balkan'],
   vegan: ['mediterranean', 'asian', 'mixed'],
-  halal: ['asian', 'mediterranean', 'mixed'],
-  'gluten-free': ['mediterranean', 'mixed'],
+  halal: ['asian', 'mediterranean', 'traditional', 'balkan'],
+  'gluten-free': ['mediterranean', 'italian', 'mixed'],
   'dairy-free': ['asian', 'mediterranean', 'mixed'],
-  seafood: ['mediterranean'],
+  seafood: ['mediterranean', 'traditional'],
   'no pork': ['mediterranean', 'asian', 'mixed'],
-  'no spicy food': ['italian', 'mediterranean', 'traditional'],
+  'no spicy food': ['italian', 'mediterranean', 'traditional', 'balkan'],
   'healthy food': ['mediterranean', 'asian', 'mixed'],
 };
 
@@ -207,8 +208,9 @@ export function useCustomerDashboard() {
   const route = useRoute<any>();
 
   const user = route.params?.user;
-
-  const userPreferences = getUserPreferences(user);
+  const userPreferences = useMemo(() => {
+    return getUserPreferences(user);
+  }, [user?.preferences]);
 
   const fullName = user
     ? `${user.first_name} ${user.last_name}`
@@ -234,16 +236,16 @@ export function useCustomerDashboard() {
     'Trending',
   ];
 
-  const forceLogoutAfterBan = () => {
+  const forceLogoutAfterBan = useCallback(() => {
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
         routes: [{ name: 'Auth' }],
       }),
     );
-  };
+  }, [navigation]);
 
-  const checkUserStatus = async () => {
+  const checkUserStatus = useCallback(async () => {
     if (!user?.id || hasShownBanAlert) {
       return;
     }
@@ -263,9 +265,14 @@ export function useCustomerDashboard() {
       if (data.success && data.status === 'banned') {
         setHasShownBanAlert(true);
 
+        const banMessage =
+          data.ban_reason === 'admin_ban'
+            ? 'Your account has been banned by an administrator.'
+            : 'Your account has been banned after receiving 5 no-show reports from restaurants.';
+
         Alert.alert(
           'Account Banned',
-          'Your account has been banned after receiving 5 no-show reports from restaurants.',
+          banMessage,
           [
             {
               text: 'OK',
@@ -276,9 +283,9 @@ export function useCustomerDashboard() {
         );
       }
     } catch {}
-  };
+  }, [user?.id, hasShownBanAlert, forceLogoutAfterBan]);
 
-  const generateNotifications = async () => {
+  const generateNotifications = useCallback(async () => {
     try {
       await fetch(
         'http://10.0.2.2/reservation-api/notifications/generate-notifications.php',
@@ -288,9 +295,9 @@ export function useCustomerDashboard() {
         },
       );
     } catch {}
-  };
+  }, []);
 
-  const fetchRestaurants = async () => {
+  const fetchRestaurants = useCallback(async () => {
     try {
       setIsLoadingRestaurants(true);
 
@@ -306,14 +313,18 @@ export function useCustomerDashboard() {
       const data = await response.json();
 
       if (data.success) {
+        const backendPreferences = getUserPreferences({
+          preferences: data.customer_preference,
+        });
+
+        const activePreferences =
+          backendPreferences.length > 0 ? backendPreferences : userPreferences;
+
         const restaurantsWithStatus = (data.restaurants || []).map(
           (restaurant: Restaurant) => ({
             ...restaurant,
             displayStatus: getRestaurantDisplayStatus(restaurant),
-            match_score: calculateBestMatchScore(
-              restaurant,
-              userPreferences,
-            ),
+            match_score: calculateBestMatchScore(restaurant, activePreferences),
           }),
         );
 
@@ -331,15 +342,18 @@ export function useCustomerDashboard() {
         'Error',
         'Something went wrong while loading restaurants.',
         [{ text: 'OK' }],
-        'error'
+        'error',
       );
     } finally {
       setIsLoadingRestaurants(false);
     }
-  };
+  }, [user?.id, userPreferences]);
 
-  const fetchUnreadNotificationsCount = async () => {
-    if (!user?.id) return;
+  const fetchUnreadNotificationsCount = useCallback(async () => {
+    if (!user?.id) {
+      setUnreadNotificationsCount(0);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -357,12 +371,11 @@ export function useCustomerDashboard() {
         setUnreadNotificationsCount(Number(data.unread_count || 0));
       }
     } catch {}
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     const loadDashboard = async () => {
       await generateNotifications();
-
       fetchRestaurants();
       checkUserStatus();
       fetchUnreadNotificationsCount();
@@ -375,7 +388,21 @@ export function useCustomerDashboard() {
     }, 10000);
 
     return () => clearInterval(statusInterval);
-  }, [user?.id, hasShownBanAlert]);
+  }, [
+    user?.id,
+    generateNotifications,
+    fetchRestaurants,
+    checkUserStatus,
+    fetchUnreadNotificationsCount,
+  ]);
+
+  useFocusEffect(
+    useCallback(() => {
+      generateNotifications();
+      fetchUnreadNotificationsCount();
+      checkUserStatus();
+    }, [generateNotifications, fetchUnreadNotificationsCount, checkUserStatus]),
+  );
 
   const filteredRestaurants = restaurants
     .filter(restaurant => {

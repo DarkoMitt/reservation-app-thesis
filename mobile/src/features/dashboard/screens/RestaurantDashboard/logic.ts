@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { appAlert as Alert } from '../../../../shared/services/appAlert';
 import {
   CommonActions,
@@ -49,7 +49,23 @@ type ReservationRequest = {
   waitlist_position?: number;
   is_new_customer?: number;
   has_restaurant_customer_rating?: number;
+
+  suggested_date?: string | null;
+  suggested_time?: string | null;
+  suggested_guests_count?: number | null;
+  change_reason?: string | null;
+  change_requested_by?: 'restaurant' | 'customer' | null;
+  change_expires_at?: string | null;
 };
+
+type ReservationStatus =
+  | 'approved'
+  | 'rejected'
+  | 'change_requested'
+  | 'visited'
+  | 'no_show'
+  | 'approve_customer_change'
+  | 'reject_customer_change';
 
 const isPastApprovedReservation = (request: ReservationRequest) => {
   const reservationDateTime = new Date(
@@ -65,25 +81,88 @@ export function useRestaurantDashboard() {
   const user = route.params?.user;
 
   const [restaurant, setRestaurant] = useState<RestaurantProfile | null>(null);
-  const [reservationRequests, setReservationRequests] = useState<ReservationRequest[]>([]);
+  const [reservationRequests, setReservationRequests] = useState<
+    ReservationRequest[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingRequests, setIsLoadingRequests] = useState(false);
   const [isUpdatingRequest, setIsUpdatingRequest] = useState(false);
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-  const [selectedRejectRequestId, setSelectedRejectRequestId] = useState<number | null>(null);
+  const [selectedRejectRequestId, setSelectedRejectRequestId] = useState<
+    number | null
+  >(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
-  const [selectedChangeRequestId, setSelectedChangeRequestId] = useState<number | null>(null);
+  const [selectedChangeRequestId, setSelectedChangeRequestId] = useState<
+    number | null
+  >(null);
   const [suggestedDate, setSuggestedDate] = useState('');
   const [suggestedTime, setSuggestedTime] = useState('');
 
-  const [isSuggestedDatePickerOpen, setIsSuggestedDatePickerOpen] = useState(false);
-  const [isSuggestedTimePickerOpen, setIsSuggestedTimePickerOpen] = useState(false);
+  const [isSuggestedDatePickerOpen, setIsSuggestedDatePickerOpen] =
+    useState(false);
+  const [isSuggestedTimePickerOpen, setIsSuggestedTimePickerOpen] =
+    useState(false);
 
-  const [suggestedDatePickerValue, setSuggestedDatePickerValue] = useState(new Date());
-  const [suggestedTimePickerValue, setSuggestedTimePickerValue] = useState(new Date());
+  const [suggestedDatePickerValue, setSuggestedDatePickerValue] = useState(
+    new Date(),
+  );
+  const [suggestedTimePickerValue, setSuggestedTimePickerValue] = useState(
+    new Date(),
+  );
+
+  const [suggestedGuestsCount, setSuggestedGuestsCount] = useState('');
+  const [changeReason, setChangeReason] = useState('');
+
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+  const [hasShownBanAlert, setHasShownBanAlert] = useState(false);
+
+  const restaurantInitial =
+    restaurant?.restaurant_name?.charAt(0)?.toUpperCase() || 'R';
+
+  const forceLogoutAfterBan = () => {
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Auth' }],
+      }),
+    );
+  };
+
+  const checkRestaurantStatus = async () => {
+    if (!user?.id || hasShownBanAlert) return;
+
+    try {
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/auth/check-user-status.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success && data.status === 'banned') {
+        setHasShownBanAlert(true);
+
+        const banMessage =
+          data.ban_reason === 'admin_ban'
+            ? 'Your restaurant account has been banned by an administrator.'
+            : 'Your restaurant account has been suspended. Please contact support for more information.';
+
+        Alert.alert(
+          'Restaurant Account Banned',
+          banMessage,
+          [{ text: 'OK', onPress: forceLogoutAfterBan }],
+          'warning',
+        );
+      }
+    } catch {}
+  };
 
   const formatDateForApi = (date: Date) => {
     const year = date.getFullYear();
@@ -146,14 +225,6 @@ export function useRestaurantDashboard() {
     setSuggestedTime(formatTimeForApi(selectedDate));
   };
 
-  const [suggestedGuestsCount, setSuggestedGuestsCount] = useState('');
-  const [changeReason, setChangeReason] = useState('');
-
-  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
-
-  const restaurantInitial =
-    restaurant?.restaurant_name?.charAt(0)?.toUpperCase() || 'R';
-
   const generateNotifications = async () => {
     try {
       await fetch(
@@ -190,10 +261,16 @@ export function useRestaurantDashboard() {
         setRestaurant(data.restaurant);
         fetchReservationRequests(data.restaurant.restaurant_id);
       } else {
-        Alert.alert('Error', data.message || 'Failed to load restaurant profile.');
+        Alert.alert(
+          'Error',
+          data.message || 'Failed to load restaurant profile.',
+        );
       }
     } catch {
-      Alert.alert('Error', 'Something went wrong while loading restaurant profile.');
+      Alert.alert(
+        'Error',
+        'Something went wrong while loading restaurant profile.',
+      );
     } finally {
       setIsLoading(false);
     }
@@ -220,10 +297,16 @@ export function useRestaurantDashboard() {
       if (data.success) {
         setReservationRequests(data.requests || []);
       } else {
-        Alert.alert('Error', data.message || 'Failed to load reservation requests.');
+        Alert.alert(
+          'Error',
+          data.message || 'Failed to load reservation requests.',
+        );
       }
     } catch {
-      Alert.alert('Error', 'Something went wrong while loading reservation requests.');
+      Alert.alert(
+        'Error',
+        'Something went wrong while loading reservation requests.',
+      );
     } finally {
       setIsLoadingRequests(false);
     }
@@ -231,7 +314,7 @@ export function useRestaurantDashboard() {
 
   const updateReservationStatus = async (
     reservationId: number,
-    status: 'approved' | 'rejected' | 'change_requested' | 'visited' | 'no_show',
+    status: ReservationStatus,
     options?: {
       rejectionReason?: string;
       suggestedDate?: string;
@@ -288,6 +371,28 @@ export function useRestaurantDashboard() {
     updateReservationStatus(reservationId, 'approved');
   };
 
+  const handleApproveCustomerChange = (reservationId: number) => {
+    updateReservationStatus(reservationId, 'approve_customer_change');
+  };
+
+  const handleRejectCustomerChange = (reservationId: number) => {
+    Alert.alert(
+      'Reject Change Request',
+      'Are you sure you want to reject this customer change request?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reject',
+          style: 'destructive',
+          onPress: () =>
+            updateReservationStatus(reservationId, 'reject_customer_change', {
+              rejectionReason: 'Restaurant rejected the requested change.',
+            }),
+        },
+      ],
+    );
+  };
+
   const handleMarkVisited = (reservationId: number) => {
     updateReservationStatus(reservationId, 'visited');
   };
@@ -318,7 +423,10 @@ export function useRestaurantDashboard() {
     if (!selectedRejectRequestId) return;
 
     if (!rejectionReason.trim()) {
-      Alert.alert('Reason Required', 'Please enter a reason before rejecting this reservation.');
+      Alert.alert(
+        'Reason Required',
+        'Please enter a reason before rejecting this reservation.',
+      );
       return;
     }
 
@@ -347,13 +455,24 @@ export function useRestaurantDashboard() {
   const handleConfirmChange = () => {
     if (!selectedChangeRequestId) return;
 
-    if (!suggestedDate || !suggestedTime || !suggestedGuestsCount || !changeReason.trim()) {
-      Alert.alert('Missing Information', 'Please enter suggested date, time, guests count and reason.');
+    if (
+      !suggestedDate ||
+      !suggestedTime ||
+      !suggestedGuestsCount ||
+      !changeReason.trim()
+    ) {
+      Alert.alert(
+        'Missing Information',
+        'Please enter suggested date, time, guests count and reason.',
+      );
       return;
     }
 
     if (Number(suggestedGuestsCount) <= 0) {
-      Alert.alert('Invalid Guests', 'Suggested guests count must be greater than 0.');
+      Alert.alert(
+        'Invalid Guests',
+        'Suggested guests count must be greater than 0.',
+      );
       return;
     }
 
@@ -387,9 +506,7 @@ export function useRestaurantDashboard() {
   };
 
   const handleOpenNotifications = () => {
-    navigation.navigate('Notifications', {
-      user,
-    });
+    navigation.navigate('Notifications', { user });
   };
 
   const handleBack = () => {
@@ -409,10 +526,7 @@ export function useRestaurantDashboard() {
       return;
     }
 
-    navigation.navigate('RestaurantProfile', {
-      restaurant,
-      user,
-    });
+    navigation.navigate('RestaurantProfile', { restaurant, user });
   };
 
   const handleOpenVisitedCustomers = () => {
@@ -423,10 +537,7 @@ export function useRestaurantDashboard() {
       return;
     }
 
-    navigation.navigate('VisitedCustomers', {
-      restaurant,
-      user,
-    });
+    navigation.navigate('VisitedCustomers', { restaurant, user });
   };
 
   const handleOpenRestaurantReviews = () => {
@@ -437,10 +548,7 @@ export function useRestaurantDashboard() {
       return;
     }
 
-    navigation.navigate('RestaurantReviews', {
-      restaurant,
-      user,
-    });
+    navigation.navigate('RestaurantReviews', { restaurant, user });
   };
 
   const handleLogout = () => {
@@ -448,10 +556,7 @@ export function useRestaurantDashboard() {
       'Logout',
       'Are you sure you want to logout?',
       [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Logout',
           style: 'destructive',
@@ -470,24 +575,30 @@ export function useRestaurantDashboard() {
   };
 
   useFocusEffect(
-  React.useCallback(() => {
-    generateNotifications();
-
-    fetchRestaurantProfile();
-    fetchUnreadNotificationsCount();
-  }, [user?.id]),
-);
+    React.useCallback(() => {
+      checkRestaurantStatus();
+      generateNotifications();
+      fetchRestaurantProfile();
+      fetchUnreadNotificationsCount();
+    }, [user?.id, hasShownBanAlert]),
+  );
 
   const pendingRequests = reservationRequests.filter(
     request => request.status === 'pending',
+  );
+
+  const customerChangeRequests = reservationRequests.filter(
+    request =>
+      request.status === 'customer_change_requested' &&
+      request.change_requested_by === 'customer',
   );
 
   const waitlistedRequests = reservationRequests.filter(
     request => request.status === 'waitlisted',
   );
 
-  const pastApprovedRequests = reservationRequests.filter(
-    request => isPastApprovedReservation(request),
+  const pastApprovedRequests = reservationRequests.filter(request =>
+    isPastApprovedReservation(request),
   );
 
   const handleOpenCustomerProfile = (customerUserId: number) => {
@@ -506,6 +617,7 @@ export function useRestaurantDashboard() {
   return {
     restaurant,
     pendingRequests,
+    customerChangeRequests,
     waitlistedRequests,
     pastApprovedRequests,
     isLoading,
@@ -550,6 +662,8 @@ export function useRestaurantDashboard() {
     handleOpenRestaurantReviews,
     handleLogout,
     handleApproveReservation,
+    handleApproveCustomerChange,
+    handleRejectCustomerChange,
     handleMarkVisited,
     handleMarkNoShow,
     handleOpenCustomerProfile,

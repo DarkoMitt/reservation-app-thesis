@@ -29,7 +29,9 @@ $allowedStatuses = [
     "change_requested",
     "cancelled",
     "visited",
-    "no_show"
+    "no_show",
+    "approve_customer_change",
+    "reject_customer_change"
 ];
 
 if (!$reservationId || !$status || !in_array($status, $allowedStatuses)) {
@@ -78,9 +80,15 @@ try {
             reservations.reservation_time,
             reservations.guests_count,
             reservations.status,
+            reservations.suggested_date,
+            reservations.suggested_time,
+            reservations.suggested_guests_count,
+            reservations.change_reason,
+            reservations.change_requested_by,
 
             restaurants.restaurant_name,
             restaurants.user_id AS restaurant_user_id,
+            restaurants.max_guests,
 
             users.first_name,
             users.last_name
@@ -114,7 +122,150 @@ try {
     $reservationTime = substr($reservationTimeRaw, 0, 5);
     $guestsCount = (int)$reservation["guests_count"];
 
-    if ($status === "rejected") {
+    if ($status === "approve_customer_change") {
+        if (
+            $reservation["status"] !== "customer_change_requested" ||
+            $reservation["change_requested_by"] !== "customer" ||
+            empty($reservation["suggested_date"]) ||
+            empty($reservation["suggested_time"]) ||
+            empty($reservation["suggested_guests_count"])
+        ) {
+            $pdo->rollBack();
+
+            echo json_encode([
+                "success" => false,
+                "message" => "There is no valid customer change request for this reservation."
+            ]);
+            exit;
+        }
+
+        $newDate = $reservation["suggested_date"];
+        $newTime = $reservation["suggested_time"];
+        $newGuests = (int)$reservation["suggested_guests_count"];
+        $maxGuests = (int)$reservation["max_guests"];
+
+        $capacityStmt = $pdo->prepare("
+            SELECT COALESCE(SUM(guests_count), 0) AS reserved_guests
+            FROM reservations
+            WHERE restaurant_id = ?
+            AND reservation_date = ?
+            AND id != ?
+            AND status IN ('approved', 'change_requested', 'customer_change_requested')
+            AND reservation_time < ADDTIME(?, '03:00:00')
+            AND ADDTIME(reservation_time, '03:00:00') > ?
+        ");
+
+        $capacityStmt->execute([
+            $restaurantId,
+            $newDate,
+            $reservationId,
+            $newTime,
+            $newTime
+        ]);
+
+        $capacityData = $capacityStmt->fetch(PDO::FETCH_ASSOC);
+        $reservedGuests = (int)$capacityData["reserved_guests"];
+
+        if ($reservedGuests + $newGuests > $maxGuests) {
+            $pdo->rollBack();
+
+            echo json_encode([
+                "success" => false,
+                "message" => "The restaurant is full for the requested time slot. The change cannot be approved."
+            ]);
+            exit;
+        }
+
+        $oldDate = $reservation["reservation_date"];
+        $oldTime = $reservation["reservation_time"];
+
+        $stmt = $pdo->prepare("
+            UPDATE reservations
+            SET
+                reservation_date = ?,
+                reservation_time = ?,
+                guests_count = ?,
+                status = 'approved',
+                rejection_reason = NULL,
+                suggested_date = NULL,
+                suggested_time = NULL,
+                suggested_guests_count = NULL,
+                change_reason = NULL,
+                change_requested_by = NULL,
+                change_expires_at = NULL
+            WHERE id = ?
+        ");
+
+        $stmt->execute([
+            $newDate,
+            $newTime,
+            $newGuests,
+            $reservationId
+        ]);
+
+        createNotification(
+            $pdo,
+            $customerUserId,
+            "customer",
+            "Reservation Change Approved",
+            $restaurantName . " approved your requested reservation change. New date: " . $newDate . ", time: " . substr($newTime, 0, 5) . ", guests: " . $newGuests . ".",
+            "customer_change_approved",
+            (int)$reservationId,
+            $restaurantId
+        );
+
+        processWaitlist(
+            $pdo,
+            $restaurantId,
+            $oldDate,
+            $oldTime
+        );
+
+    } elseif ($status === "reject_customer_change") {
+        if (
+            $reservation["status"] !== "customer_change_requested" ||
+            $reservation["change_requested_by"] !== "customer"
+        ) {
+            $pdo->rollBack();
+
+            echo json_encode([
+                "success" => false,
+                "message" => "There is no valid customer change request for this reservation."
+            ]);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("
+            UPDATE reservations
+            SET
+                status = 'approved',
+                rejection_reason = ?,
+                suggested_date = NULL,
+                suggested_time = NULL,
+                suggested_guests_count = NULL,
+                change_reason = NULL,
+                change_requested_by = NULL,
+                change_expires_at = NULL
+            WHERE id = ?
+        ");
+
+        $stmt->execute([
+            $rejectionReason ?: "Restaurant rejected the requested change.",
+            $reservationId
+        ]);
+
+        createNotification(
+            $pdo,
+            $customerUserId,
+            "customer",
+            "Reservation Change Rejected",
+            $restaurantName . " rejected your requested reservation change. Your original reservation remains unchanged.",
+            "customer_change_rejected",
+            (int)$reservationId,
+            $restaurantId
+        );
+
+    } elseif ($status === "rejected") {
         $stmt = $pdo->prepare("
             UPDATE reservations
             SET
@@ -124,6 +275,7 @@ try {
                 suggested_time = NULL,
                 suggested_guests_count = NULL,
                 change_reason = NULL,
+                change_requested_by = NULL,
                 change_expires_at = NULL
             WHERE id = ?
         ");
@@ -161,6 +313,7 @@ try {
                 suggested_time = ?,
                 suggested_guests_count = ?,
                 change_reason = ?,
+                change_requested_by = 'restaurant',
                 change_expires_at = DATE_ADD(NOW(), INTERVAL 1 HOUR),
                 rejection_reason = NULL
             WHERE id = ?
@@ -196,6 +349,7 @@ try {
                 suggested_time = NULL,
                 suggested_guests_count = NULL,
                 change_reason = NULL,
+                change_requested_by = NULL,
                 change_expires_at = NULL
             WHERE id = ?
         ");
@@ -255,6 +409,7 @@ try {
                 suggested_time = NULL,
                 suggested_guests_count = NULL,
                 change_reason = NULL,
+                change_requested_by = NULL,
                 change_expires_at = NULL
             WHERE id = ?
         ");
@@ -277,9 +432,15 @@ try {
             SET
                 trust_score = ?,
                 no_show_count = no_show_count + 1,
+
                 status = CASE
                     WHEN no_show_count + 1 >= 5 THEN 'banned'
                     ELSE status
+                END,
+
+                ban_reason = CASE
+                    WHEN no_show_count + 1 >= 5 THEN 'automatic_no_show_ban'
+                    ELSE ban_reason
                 END
             WHERE id = ?
         ");
@@ -327,6 +488,7 @@ try {
                 suggested_time = NULL,
                 suggested_guests_count = NULL,
                 change_reason = NULL,
+                change_requested_by = NULL,
                 change_expires_at = NULL
             WHERE id = ?
         ");
@@ -354,6 +516,7 @@ try {
                 suggested_time = NULL,
                 suggested_guests_count = NULL,
                 change_reason = NULL,
+                change_requested_by = NULL,
                 change_expires_at = NULL
             WHERE id = ?
         ");

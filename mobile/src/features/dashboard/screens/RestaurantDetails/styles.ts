@@ -39,52 +39,63 @@ export const styles = StyleSheet.create({
   },
 
   headerCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    padding: 18,
-    marginBottom: 18,
-    borderWidth: 1,
-    borderColor: '#E7DED3',
-  },
+  backgroundColor: '#FFFFFF',
+  borderRadius: 24,
+  padding: 18,
+  marginBottom: 18,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
 
-  name: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#2A211C',
-    marginBottom: 6,
-  },
+closedStatus: {
+  color: '#6E6258',
+},
 
-  meta: {
-    fontSize: 14,
-    color: '#6E6258',
-    fontWeight: '600',
-    marginBottom: 8,
-  },
+closedStatusText: {
+  color: '#6E6258',
+},
 
-  foodType: {
-    fontSize: 14,
-    color: '#8B1E3F',
-    fontWeight: '800',
-    marginBottom: 14,
-  },
+name: {
+  fontSize: 30,
+  fontWeight: '900',
+  color: '#2A211C',
+  marginBottom: 6,
+},
 
-  ratingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
+meta: {
+  fontSize: 14,
+  color: '#6E6258',
+  fontWeight: '700',
+  marginBottom: 8,
+},
 
-  rating: {
-    fontSize: 14,
-    color: '#2A211C',
-    fontWeight: '800',
-  },
+foodType: {
+  fontSize: 14,
+  color: '#8B1E3F',
+  fontWeight: '900',
+  marginBottom: 12,
+},
 
-  status: {
-    fontSize: 14,
-    color: '#2F7D32',
-    fontWeight: '800',
-  },
+ratingRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  gap: 10,
+  marginTop: 8,
+},
+
+rating: {
+  fontSize: 13,
+  color: '#6E6258',
+  fontWeight: '700',
+  flex: 1,
+},
+
+status: {
+  fontSize: 14,
+  color: '#2F7D32',
+  fontWeight: '900',
+},
 
   card: {
     backgroundColor: '#FFFFFF',
@@ -140,18 +151,18 @@ export const styles = StyleSheet.create({
   },
 
   reserveButton: {
-    backgroundColor: '#8B1E3F',
-    paddingVertical: 16,
-    borderRadius: 18,
-    alignItems: 'center',
-    marginBottom: 18,
-  },
+  backgroundColor: '#8B1E3F',
+  paddingVertical: 17,
+  borderRadius: 18,
+  alignItems: 'center',
+  marginBottom: 18,
+},
 
-  reserveButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
-  },
+reserveButtonText: {
+  color: '#FFFFFF',
+  fontSize: 16,
+  fontWeight: '900',
+},
 
   reservationStatusCard: {
     backgroundColor: '#FFF7EC',
@@ -334,7 +345,7 @@ cancelSecondaryButtonText: {
 
 ratingSummaryCard: {
   backgroundColor: '#FFFFFF',
-  borderRadius: 22,
+  borderRadius: 24,
   padding: 18,
   marginBottom: 18,
   borderWidth: 1,
@@ -454,5 +465,251 @@ imagePreviewCloseText: {
   color: '#8B1E3F',
   fontWeight: '900',
   lineHeight: 32,
+},
+
+heroImageWrapper: {
+  width: 350,
+  height: 210,
+  borderRadius: 28,
+  overflow: 'hidden',
+  marginRight: 12,
+  backgroundColor: '#EFE5DA',
+  position: 'relative',
+},
+
+heroImageReal: {
+  width: '100%',
+  height: '100%',
+  resizeMode: 'cover',
+},
+
+heroImageCounter: {
+  position: 'absolute',
+  right: 14,
+  bottom: 14,
+  backgroundColor: 'rgba(42, 33, 28, 0.72)',
+  paddingHorizontal: 10,
+  paddingVertical: 6,
+  borderRadius: 999,
+},
+
+heroImageCounterText: {
+  color: '#FFFFFF',
+  fontSize: 13,
+  fontWeight: '900',
+},
+
+heroStatusBadge: {
+  position: 'absolute',
+  left: 14,
+  bottom: 14,
+  backgroundColor: '#FFFFFF',
+  paddingHorizontal: 12,
+  paddingVertical: 7,
+  borderRadius: 999,
+},
+
+heroStatusText: {
+  color: '#2F7D32',
+  fontSize: 13,
+  fontWeight: '900',
+},
+
+headerTopRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'flex-start',
+  gap: 12,
+},
+
+headerMainInfo: {
+  flex: 1,
+},
+
+ratingPill: {
+  backgroundColor: '#8B1E3F',
+  borderRadius: 18,
+  paddingHorizontal: 14,
+  paddingVertical: 10,
+},
+
+ratingPillText: {
+  color: '#FFFFFF',
+  fontSize: 15,
+  fontWeight: '900',
+},
+
+infoGrid: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  gap: 12,
+  marginBottom: 18,
+},
+
+infoGridCard: {
+  width: '48%',
+  backgroundColor: '#FFFFFF',
+  borderRadius: 20,
+  padding: 14,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+infoIconBox: {
+  width: 42,
+  height: 42,
+  borderRadius: 16,
+  backgroundColor: '#F8F2EA',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginBottom: 10,
+},
+
+infoIcon: {
+  fontSize: 20,
+},
+
+infoGridTitle: {
+  fontSize: 14,
+  color: '#2A211C',
+  fontWeight: '900',
+  marginBottom: 6,
+},
+
+infoGridText: {
+  fontSize: 13,
+  color: '#4B4038',
+  fontWeight: '700',
+  lineHeight: 18,
+},
+
+ratingSummaryContent: {
+  flexDirection: 'row',
+  gap: 14,
+  marginBottom: 10,
+},
+
+ratingLeftBox: {
+  flex: 1,
+  justifyContent: 'center',
+},
+
+ratingBarsBox: {
+  flex: 1.15,
+  backgroundColor: '#F8F2EA',
+  borderRadius: 18,
+  padding: 10,
+},
+
+ratingBarRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 6,
+},
+
+ratingBarLabel: {
+  width: 30,
+  fontSize: 12,
+  color: '#4B4038',
+  fontWeight: '800',
+},
+
+ratingBarTrack: {
+  flex: 1,
+  height: 8,
+  backgroundColor: '#E7DED3',
+  borderRadius: 999,
+  overflow: 'hidden',
+  marginHorizontal: 6,
+},
+
+ratingBarFill: {
+  width: '0%',
+  height: '100%',
+  backgroundColor: '#D99A2B',
+  borderRadius: 999,
+},
+
+ratingBarPercent: {
+  width: 28,
+  fontSize: 12,
+  color: '#4B4038',
+  fontWeight: '800',
+  textAlign: 'right',
+},
+
+ratingMainRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 14,
+},
+
+ratingReviewsBadge: {
+  backgroundColor: '#F3E7EA',
+  borderRadius: 999,
+  paddingHorizontal: 12,
+  paddingVertical: 7,
+},
+
+ratingReviewsBadgeText: {
+  color: '#8B1E3F',
+  fontSize: 12,
+  fontWeight: '900',
+},
+
+ratingCategoryGrid: {
+  flexDirection: 'row',
+  gap: 10,
+  marginBottom: 14,
+},
+
+ratingCategoryBox: {
+  flex: 1,
+  backgroundColor: '#F8F2EA',
+  borderRadius: 18,
+  paddingVertical: 14,
+  alignItems: 'center',
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+ratingCategoryIcon: {
+  fontSize: 22,
+  marginBottom: 6,
+},
+
+ratingCategoryValue: {
+  fontSize: 18,
+  fontWeight: '900',
+  color: '#8B1E3F',
+},
+
+ratingCategoryLabel: {
+  fontSize: 11,
+  fontWeight: '800',
+  color: '#6E6258',
+  marginTop: 4,
+},
+
+heroContainer: {
+  position: 'relative',
+  marginBottom: 18,
+},
+
+heroGallery: {
+  marginBottom: 0,
+},
+
+heroStatusBadgeFixed: {
+  position: 'absolute',
+  left: 14,
+  top: 14,
+  backgroundColor: '#FFFFFF',
+  paddingHorizontal: 12,
+  paddingVertical: 7,
+  borderRadius: 999,
+  zIndex: 999,
+  elevation: 10,
 },
 });

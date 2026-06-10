@@ -39,6 +39,7 @@ try {
             users.password,
             users.role,
             users.status,
+            users.ban_reason,
             users.no_show_count,
             users.trust_score,
             restaurants.rejection_reason,
@@ -64,9 +65,19 @@ try {
     }
 
     if ($user["status"] === "banned") {
+        $banReason = $user["ban_reason"] ?? null;
+
+        if ($banReason === "admin_ban") {
+            $message = "Your account has been banned by an administrator.";
+        } elseif ($banReason === "automatic_no_show_ban") {
+            $message = "Your account has been banned after receiving 5 no-show reports from restaurants.";
+        } else {
+            $message = "Your account has been banned.";
+        }
+
         echo json_encode([
             "success" => false,
-            "message" => "Your account has been banned after receiving 5 no-show reports from restaurants."
+            "message" => $message
         ]);
         exit;
     }

@@ -1,4 +1,5 @@
 import React from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   SafeAreaView,
   ScrollView,
@@ -13,10 +14,7 @@ import { styles } from './styles';
 
 const priceOptions = ['500', '1000', '1500', '2500', '4000', '6000+'];
 
-const renderStars = (
-  value: string,
-  onChange: (value: string) => void,
-) => (
+const renderStars = (value: string, onChange: (value: string) => void) => (
   <View style={styles.starsRow}>
     {[1, 2, 3, 4, 5].map(star => (
       <TouchableOpacity
@@ -37,36 +35,76 @@ const renderStars = (
 
 function ReservationDetails(): React.JSX.Element {
   const {
-    reservation,
-    isPastReservation,
-    isExpiredReservation,
-    canCancelReservation,
-    handleGoBack,
-    handleOpenRestaurant,
-    handleCancelReservation,
-    handleAcceptChange,
-    handleRejectChange,
+  reservation,
+  isPastReservation,
+  isExpiredReservation,
+  canCancelReservation,
 
-    customerToRestaurantRating,
-    restaurantToCustomerRating,
-    canRateRestaurant,
+  canRequestReservationChange,
+  customerChangeButtonLabel,
 
-    foodRating,
-    setFoodRating,
-    serviceRating,
-    setServiceRating,
-    atmosphereRating,
-    setAtmosphereRating,
-    pricePerPerson,
-    setPricePerPerson,
-    reviewText,
-    setReviewText,
-    isSubmittingRating,
-    submitCustomerRating,
-  } = useReservationDetails();
+  isChangeFormOpen,
+  changeDate,
+  setChangeDate,
+  changeTime,
+  setChangeTime,
+  changeGuestsCount,
+  setChangeGuestsCount,
+  customerChangeReason,
+  setCustomerChangeReason,
+  isSubmittingCustomerChange,
+  handleOpenCustomerChangeForm,
+  handleCancelCustomerChangeForm,
+  submitCustomerChangeRequest,
+
+  isChangeDatePickerOpen,
+  isChangeTimePickerOpen,
+  changeDatePickerValue,
+  changeTimePickerValue,
+  openChangeDatePicker,
+  openChangeTimePicker,
+  handleChangeDatePickerChange,
+  handleChangeTimePickerChange,
+
+  handleGoBack,
+  handleOpenRestaurant,
+  handleCancelReservation,
+  handleAcceptChange,
+  handleRejectChange,
+
+  customerToRestaurantRating,
+  restaurantToCustomerRating,
+  canRateRestaurant,
+
+  foodRating,
+  setFoodRating,
+  serviceRating,
+  setServiceRating,
+  atmosphereRating,
+  setAtmosphereRating,
+  pricePerPerson,
+  setPricePerPerson,
+  reviewText,
+  setReviewText,
+  isSubmittingRating,
+  submitCustomerRating,
+} = useReservationDetails();
 
   const displayStatus =
     reservation.display_status || reservation.status || 'Reservation';
+
+  const renderInfoRow = (icon: string, label: string, value: string | number) => (
+    <View style={styles.infoRow}>
+      <View style={styles.infoIconBox}>
+        <Text style={styles.infoIcon}>{icon}</Text>
+      </View>
+
+      <View style={styles.infoTextBox}>
+        <Text style={styles.infoLabel}>{label}</Text>
+        <Text style={styles.infoValue}>{value}</Text>
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -74,31 +112,41 @@ function ReservationDetails(): React.JSX.Element {
         style={styles.screen}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}>
-
         <TouchableOpacity onPress={handleGoBack} activeOpacity={0.7}>
           <Text style={styles.backText}>‹ Back</Text>
         </TouchableOpacity>
 
         <Text style={styles.title}>Reservation Details</Text>
 
-        <View style={styles.card}>
-          <Text style={styles.restaurantName}>{reservation.restaurant_name}</Text>
+        <View style={styles.restaurantHeroCard}>
+          <View style={styles.restaurantIconBox}>
+            <Text style={styles.restaurantIcon}>🍽️</Text>
+          </View>
 
-          <Text style={styles.restaurantMeta}>
-            {reservation.city} • {reservation.address}
-          </Text>
+          <View style={styles.restaurantHeroInfo}>
+            <Text style={styles.restaurantName}>
+              {reservation.restaurant_name}
+            </Text>
 
-          <Text
-            style={[
-              styles.statusBadge,
-              isPastReservation && styles.pastStatusBadge,
-            ]}>
-            {displayStatus}
-          </Text>
+            <Text style={styles.restaurantMeta}>
+              {reservation.city} • {reservation.address}
+            </Text>
+
+            <Text
+              style={[
+                styles.statusBadge,
+                isPastReservation && styles.pastStatusBadge,
+              ]}>
+              {displayStatus}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Reservation Info</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>📌</Text>
+            <Text style={styles.sectionTitle}>Reservation Info</Text>
+          </View>
 
           {isExpiredReservation ? (
             <Text style={styles.pastLabel}>Expired Reservation</Text>
@@ -108,46 +156,36 @@ function ReservationDetails(): React.JSX.Element {
             <Text style={styles.upcomingLabel}>Active / Upcoming</Text>
           )}
 
-          <Text style={styles.infoText}>
-            Date: {reservation.reservation_date}
-          </Text>
+          {renderInfoRow('📅', 'Date', reservation.reservation_date)}
+          {renderInfoRow('🕒', 'Time', reservation.reservation_time)}
+          {renderInfoRow('👥', 'Guests', reservation.guests_count)}
 
-          <Text style={styles.infoText}>
-            Time: {reservation.reservation_time}
-          </Text>
-
-          <Text style={styles.infoText}>
-            Guests: {reservation.guests_count}
-          </Text>
+          {reservation.special_request
+            ? renderInfoRow('💬', 'Special Request', reservation.special_request)
+            : null}
 
           {reservation.status === 'waitlisted' ? (
             <View style={styles.waitlistInfoBox}>
-              <Text style={styles.waitlistTitle}>Waitlisted Reservation</Text>
+              <Text style={styles.waitlistTitle}>🪑 Waitlisted Reservation</Text>
 
               <Text style={styles.waitlistText}>
                 Position: #{reservation.waitlist_position || '-'}
               </Text>
 
               <Text style={styles.waitlistText}>
-                The restaurant is currently full for this time slot. If enough seats become
-                available, your request will automatically move to pending restaurant
-                confirmation.
+                The restaurant is currently full for this time slot. If enough
+                seats become available, your request will automatically move to
+                pending restaurant confirmation.
               </Text>
             </View>
-          ) : null}
-
-          {reservation.special_request ? (
-            <Text style={styles.infoText}>
-              Request: {reservation.special_request}
-            </Text>
           ) : null}
         </View>
 
         {isExpiredReservation ? (
-          <View style={styles.rejectedCard}>
-            <Text style={styles.rejectedTitle}>Reservation Expired</Text>
+          <View style={styles.noticeCardDanger}>
+            <Text style={styles.noticeTitleDanger}>⏱️ Reservation Expired</Text>
 
-            <Text style={styles.rejectedReason}>
+            <Text style={styles.noticeTextDanger}>
               {reservation.rejection_reason ||
                 'The restaurant did not respond before the confirmation deadline, so this reservation request was automatically cancelled.'}
             </Text>
@@ -155,30 +193,36 @@ function ReservationDetails(): React.JSX.Element {
         ) : null}
 
         {reservation.status === 'rejected' ? (
-          <View style={styles.rejectedCard}>
-            <Text style={styles.rejectedTitle}>Reservation Rejected</Text>
+          <View style={styles.noticeCardDanger}>
+            <Text style={styles.noticeTitleDanger}>❌ Reservation Rejected</Text>
 
-            <Text style={styles.rejectedReason}>
+            <Text style={styles.noticeTextDanger}>
               {reservation.rejection_reason || 'No reason provided.'}
+            </Text>
+          </View>
+        ) : null}
+
+        {reservation.status === 'cancelled' ? (
+          <View style={styles.noticeCardNeutral}>
+            <Text style={styles.noticeTitleNeutral}>🚫 Reservation Cancelled</Text>
+
+            <Text style={styles.noticeTextNeutral}>
+              This reservation has been cancelled and is no longer active.
             </Text>
           </View>
         ) : null}
 
         {reservation.status === 'change_requested' && !isPastReservation ? (
           <View style={styles.changeCard}>
-            <Text style={styles.changeTitle}>Restaurant Suggested Changes</Text>
+            <Text style={styles.changeTitle}>🔄 Restaurant Suggested Changes</Text>
 
-            <Text style={styles.infoText}>
-              Suggested Date: {reservation.suggested_date}
-            </Text>
-
-            <Text style={styles.infoText}>
-              Suggested Time: {reservation.suggested_time}
-            </Text>
-
-            <Text style={styles.infoText}>
-              Suggested Guests: {reservation.suggested_guests_count}
-            </Text>
+            {renderInfoRow('📅', 'Suggested Date', reservation.suggested_date || '-')}
+            {renderInfoRow('🕒', 'Suggested Time', reservation.suggested_time || '-')}
+            {renderInfoRow(
+              '👥',
+              'Suggested Guests',
+              reservation.suggested_guests_count || '-',
+            )}
 
             <Text style={styles.changeReason}>
               {reservation.change_reason}
@@ -207,28 +251,41 @@ function ReservationDetails(): React.JSX.Element {
         reservation.status !== 'rejected' &&
         reservation.status !== 'cancelled' ? (
           <View style={styles.ratingCard}>
-            <Text style={styles.sectionTitle}>Ratings & Visit Summary</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionIcon}>⭐</Text>
+              <Text style={styles.sectionTitle}>Ratings & Visit Summary</Text>
+            </View>
 
             {customerToRestaurantRating ? (
               <>
-                <Text style={styles.ratingInfoText}>
-                  Your rating to restaurant: {customerToRestaurantRating.overall_rating}/5
-                </Text>
-                <Text style={styles.ratingInfoText}>
-                  Food: {customerToRestaurantRating.food_rating}/5
-                </Text>
-                <Text style={styles.ratingInfoText}>
-                  Service: {customerToRestaurantRating.service_rating}/5
-                </Text>
-                <Text style={styles.ratingInfoText}>
-                  Atmosphere: {customerToRestaurantRating.atmosphere_rating}/5
-                </Text>
-                <Text style={styles.ratingInfoText}>
-                  Price per person:{' '}
-                  {customerToRestaurantRating.price_per_person
+                {renderInfoRow(
+                  '⭐',
+                  'Your rating',
+                  `${customerToRestaurantRating.overall_rating}/5`,
+                )}
+                {renderInfoRow(
+                  '🍝',
+                  'Food',
+                  `${customerToRestaurantRating.food_rating}/5`,
+                )}
+                {renderInfoRow(
+                  '🤝',
+                  'Service',
+                  `${customerToRestaurantRating.service_rating}/5`,
+                )}
+                {renderInfoRow(
+                  '🏛️',
+                  'Atmosphere',
+                  `${customerToRestaurantRating.atmosphere_rating}/5`,
+                )}
+                {renderInfoRow(
+                  '💰',
+                  'Price per person',
+                  customerToRestaurantRating.price_per_person
                     ? `${customerToRestaurantRating.price_per_person} MKD`
-                    : '-'}
-                </Text>
+                    : '-',
+                )}
+
                 {customerToRestaurantRating.review_text ? (
                   <Text style={styles.ratingInfoText}>
                     Review: {customerToRestaurantRating.review_text}
@@ -293,16 +350,20 @@ function ReservationDetails(): React.JSX.Element {
               </View>
             ) : (
               <Text style={styles.ratingInfoText}>
-                You can rate the restaurant only after the restaurant confirms your visit.
+                You can rate the restaurant only after the restaurant confirms
+                your visit.
               </Text>
             )}
 
-            <Text style={styles.ratingInfoText}>
-              Restaurant rating to you:{' '}
-              {restaurantToCustomerRating
+            <View style={styles.divider} />
+
+            {renderInfoRow(
+              '👤',
+              'Restaurant rating to you',
+              restaurantToCustomerRating
                 ? `${restaurantToCustomerRating.overall_rating}/5`
-                : 'Not rated yet'}
-            </Text>
+                : 'Not rated yet',
+            )}
           </View>
         ) : null}
 
@@ -310,7 +371,9 @@ function ReservationDetails(): React.JSX.Element {
           style={styles.viewRestaurantButton}
           activeOpacity={0.85}
           onPress={handleOpenRestaurant}>
-          <Text style={styles.viewRestaurantButtonText}>View Restaurant</Text>
+          <Text style={styles.viewRestaurantButtonText}>
+            🍽️ View Restaurant
+          </Text>
         </TouchableOpacity>
 
         {canCancelReservation ? (
@@ -318,12 +381,104 @@ function ReservationDetails(): React.JSX.Element {
             style={styles.cancelButton}
             activeOpacity={0.85}
             onPress={handleCancelReservation}>
-            <Text style={styles.cancelButtonText}>
-              Cancel Reservation
+            <Text style={styles.cancelButtonText}>Cancel Reservation</Text>
+          </TouchableOpacity>
+        ) : null}
+
+        {canRequestReservationChange ? (
+          <TouchableOpacity
+            style={styles.changeReservationButton}
+            activeOpacity={0.85}
+            onPress={handleOpenCustomerChangeForm}>
+            <Text style={styles.changeReservationButtonText}>
+              {customerChangeButtonLabel}
             </Text>
           </TouchableOpacity>
         ) : null}
+
+        {isChangeFormOpen ? (
+          <View style={styles.changeRequestCard}>
+            <Text style={styles.changeRequestTitle}>
+              Change Reservation
+            </Text>
+
+            <TouchableOpacity
+              style={styles.changeInput}
+              activeOpacity={0.85}
+              onPress={openChangeDatePicker}>
+              <Text style={styles.changeInputText}>
+                {changeDate || 'Select date'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.changeInput}
+              activeOpacity={0.85}
+              onPress={openChangeTimePicker}>
+              <Text style={styles.changeInputText}>
+                {changeTime || 'Select time'}
+              </Text>
+            </TouchableOpacity>
+
+            <TextInput
+              style={styles.changeInput}
+              value={changeGuestsCount}
+              onChangeText={setChangeGuestsCount}
+              keyboardType="numeric"
+              placeholder="Guests Count"
+              placeholderTextColor="#8B8178"
+            />
+
+            <TextInput
+              style={styles.changeReasonInput}
+              multiline
+              value={customerChangeReason}
+              onChangeText={setCustomerChangeReason}
+              placeholder="Reason for change..."
+              placeholderTextColor="#8B8178"
+            />
+
+            <View style={styles.actionsRow}>
+              <TouchableOpacity
+                style={styles.rejectButton}
+                onPress={handleCancelCustomerChangeForm}>
+                <Text style={styles.actionButtonText}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.acceptButton}
+                disabled={isSubmittingCustomerChange}
+                onPress={submitCustomerChangeRequest}>
+                <Text style={styles.actionButtonText}>
+                  {isSubmittingCustomerChange
+                    ? 'Sending...'
+                    : 'Send Request'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : null}
       </ScrollView>
+      {isChangeDatePickerOpen ? (
+        <DateTimePicker
+          value={changeDatePickerValue}
+          mode="date"
+          display="calendar"
+          onChange={handleChangeDatePickerChange}
+        />
+      ) : null}
+
+      {isChangeTimePickerOpen ? (
+        <DateTimePicker
+          value={changeTimePickerValue}
+          mode="time"
+          is24Hour
+          display="clock"
+          onChange={handleChangeTimePickerChange}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }

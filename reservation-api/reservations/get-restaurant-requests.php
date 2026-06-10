@@ -17,6 +17,7 @@ $changeCleanupStmt = $pdo->prepare("
         suggested_time = NULL,
         suggested_guests_count = NULL,
         change_reason = NULL,
+        change_requested_by = NULL,
         change_expires_at = NULL
     WHERE status = 'change_requested'
     AND change_expires_at < NOW()
@@ -48,20 +49,6 @@ if (!$restaurantId) {
 }
 
 try {
-//     $activePredictionStmt = $pdo->prepare("
-//         SELECT id
-//         FROM reservations
-//         WHERE restaurant_id = ?
-//         AND status IN ('pending', 'change_requested', 'waitlisted')
-//     ");
-
-//     $activePredictionStmt->execute([$restaurantId]);
-//     $activeReservations = $activePredictionStmt->fetchAll(PDO::FETCH_ASSOC);
-
-//     foreach ($activeReservations as $activeReservation) {
-//         updateNoShowPrediction($pdo, (int)$activeReservation["id"]);
-//     }
-
     $stmt = $pdo->prepare("
         SELECT
             reservations.id,
@@ -80,6 +67,13 @@ try {
             reservations.special_request,
             reservations.created_at,
             reservations.rejection_reason,
+
+            reservations.suggested_date,
+            reservations.suggested_time,
+            reservations.suggested_guests_count,
+            reservations.change_reason,
+            reservations.change_requested_by,
+            reservations.change_expires_at,
 
             CONCAT(users.first_name, ' ', users.last_name) AS full_name,
             users.email,
@@ -134,6 +128,11 @@ try {
 
         $request["risk_percentage"] = (int)($request["risk_percentage"] ?? 0);
         $request["waitlist_position"] = (int)($request["waitlist_position"] ?? 0);
+
+        $request["suggested_guests_count"] =
+            $request["suggested_guests_count"] !== null
+                ? (int)$request["suggested_guests_count"]
+                : null;
     }
 
     echo json_encode([

@@ -113,3 +113,26 @@ Setup:
 3. Configure XAMPP
 4. Run backend
 5. Run React Native app
+
+## No-Show Prediction Model
+
+The system includes a machine learning module used for predicting the probability of a customer not attending a reservation (no-show).
+
+### Features used:
+- Trust Score
+- Previous No-Show Count
+- Cancelled Reservations
+- Completed Visits
+- New Customer Status
+
+### Trained Models:
+- Logistic Regression
+- Random Forest
+- Gradient Boosting
+
+The best model is automatically selected using F1-score evaluation and saved as `no_show_model.pkl`.
+
+The trained model is used during reservation processing to estimate risk levels:
+- Low Risk
+- Medium Risk
+- High Risk

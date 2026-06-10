@@ -12,8 +12,8 @@ export const styles = StyleSheet.create({
 
   content: {
     paddingHorizontal: 20,
-    paddingTop: 52,
-    paddingBottom: 40,
+    paddingTop: 48,
+    paddingBottom: 52,
   },
 
   backText: {
@@ -24,53 +24,58 @@ export const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: '#2A211C',
-    marginBottom: 20,
-  },
+  fontSize: 31,
+  fontWeight: '900',
+  color: '#2A211C',
+  marginBottom: 20,
+  letterSpacing: -0.8,
+},
 
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    padding: 18,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#E7DED3',
-  },
+card: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 26,
+  padding: 18,
+  marginBottom: 16,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  shadowColor: '#2A211C',
+  shadowOpacity: 0.08,
+  shadowRadius: 14,
+  shadowOffset: { width: 0, height: 6 },
+  elevation: 3,
+},
 
-  restaurantName: {
-    fontSize: 22,
-    color: '#2A211C',
-    fontWeight: '800',
-    marginBottom: 6,
-  },
+restaurantName: {
+  fontSize: 22,
+  color: '#2A211C',
+  fontWeight: '900',
+  marginBottom: 6,
+},
 
-  restaurantMeta: {
-    fontSize: 14,
-    color: '#6E6258',
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-
-  statusBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#8B1E3F',
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '800',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    textTransform: 'capitalize',
-  },
+restaurantMeta: {
+  fontSize: 14,
+  color: '#6E6258',
+  fontWeight: '700',
+  marginBottom: 12,
+},
 
   sectionTitle: {
-    fontSize: 18,
-    color: '#2A211C',
-    fontWeight: '800',
-    marginBottom: 14,
-  },
+  fontSize: 19,
+  color: '#2A211C',
+  fontWeight: '900',
+},
+
+statusBadge: {
+  alignSelf: 'flex-start',
+  backgroundColor: '#8B1E3F',
+  color: '#FFFFFF',
+  fontSize: 12,
+  fontWeight: '900',
+  paddingHorizontal: 12,
+  paddingVertical: 7,
+  borderRadius: 12,
+  textTransform: 'capitalize',
+},
 
   infoText: {
     fontSize: 15,
@@ -154,18 +159,84 @@ export const styles = StyleSheet.create({
   },
 
   viewRestaurantButton: {
-    backgroundColor: '#8B1E3F',
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginBottom: 14,
-  },
+  backgroundColor: '#8B1E3F',
+  borderRadius: 18,
+  paddingVertical: 17,
+  alignItems: 'center',
+  marginBottom: 14,
+  shadowColor: '#8B1E3F',
+  shadowOpacity: 0.18,
+  shadowRadius: 12,
+  shadowOffset: { width: 0, height: 6 },
+  elevation: 3,
+},
 
-  viewRestaurantButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
-  },
+changeReservationButton: {
+  backgroundColor: '#D99A2B',
+  paddingVertical: 16,
+  borderRadius: 18,
+  alignItems: 'center',
+  marginTop: 12,
+  marginBottom: 18,
+},
+
+changeReservationButtonText: {
+  color: '#FFFFFF',
+  fontSize: 15,
+  fontWeight: '800',
+},
+
+changeRequestCard: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 22,
+  padding: 18,
+  marginBottom: 18,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+changeRequestTitle: {
+  fontSize: 18,
+  fontWeight: '800',
+  color: '#2A211C',
+  marginBottom: 14,
+},
+
+changeInput: {
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  borderRadius: 14,
+  paddingHorizontal: 14,
+  paddingVertical: 12,
+  marginBottom: 12,
+  fontSize: 14,
+  color: '#2A211C',
+},
+
+changeReasonInput: {
+  minHeight: 100,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  borderRadius: 14,
+  paddingHorizontal: 14,
+  paddingVertical: 12,
+  marginBottom: 12,
+  fontSize: 14,
+  color: '#2A211C',
+  textAlignVertical: 'top',
+},
+
+changeInputText: {
+  color: '#2A211C',
+  fontSize: 14,
+  fontWeight: '700',
+},
+
+viewRestaurantButtonText: {
+  color: '#FFFFFF',
+  fontSize: 15,
+  fontWeight: '900',
+},
 
   cancelButton: {
     backgroundColor: '#FFFFFF',
@@ -347,5 +418,139 @@ waitlistText: {
   marginBottom: 4,
 },
 
+restaurantHeroCard: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 26,
+  padding: 16,
+  marginBottom: 16,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  flexDirection: 'row',
+  alignItems: 'center',
+  shadowColor: '#2A211C',
+  shadowOpacity: 0.08,
+  shadowRadius: 14,
+  shadowOffset: { width: 0, height: 6 },
+  elevation: 3,
+},
 
+restaurantIconBox: {
+  width: 78,
+  height: 78,
+  borderRadius: 22,
+  backgroundColor: '#F8F2EA',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginRight: 14,
+},
+
+restaurantIcon: {
+  fontSize: 34,
+},
+
+restaurantHeroInfo: {
+  flex: 1,
+},
+
+sectionHeader: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 14,
+},
+
+sectionIcon: {
+  fontSize: 20,
+  marginRight: 8,
+},
+
+infoRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingVertical: 12,
+  borderBottomWidth: 1,
+  borderBottomColor: '#F0E7DD',
+},
+
+infoIconBox: {
+  width: 38,
+  height: 38,
+  borderRadius: 14,
+  backgroundColor: '#F8F2EA',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginRight: 12,
+},
+
+infoIcon: {
+  fontSize: 18,
+},
+
+infoTextBox: {
+  flex: 1,
+},
+
+infoLabel: {
+  fontSize: 13,
+  color: '#8B8178',
+  fontWeight: '800',
+  marginBottom: 3,
+},
+
+infoValue: {
+  fontSize: 15,
+  color: '#2A211C',
+  fontWeight: '900',
+},
+
+noticeCardDanger: {
+  backgroundColor: '#FFECEC',
+  borderWidth: 1,
+  borderColor: '#F3B7B7',
+  borderRadius: 24,
+  padding: 18,
+  marginBottom: 16,
+},
+
+noticeTitleDanger: {
+  fontSize: 18,
+  color: '#B3261E',
+  fontWeight: '900',
+  marginBottom: 10,
+},
+
+noticeTextDanger: {
+  fontSize: 14,
+  color: '#7A1C15',
+  fontWeight: '700',
+  lineHeight: 22,
+},
+
+noticeCardNeutral: {
+  backgroundColor: '#F8F2EA',
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+  borderRadius: 24,
+  padding: 18,
+  marginBottom: 16,
+},
+
+noticeTitleNeutral: {
+  fontSize: 18,
+  color: '#6E6258',
+  fontWeight: '900',
+  marginBottom: 10,
+},
+
+noticeTextNeutral: {
+  fontSize: 14,
+  color: '#4B4038',
+  fontWeight: '700',
+  lineHeight: 22,
+},
+
+divider: {
+  height: 1,
+  backgroundColor: '#E7DED3',
+  marginVertical: 14,
+},
 });

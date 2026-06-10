@@ -1,5 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
-import { CommonActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import {
+  CommonActions,
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import { appAlert as Alert } from '../../../../shared/services/appAlert';
 
 type Reservation = {
@@ -38,43 +43,84 @@ const filters = [
   'Waitlisted',
 ];
 
+const activeUpcomingStatuses = ['approved', 'pending', 'change_requested'];
+
 const getReservationDateTime = (reservation: Reservation) => {
-  return new Date(`${reservation.reservation_date}T${reservation.reservation_time}`);
+  return new Date(
+    `${reservation.reservation_date}T${reservation.reservation_time}`,
+  );
+};
+
+const isFutureReservation = (reservation: Reservation) => {
+  return getReservationDateTime(reservation) >= new Date();
 };
 
 const getDisplayStatus = (reservation: Reservation) => {
-  const reservationDateTime = getReservationDateTime(reservation);
-  const now = new Date();
+  if (reservation.status === 'expired') {
+    return 'Expired';
+  }
 
-  if (reservation.status === 'expired') return 'Expired';
-  if (reservation.status === 'visited') return 'Completed';
-  if (reservation.status === 'no_show') return 'No-show';
-  if (reservation.status === 'change_requested') return 'Change Requested';
-  if (reservation.status === 'waitlisted') return 'Waitlisted';
+  if (reservation.status === 'visited') {
+    return 'Completed';
+  }
 
-  if (reservationDateTime < now) {
-    if (reservation.status === 'rejected') return 'Expired / Rejected';
-    if (reservation.status === 'cancelled') return 'Expired / Cancelled';
-    if (reservation.status === 'approved') return 'Expired';
-    if (reservation.status === 'pending') return 'Expired';
+  if (reservation.status === 'no_show') {
+    return 'No-show';
+  }
+
+  if (reservation.status === 'change_requested') {
+    return 'Change Requested';
+  }
+
+  if (reservation.status === 'waitlisted') {
+    return 'Waitlisted';
+  }
+
+  if (reservation.status === 'rejected') {
+    return 'Rejected';
+  }
+
+  if (reservation.status === 'cancelled') {
+    return 'Cancelled';
+  }
+
+  if (reservation.status === 'approved') {
+    return isFutureReservation(reservation) ? 'Approved' : 'Expired';
+  }
+
+  if (reservation.status === 'pending') {
+    return isFutureReservation(reservation) ? 'Pending' : 'Expired';
   }
 
   return reservation.status;
 };
 
 const getReservationCategory = (reservation: Reservation) => {
-  const reservationDateTime = getReservationDateTime(reservation);
-  const now = new Date();
-
   if (reservation.status === 'expired') {
     return 'Expired reservation';
   }
 
-  if (reservationDateTime < now) {
+  if (reservation.status === 'rejected') {
+    return 'Rejected reservation';
+  }
+
+  if (reservation.status === 'cancelled') {
+    return 'Cancelled reservation';
+  }
+
+  if (reservation.status === 'visited') {
     return 'Past reservation';
   }
 
-  return 'Active / upcoming';
+  if (reservation.status === 'no_show') {
+    return 'Past reservation';
+  }
+
+  if (isFutureReservation(reservation)) {
+    return 'Active / upcoming';
+  }
+
+  return 'Past reservation';
 };
 
 export function useMyReservations() {
@@ -89,7 +135,9 @@ export function useMyReservations() {
   const [selectedFilter, setSelectedFilter] = useState('All');
 
   const fetchReservations = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -131,55 +179,67 @@ export function useMyReservations() {
     reservation_category: getReservationCategory(reservation),
   }));
 
-  const filteredReservations = reservationsWithDisplayStatus.filter(reservation => {
-    const searchValue = search.toLowerCase().trim();
+  const filteredReservations = reservationsWithDisplayStatus.filter(
+    reservation => {
+      const searchValue = search.toLowerCase().trim();
 
-    const matchesSearch =
-      !searchValue ||
-      reservation.restaurant_name?.toLowerCase().includes(searchValue) ||
-      reservation.city?.toLowerCase().includes(searchValue) ||
-      reservation.address?.toLowerCase().includes(searchValue) ||
-      reservation.status?.toLowerCase().includes(searchValue) ||
-      reservation.display_status?.toLowerCase().includes(searchValue);
+      const matchesSearch =
+        !searchValue ||
+        reservation.restaurant_name?.toLowerCase().includes(searchValue) ||
+        reservation.city?.toLowerCase().includes(searchValue) ||
+        reservation.address?.toLowerCase().includes(searchValue) ||
+        reservation.status?.toLowerCase().includes(searchValue) ||
+        reservation.display_status?.toLowerCase().includes(searchValue);
 
-    if (!matchesSearch) return false;
+      if (!matchesSearch) {
+        return false;
+      }
 
-    if (selectedFilter === 'All') return true;
+      if (selectedFilter === 'All') {
+        return true;
+      }
 
-    if (selectedFilter === 'Upcoming') {
-      return reservation.reservation_category === 'Active / upcoming';
-    }
+      if (selectedFilter === 'Upcoming') {
+        return (
+          isFutureReservation(reservation) &&
+          activeUpcomingStatuses.includes(reservation.status)
+        );
+      }
 
-    if (selectedFilter === 'Past') {
-      return reservation.reservation_category === 'Past reservation';
-    }
+      if (selectedFilter === 'Past') {
+        return (
+          reservation.reservation_category === 'Past reservation' &&
+          !['expired', 'rejected', 'cancelled'].includes(reservation.status)
+        );
+      }
 
-    if (selectedFilter === 'Expired') {
-      return reservation.status === 'expired';
-    }
+      if (selectedFilter === 'Expired') {
+        return reservation.status === 'expired';
+      }
 
-    if (selectedFilter === 'Pending') {
-      return reservation.status === 'pending';
-    }
+      if (selectedFilter === 'Pending') {
+        return reservation.status === 'pending';
+      }
 
-    if (selectedFilter === 'Changes') {
-      return reservation.status === 'change_requested';
-    }
+      if (selectedFilter === 'Changes') {
+        return reservation.status === 'change_requested';
+      }
 
-    if (selectedFilter === 'Rejected') {
-      return reservation.status === 'rejected';
-    }
+      if (selectedFilter === 'Rejected') {
+        return reservation.status === 'rejected';
+      }
 
-    if (selectedFilter === 'Cancelled') {
-      return reservation.status === 'cancelled';
-    }
+      if (selectedFilter === 'Cancelled') {
+        return reservation.status === 'cancelled';
+      }
 
-    if (selectedFilter === 'Waitlisted') {
-      return reservation.status === 'waitlisted';
-    }
+      if (selectedFilter === 'Waitlisted') {
+        return reservation.status === 'waitlisted';
+      }
 
-    return true;
-  });
+      return true;
+    },
+  );
 
   const handleGoBack = () => {
     navigation.navigate('CustomerDashboard', {

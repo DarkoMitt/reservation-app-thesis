@@ -39,9 +39,10 @@ try {
     }
 
     echo json_encode([
-        "success" => true,
-        "status" => $user["status"],
-        "no_show_count" => (int)$user["no_show_count"]
+    "success" => true,
+    "status" => $user["status"],
+    "ban_reason" => $user["ban_reason"] ?? null,
+    "no_show_count" => (int)$user["no_show_count"]
     ]);
 
 } catch (PDOException $e) {

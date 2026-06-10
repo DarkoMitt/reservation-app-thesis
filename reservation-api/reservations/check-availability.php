@@ -65,7 +65,7 @@ try {
         FROM reservations
         WHERE restaurant_id = ?
         AND reservation_date = ?
-        AND status IN ('approved', 'change_requested')
+        AND status IN ('approved', 'change_requested', 'customer_change_requested')
         AND reservation_time < ADDTIME(?, '03:00:00')
         AND ADDTIME(reservation_time, '03:00:00') > ?
     ");

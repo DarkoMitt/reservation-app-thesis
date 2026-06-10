@@ -40,14 +40,13 @@ function RestaurantDetails(): React.JSX.Element {
   const restaurantName =
     restaurant?.restaurant_name || restaurant?.name || 'Restaurant';
 
-  const restaurantType =
-    restaurant?.restaurant_type || restaurant?.type || 'Restaurant';
-
   const cuisineType =
     restaurant?.cuisine_type || restaurant?.foodType || 'Cuisine not added';
 
   const monThuHours = restaurant?.mon_thu_hours || 'Not added';
   const friSunHours = restaurant?.fri_sun_hours || 'Not added';
+
+  const hasRestaurantImages = restaurantImages.length > 0;
 
   const features = [
     Number(restaurant?.has_wifi) === 1 ? 'Wi-Fi' : null,
@@ -62,43 +61,119 @@ function RestaurantDetails(): React.JSX.Element {
         style={styles.screen}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}>
-
         <TouchableOpacity onPress={handleGoBack} activeOpacity={0.7}>
           <Text style={styles.backText}>‹ Back</Text>
         </TouchableOpacity>
 
-        <View style={styles.heroImage}>
-          <Text style={styles.heroText}>{restaurantType}</Text>
-        </View>
+        {hasRestaurantImages ? (
+          <View style={styles.heroContainer}>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              style={styles.heroGallery}>
+              {restaurantImages.map((imageUri, index) => (
+                <TouchableOpacity
+                  key={`${imageUri}-${index}`}
+                  activeOpacity={0.9}
+                  style={styles.heroImageWrapper}
+                  onPress={() => handleOpenImagePreview(imageUri)}>
+                  <Image source={{ uri: imageUri }} style={styles.heroImageReal} />
+
+                  <View style={styles.heroImageCounter}>
+                    <Text style={styles.heroImageCounterText}>
+                      {index + 1}/{restaurantImages.length}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <View style={styles.heroStatusBadgeFixed}>
+              <Text
+                style={[
+                  styles.heroStatusText,
+                  restaurant?.displayStatus !== 'Open now' && styles.closedStatusText,
+                ]}>
+                {restaurant?.displayStatus === 'Open now' ? '🟢 Open now' : '⚫ Closed'}
+              </Text>
+            </View>
+          </View>
+        ) : null}
 
         <View style={styles.headerCard}>
-          <Text style={styles.name}>{restaurantName}</Text>
+          <View style={styles.headerTopRow}>
+            <View style={styles.headerMainInfo}>
+              <Text style={styles.name}>{restaurantName}</Text>
 
-          <Text style={styles.meta}>
-            {restaurant?.city} • {restaurant?.address}
-          </Text>
+              <Text style={styles.meta}>
+                {restaurant?.city} • {restaurant?.address}
+              </Text>
 
-          <Text style={styles.foodType}>{cuisineType}</Text>
+              <Text style={styles.foodType}>{cuisineType}</Text>
+            </View>
+
+            <View style={styles.ratingPill}>
+              <Text style={styles.ratingPillText}>
+                ★ {ratingSummary?.overall_rating || 0}/5
+              </Text>
+            </View>
+          </View>
 
           <View style={styles.ratingRow}>
-            <Text style={styles.rating}>
-              ★ {ratingSummary?.overall_rating || 0}/5
-            </Text>
 
-            <Text style={styles.status}>🟢 Open now</Text>
+            {!hasRestaurantImages ? (
+              <Text
+                style={[
+                  styles.status,
+                  restaurant?.displayStatus !== 'Open now' && styles.closedStatus,
+                ]}>
+                {restaurant?.displayStatus === 'Open now' ? '🟢 Open now' : '⚫ Closed'}
+              </Text>
+            ) : null}
           </View>
         </View>
 
         <View style={styles.ratingSummaryCard}>
           <Text style={styles.ratingSummaryTitle}>Restaurant Rating</Text>
 
-          <Text style={styles.ratingSummaryMain}>
-            ★ {ratingSummary?.overall_rating || 0}/5
-          </Text>
+          <View style={styles.ratingMainRow}>
+            <Text style={styles.ratingSummaryMain}>
+              ★ {ratingSummary?.overall_rating || 0}/5
+            </Text>
 
-          <Text style={styles.ratingSummarySub}>
-            Based on {ratingSummary?.total_reviews || 0} customer reviews
-          </Text>
+            <View style={styles.ratingReviewsBadge}>
+              <Text style={styles.ratingReviewsBadgeText}>
+                {ratingSummary?.total_reviews || 0} reviews
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.ratingCategoryGrid}>
+            <View style={styles.ratingCategoryBox}>
+              <Text style={styles.ratingCategoryIcon}>🍝</Text>
+              <Text style={styles.ratingCategoryValue}>
+                {ratingSummary?.food_rating || 0}/5
+              </Text>
+              <Text style={styles.ratingCategoryLabel}>Food</Text>
+            </View>
+
+            <View style={styles.ratingCategoryBox}>
+              <Text style={styles.ratingCategoryIcon}>🤝</Text>
+              <Text style={styles.ratingCategoryValue}>
+                {ratingSummary?.service_rating || 0}/5
+              </Text>
+              <Text style={styles.ratingCategoryLabel}>Service</Text>
+            </View>
+
+            <View style={styles.ratingCategoryBox}>
+              <Text style={styles.ratingCategoryIcon}>🏛️</Text>
+              <Text style={styles.ratingCategoryValue}>
+                {ratingSummary?.atmosphere_rating || 0}/5
+              </Text>
+              <Text style={styles.ratingCategoryLabel}>Atmosphere</Text>
+            </View>
+          </View>
 
           <Text style={styles.ratingSummarySub}>
             Most common price:{' '}
@@ -107,25 +182,14 @@ function RestaurantDetails(): React.JSX.Element {
               : 'Not enough data yet'}
           </Text>
 
-          <TouchableOpacity
-            style={styles.ratingDetailsButton}
-            activeOpacity={0.85}
-            onPress={() => setShowRatingDetails(!showRatingDetails)}>
-            <Text style={styles.ratingDetailsButtonText}>
-              {showRatingDetails ? 'Hide detailed ratings' : 'Show detailed ratings'}
-            </Text>
-          </TouchableOpacity>
-
           {showRatingDetails ? (
             <View style={styles.ratingDetailsBox}>
               <Text style={styles.ratingDetailText}>
                 Food: {ratingSummary?.food_rating || 0}/5
               </Text>
-
               <Text style={styles.ratingDetailText}>
                 Service: {ratingSummary?.service_rating || 0}/5
               </Text>
-
               <Text style={styles.ratingDetailText}>
                 Atmosphere: {ratingSummary?.atmosphere_rating || 0}/5
               </Text>
@@ -133,61 +197,55 @@ function RestaurantDetails(): React.JSX.Element {
           ) : null}
         </View>
 
-                <View style={styles.card}>
-            <Text style={styles.cardTitle}>Restaurant Photos</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Restaurant Photos</Text>
 
-            {restaurantImages.length > 0 ? (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.galleryRow}>
-                {restaurantImages.map(imageUri => (
-                  <TouchableOpacity
-                    key={imageUri}
-                    activeOpacity={0.85}
-                    style={styles.galleryImageWrapper}
-                    onPress={() => handleOpenImagePreview(imageUri)}>
-                    <Image
-                      source={{ uri: imageUri }}
-                      style={styles.galleryImage}
-                    />
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            ) : (
-              <Text style={styles.description}>
-                This restaurant has not added photos yet.
-              </Text>
-            )}
-          </View>
+          {restaurantImages.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.galleryRow}>
+              {restaurantImages.map((imageUri, index) => (
+                <TouchableOpacity
+                  key={`${imageUri}-thumb-${index}`}
+                  activeOpacity={0.85}
+                  style={styles.galleryImageWrapper}
+                  onPress={() => handleOpenImagePreview(imageUri)}>
+                  <Image source={{ uri: imageUri }} style={styles.galleryImage} />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text style={styles.description}>
+              This restaurant has not added photos yet.
+            </Text>
+          )}
+        </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Menu Photos</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Menu Photos</Text>
 
-            {menuImages.length > 0 ? (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.galleryRow}>
-                {menuImages.map(imageUri => (
-                  <TouchableOpacity
-                    key={imageUri}
-                    activeOpacity={0.85}
-                    style={styles.menuImageWrapper}
-                    onPress={() => handleOpenImagePreview(imageUri)}>
-                    <Image
-                      source={{ uri: imageUri }}
-                      style={styles.galleryImage}
-                    />
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            ) : (
-              <Text style={styles.description}>
-                This restaurant has not added menu photos yet.
-              </Text>
-            )}
-          </View>
+          {menuImages.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.galleryRow}>
+              {menuImages.map((imageUri, index) => (
+                <TouchableOpacity
+                  key={`${imageUri}-menu-${index}`}
+                  activeOpacity={0.85}
+                  style={styles.menuImageWrapper}
+                  onPress={() => handleOpenImagePreview(imageUri)}>
+                  <Image source={{ uri: imageUri }} style={styles.galleryImage} />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text style={styles.description}>
+              This restaurant has not added menu photos yet.
+            </Text>
+          )}
+        </View>
 
         {isLoadingReservation ? (
           <View style={styles.reservationStatusCard}>
@@ -220,9 +278,7 @@ function RestaurantDetails(): React.JSX.Element {
 
             {activeReservation.status === 'change_requested' ? (
               <View style={styles.changeRequestBox}>
-                <Text style={styles.changeRequestTitle}>
-                  Suggested Changes
-                </Text>
+                <Text style={styles.changeRequestTitle}>Suggested Changes</Text>
 
                 <Text style={styles.reservationInfoText}>
                   Suggested Date: {activeReservation.suggested_date}
@@ -258,9 +314,7 @@ function RestaurantDetails(): React.JSX.Element {
                     style={styles.rejectChangeButton}
                     disabled={isRespondingChange}
                     onPress={handleRejectChange}>
-                    <Text style={styles.rejectChangeButtonText}>
-                      Reject
-                    </Text>
+                    <Text style={styles.rejectChangeButtonText}>Reject</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -301,18 +355,44 @@ function RestaurantDetails(): React.JSX.Element {
           </View>
         ) : null}
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>About</Text>
-          <Text style={styles.description}>
-            {restaurant?.description ||
-              'This restaurant has not added a description yet.'}
-          </Text>
-        </View>
+        <View style={styles.infoGrid}>
+          <View style={styles.infoGridCard}>
+            <View style={styles.infoIconBox}>
+              <Text style={styles.infoIcon}>🍴</Text>
+            </View>
+            <Text style={styles.infoGridTitle}>About</Text>
+            <Text style={styles.infoGridText}>
+              {restaurant?.description ||
+                'This restaurant has not added a description yet.'}
+            </Text>
+          </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Working Hours</Text>
-          <Text style={styles.infoText}>Mon - Thu: {monThuHours}</Text>
-          <Text style={styles.infoText}>Fri - Sun: {friSunHours}</Text>
+          <View style={styles.infoGridCard}>
+            <View style={styles.infoIconBox}>
+              <Text style={styles.infoIcon}>🕒</Text>
+            </View>
+            <Text style={styles.infoGridTitle}>Working Hours</Text>
+            <Text style={styles.infoGridText}>Mon - Thu: {monThuHours}</Text>
+            <Text style={styles.infoGridText}>Fri - Sun: {friSunHours}</Text>
+          </View>
+
+          <View style={styles.infoGridCard}>
+            <View style={styles.infoIconBox}>
+              <Text style={styles.infoIcon}>🏷️</Text>
+            </View>
+            <Text style={styles.infoGridTitle}>Cuisine</Text>
+            <Text style={styles.infoGridText}>{cuisineType}</Text>
+          </View>
+
+          <View style={styles.infoGridCard}>
+            <View style={styles.infoIconBox}>
+              <Text style={styles.infoIcon}>📍</Text>
+            </View>
+            <Text style={styles.infoGridTitle}>Address</Text>
+            <Text style={styles.infoGridText}>
+              {restaurant?.address}, {restaurant?.city}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.card}>
@@ -331,27 +411,28 @@ function RestaurantDetails(): React.JSX.Element {
           )}
         </View>
       </ScrollView>
-            <Modal
-              visible={!!previewImageUri}
-              transparent
-              animationType="fade"
-              onRequestClose={handleCloseImagePreview}>
-              <View style={styles.imagePreviewOverlay}>
-                <TouchableOpacity
-                  style={styles.imagePreviewCloseButton}
-                  activeOpacity={0.85}
-                  onPress={handleCloseImagePreview}>
-                  <Text style={styles.imagePreviewCloseText}>×</Text>
-                </TouchableOpacity>
 
-                {previewImageUri ? (
-                  <Image
-                    source={{ uri: previewImageUri }}
-                    style={styles.fullPreviewImage}
-                  />
-                ) : null}
-              </View>
-            </Modal>
+      <Modal
+        visible={!!previewImageUri}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseImagePreview}>
+        <View style={styles.imagePreviewOverlay}>
+          <TouchableOpacity
+            style={styles.imagePreviewCloseButton}
+            activeOpacity={0.85}
+            onPress={handleCloseImagePreview}>
+            <Text style={styles.imagePreviewCloseText}>×</Text>
+          </TouchableOpacity>
+
+          {previewImageUri ? (
+            <Image
+              source={{ uri: previewImageUri }}
+              style={styles.fullPreviewImage}
+            />
+          ) : null}
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
