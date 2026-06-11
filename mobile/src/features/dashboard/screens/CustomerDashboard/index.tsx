@@ -54,16 +54,6 @@ const getStatusStyle = (status?: string) => {
   };
 };
 
-const getReservationsText = (count?: number) => {
-  const value = Number(count || 0);
-
-  if (value === 1) {
-    return '1 Reservation';
-  }
-
-  return `${value} Reservations`;
-};
-
 function CustomerDashboard(): React.JSX.Element {
   const {
     search,
@@ -80,7 +70,28 @@ function CustomerDashboard(): React.JSX.Element {
     handleOpenProfile,
     unreadNotificationsCount,
     handleOpenNotifications,
+    favoriteRestaurantIds,
+    handleToggleFavorite,
+    togglingFavoriteId,
   } = useCustomerDashboard();
+
+  const getEmptyTitle = () => {
+    if (selectedFilter === 'Favorites') return 'No favorite restaurants yet';
+    if (search.trim()) return 'No matching restaurants found';
+    return 'No restaurants available';
+  };
+
+  const getEmptyText = () => {
+    if (selectedFilter === 'Favorites') {
+      return 'Open a restaurant profile and tap the heart button to add it here.';
+    }
+
+    if (search.trim()) {
+      return 'Try changing your search text or using a different filter.';
+    }
+
+    return 'There are no approved restaurants available right now.';
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -88,7 +99,6 @@ function CustomerDashboard(): React.JSX.Element {
         style={styles.screen}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}>
-
         <View style={styles.header}>
           <View style={styles.headerTitleBox}>
             <Text style={styles.title}>Find your next reservation</Text>
@@ -99,9 +109,7 @@ function CustomerDashboard(): React.JSX.Element {
               style={styles.notificationButton}
               activeOpacity={0.8}
               onPress={handleOpenNotifications}>
-              <Text style={{ fontSize: 20 }}>
-                🔔
-              </Text>
+              <Text style={{ fontSize: 20 }}>🔔</Text>
 
               {unreadNotificationsCount > 0 ? (
                 <View style={styles.notificationBadge}>
@@ -150,22 +158,18 @@ function CustomerDashboard(): React.JSX.Element {
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recommended places</Text>
-          <Text style={styles.sectionSubtitle}>
-            {restaurants.length} places
-          </Text>
+          <Text style={styles.sectionSubtitle}>{restaurants.length} places</Text>
         </View>
 
-        {isLoadingRestaurants ? (
+        {isLoadingRestaurants && restaurants.length === 0 ? (
           <View style={styles.loadingBox}>
             <ActivityIndicator size="large" color="#8B1E3F" />
             <Text style={styles.loadingText}>Loading restaurants...</Text>
           </View>
         ) : restaurants.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Text style={styles.emptyTitle}>No restaurants found</Text>
-            <Text style={styles.emptyText}>
-              Try changing the search or selected filter.
-            </Text>
+            <Text style={styles.emptyTitle}>{getEmptyTitle()}</Text>
+            <Text style={styles.emptyText}>{getEmptyText()}</Text>
           </View>
         ) : (
           <View style={styles.cardsWrapper}>
@@ -183,11 +187,32 @@ function CustomerDashboard(): React.JSX.Element {
                       </Text>
                     </View>
 
-                    <View style={[styles.statusBadge, status.badgeStyle]}>
-                      <View style={[styles.statusDot, status.dotStyle]} />
-                      <Text style={[styles.statusBadgeText, status.textStyle]}>
-                        {status.label}
-                      </Text>
+                    <View style={styles.cardTopRight}>
+                      <TouchableOpacity
+                        style={[
+                          styles.favoriteSmallBadge,
+                          favoriteRestaurantIds.includes(Number(restaurant.id)) &&
+                            styles.favoriteSmallBadgeActive,
+                        ]}
+                        activeOpacity={0.8}
+                        disabled={togglingFavoriteId === Number(restaurant.id)}
+                        onPress={() => handleToggleFavorite(Number(restaurant.id))}>
+                        <Text
+                          style={[
+                            styles.favoriteSmallText,
+                            favoriteRestaurantIds.includes(Number(restaurant.id)) &&
+                              styles.favoriteSmallTextActive,
+                          ]}>
+                          {favoriteRestaurantIds.includes(Number(restaurant.id)) ? '♥' : '♡'}
+                        </Text>
+                      </TouchableOpacity>
+
+                      <View style={[styles.statusBadge, status.badgeStyle]}>
+                        <View style={[styles.statusDot, status.dotStyle]} />
+                        <Text style={[styles.statusBadgeText, status.textStyle]}>
+                          {status.label}
+                        </Text>
+                      </View>
                     </View>
                   </View>
 

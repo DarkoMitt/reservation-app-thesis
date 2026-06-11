@@ -24,16 +24,12 @@ function normalizeTime($timeValue) {
 }
 
 function parseWorkingHours($workingHours) {
-    if (!$workingHours) {
-        return null;
-    }
+    if (!$workingHours) return null;
 
     $workingHours = trim($workingHours);
     $lowerHours = strtolower($workingHours);
 
-    if (stripos($workingHours, "closed") !== false) {
-        return null;
-    }
+    if (stripos($workingHours, "closed") !== false) return null;
 
     if (
         $lowerHours === "24/7" ||
@@ -51,16 +47,12 @@ function parseWorkingHours($workingHours) {
 
     $parts = preg_split('/\s*-\s*/', $workingHours);
 
-    if (count($parts) !== 2) {
-        return null;
-    }
+    if (count($parts) !== 2) return null;
 
     $start = normalizeTime($parts[0]);
     $end = normalizeTime($parts[1]);
 
-    if (!$start || !$end) {
-        return null;
-    }
+    if (!$start || !$end) return null;
 
     return [
         "start" => $start,
@@ -78,13 +70,8 @@ function calculateNoShowRisk($trustScore, $noShowCount) {
     $trustScore = (int)$trustScore;
     $noShowCount = (int)$noShowCount;
 
-    if ($trustScore <= 25 || $noShowCount >= 3) {
-        return "high";
-    }
-
-    if ($trustScore <= 50 || $noShowCount >= 1) {
-        return "medium";
-    }
+    if ($trustScore <= 25 || $noShowCount >= 3) return "high";
+    if ($trustScore <= 50 || $noShowCount >= 1) return "medium";
 
     return "low";
 }
@@ -98,13 +85,7 @@ $reservationTime = $data["reservationTime"] ?? null;
 $guestsCount = $data["guestsCount"] ?? null;
 $specialRequest = trim($data["specialRequest"] ?? "");
 
-if (
-    !$customerUserId ||
-    !$restaurantId ||
-    !$reservationDate ||
-    !$reservationTime ||
-    !$guestsCount
-) {
+if (!$customerUserId || !$restaurantId || !$reservationDate || !$reservationTime || !$guestsCount) {
     echo json_encode([
         "success" => false,
         "message" => "Missing required fields."
@@ -134,13 +115,7 @@ try {
     }
 
     $customerStmt = $pdo->prepare("
-        SELECT
-            id,
-            first_name,
-            last_name,
-            status,
-            trust_score,
-            no_show_count
+        SELECT id, first_name, last_name, status, trust_score, no_show_count
         FROM users
         WHERE id = ?
         AND role = 'customer'
@@ -162,6 +137,81 @@ try {
         echo json_encode([
             "success" => false,
             "message" => "Your account has been banned after receiving 5 no-show reports from restaurants."
+        ]);
+        exit;
+    }
+
+    $limitStmt = $pdo->prepare("
+        SELECT COUNT(*) AS reservation_count
+        FROM reservations
+        WHERE customer_user_id = ?
+        AND created_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+    ");
+
+    $limitStmt->execute([$customerUserId]);
+    $limitData = $limitStmt->fetch(PDO::FETCH_ASSOC);
+
+    if ((int)$limitData["reservation_count"] >= 3) {
+        echo json_encode([
+            "success" => false,
+            "message" => "You have reached the reservation limit. Please try again in 1 hour."
+        ]);
+        exit;
+    }
+
+    $dailyLimitStmt = $pdo->prepare("
+        SELECT COUNT(*) AS daily_count
+        FROM reservations
+        WHERE customer_user_id = ?
+        AND reservation_date = ?
+        AND status IN ('pending', 'approved', 'change_requested', 'waitlisted')
+    ");
+
+    $dailyLimitStmt->execute([
+        $customerUserId,
+        $reservationDate
+    ]);
+
+    $dailyLimitData = $dailyLimitStmt->fetch(PDO::FETCH_ASSOC);
+
+    if ((int)$dailyLimitData["daily_count"] >= 2) {
+        echo json_encode([
+            "success" => false,
+            "message" => "You already have 2 reservations for this day. This is the daily limit."
+        ]);
+        exit;
+    }
+
+    $timeConflictStmt = $pdo->prepare("
+        SELECT
+            reservations.reservation_time,
+            restaurants.restaurant_name
+        FROM reservations
+        INNER JOIN restaurants
+            ON restaurants.id = reservations.restaurant_id
+        WHERE reservations.customer_user_id = ?
+        AND reservations.reservation_date = ?
+        AND reservations.status IN ('pending', 'approved', 'change_requested', 'waitlisted')
+        AND ABS(TIME_TO_SEC(TIMEDIFF(reservations.reservation_time, ?))) < 10800
+        LIMIT 1
+    ");
+
+    $timeConflictStmt->execute([
+        $customerUserId,
+        $reservationDate,
+        $reservationTime
+    ]);
+
+    $conflictReservation = $timeConflictStmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($conflictReservation) {
+        echo json_encode([
+            "success" => false,
+            "message" => "You already have another reservation at " .
+                substr($conflictReservation["reservation_time"], 0, 5) .
+                " in " .
+                $conflictReservation["restaurant_name"] .
+                ". Reservations must be at least 3 hours apart."
         ]);
         exit;
     }
@@ -259,10 +309,7 @@ try {
         $allowedEndDateTime = strtotime("-2 hours", $closeDateTime);
     }
 
-    if (
-        $reservationDateTime < $allowedStartDateTime ||
-        $reservationDateTime > $allowedEndDateTime
-    ) {
+    if ($reservationDateTime < $allowedStartDateTime || $reservationDateTime > $allowedEndDateTime) {
         echo json_encode([
             "success" => false,
             "message" => "Reservations are allowed only from " .

@@ -473,4 +473,37 @@ export const styles = StyleSheet.create({
   bottomNavTextActive: {
     color: '#8B1E3F',
   },
+
+  cardTopRight: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+},
+
+favoriteSmallBadge: {
+  width: 34,
+  height: 34,
+  borderRadius: 17,
+  backgroundColor: '#FFFDFC',
+  borderWidth: 1,
+  borderColor: '#D8CFC5',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+favoriteSmallText: {
+  color: '#8B1E3F',
+  fontSize: 20,
+  fontWeight: '900',
+  marginTop: -2,
+},
+
+favoriteSmallTextActive: {
+  color: '#8B1E3F',
+},
+
+favoriteSmallBadgeActive: {
+  backgroundColor: '#FFF0F3',
+  borderColor: '#8B1E3F',
+},
 });

@@ -35,6 +35,10 @@ function RestaurantDetails(): React.JSX.Element {
     previewImageUri,
     handleOpenImagePreview,
     handleCloseImagePreview,
+    isFavorite,
+    isTogglingFavorite,
+    handleToggleFavorite,
+    isOpenNow,
   } = useRestaurantDetails();
 
   const restaurantName =
@@ -93,9 +97,9 @@ function RestaurantDetails(): React.JSX.Element {
               <Text
                 style={[
                   styles.heroStatusText,
-                  restaurant?.displayStatus !== 'Open now' && styles.closedStatusText,
+                  !isOpenNow && styles.closedStatusText,
                 ]}>
-                {restaurant?.displayStatus === 'Open now' ? '🟢 Open now' : '⚫ Closed'}
+                {isOpenNow ? '🟢 Open now' : '⚫ Closed'}
               </Text>
             </View>
           </View>
@@ -113,22 +117,40 @@ function RestaurantDetails(): React.JSX.Element {
               <Text style={styles.foodType}>{cuisineType}</Text>
             </View>
 
-            <View style={styles.ratingPill}>
-              <Text style={styles.ratingPillText}>
-                ★ {ratingSummary?.overall_rating || 0}/5
-              </Text>
+            <View style={styles.headerActions}>
+              <View style={styles.ratingPill}>
+                <Text style={styles.ratingPillText}>
+                  ★ {ratingSummary?.overall_rating || 0}/5
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.favoriteButton,
+                  isFavorite && styles.favoriteButtonActive,
+                ]}
+                activeOpacity={0.85}
+                disabled={isTogglingFavorite}
+                onPress={handleToggleFavorite}>
+                <Text
+                  style={[
+                    styles.favoriteButtonText,
+                    isFavorite && styles.favoriteButtonTextActive,
+                  ]}>
+                  {isFavorite ? '♥' : '♡'}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.ratingRow}>
-
             {!hasRestaurantImages ? (
               <Text
                 style={[
                   styles.status,
-                  restaurant?.displayStatus !== 'Open now' && styles.closedStatus,
+                  !isOpenNow && styles.closedStatusText,
                 ]}>
-                {restaurant?.displayStatus === 'Open now' ? '🟢 Open now' : '⚫ Closed'}
+                {isOpenNow ? '🟢 Open now' : '⚫ Closed'}
               </Text>
             ) : null}
           </View>

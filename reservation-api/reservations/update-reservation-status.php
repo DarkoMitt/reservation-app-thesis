@@ -365,7 +365,7 @@ try {
 
         $userScoreStmt->execute([$customerUserId]);
         $oldScore = (int)$userScoreStmt->fetchColumn();
-        $newScore = min($oldScore + 3, 100);
+        $newScore = min($oldScore + 5, 100);
 
         $trustStmt = $pdo->prepare("
             UPDATE users
@@ -382,7 +382,7 @@ try {
             $pdo,
             $customerUserId,
             (int)$reservationId,
-            3,
+            5,
             $oldScore,
             $newScore,
             "Visit confirmed"
@@ -393,7 +393,7 @@ try {
             $customerUserId,
             "customer",
             "Visit Confirmed",
-            $restaurantName . " marked your reservation as visited. Your trust score increased by 3 points.",
+            $restaurantName . " marked your reservation as visited. Your trust score increased by 5 points.",
             "reservation_visited",
             (int)$reservationId,
             $restaurantId

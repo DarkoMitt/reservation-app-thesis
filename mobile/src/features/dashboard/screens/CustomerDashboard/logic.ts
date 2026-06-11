@@ -38,9 +38,7 @@ type Restaurant = {
 };
 
 const parseWorkingHours = (hours?: string) => {
-  if (!hours || !hours.includes('-')) {
-    return null;
-  }
+  if (!hours || !hours.includes('-')) return null;
 
   const [startRaw, endRaw] = hours.split('-');
 
@@ -58,7 +56,6 @@ const timeToMinutes = (time: string) => {
 const isRestaurantOpenNow = (restaurant: Restaurant) => {
   const now = new Date();
   const day = now.getDay();
-
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
   const hours =
@@ -68,9 +65,7 @@ const isRestaurantOpenNow = (restaurant: Restaurant) => {
 
   const parsedHours = parseWorkingHours(hours);
 
-  if (!parsedHours) {
-    return false;
-  }
+  if (!parsedHours) return false;
 
   const startMinutes = timeToMinutes(parsedHours.start);
   const endMinutes = timeToMinutes(parsedHours.end);
@@ -85,9 +80,7 @@ const isRestaurantOpenNow = (restaurant: Restaurant) => {
 const getRestaurantDisplayStatus = (restaurant: Restaurant) => {
   const isOpen = isRestaurantOpenNow(restaurant);
 
-  if (!isOpen) {
-    return '🔴 Closed';
-  }
+  if (!isOpen) return '🔴 Closed';
 
   const reservedGuests = Number(restaurant.current_reserved_guests || 0);
   const maxGuests = Number(restaurant.max_guests || 0);
@@ -110,9 +103,7 @@ const normalizeText = (value?: string) => {
 const getUserPreferences = (user: any): string[] => {
   const rawPreferences = user?.preferences;
 
-  if (!rawPreferences) {
-    return [];
-  }
+  if (!rawPreferences) return [];
 
   if (Array.isArray(rawPreferences)) {
     return rawPreferences.map(preference => normalizeText(preference));
@@ -161,41 +152,16 @@ const calculateBestMatchScore = (
   preferences.forEach(preference => {
     const mappedCuisines = preferenceCuisineMap[preference] || [];
 
-    if (mappedCuisines.includes(cuisine)) {
-      score += 4;
-    }
+    if (mappedCuisines.includes(cuisine)) score += 4;
+    if (mappedCuisines.includes(restaurantType)) score += 2;
+    if (description.includes(preference)) score += 2;
+    if (cuisine.includes(preference) || restaurantType.includes(preference)) score += 3;
 
-    if (mappedCuisines.includes(restaurantType)) {
-      score += 2;
-    }
-
-    if (description.includes(preference)) {
-      score += 2;
-    }
-
-    if (cuisine.includes(preference) || restaurantType.includes(preference)) {
-      score += 3;
-    }
-
-    if (preference === 'seafood' && description.includes('fish')) {
-      score += 2;
-    }
-
-    if (preference === 'healthy food' && description.includes('healthy')) {
-      score += 2;
-    }
-
-    if (preference === 'halal' && description.includes('halal')) {
-      score += 4;
-    }
-
-    if (preference === 'no pork' && description.includes('pork')) {
-      score -= 5;
-    }
-
-    if (preference === 'no spicy food' && description.includes('spicy')) {
-      score -= 3;
-    }
+    if (preference === 'seafood' && description.includes('fish')) score += 2;
+    if (preference === 'healthy food' && description.includes('healthy')) score += 2;
+    if (preference === 'halal' && description.includes('halal')) score += 4;
+    if (preference === 'no pork' && description.includes('pork')) score -= 5;
+    if (preference === 'no spicy food' && description.includes('spicy')) score -= 3;
   });
 
   score += Number(restaurant.average_rating || 0);
@@ -208,6 +174,7 @@ export function useCustomerDashboard() {
   const route = useRoute<any>();
 
   const user = route.params?.user;
+
   const userPreferences = useMemo(() => {
     return getUserPreferences(user);
   }, [user?.preferences]);
@@ -227,6 +194,8 @@ export function useCustomerDashboard() {
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
   const [hasShownBanAlert, setHasShownBanAlert] = useState(false);
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+  const [favoriteRestaurantIds, setFavoriteRestaurantIds] = useState<number[]>([]);
+  const [togglingFavoriteId, setTogglingFavoriteId] = useState<number | null>(null);
 
   const filters = [
     'Best Match',
@@ -234,6 +203,7 @@ export function useCustomerDashboard() {
     'Highest Rated',
     'Most Visited',
     'Trending',
+    'Favorites',
   ];
 
   const forceLogoutAfterBan = useCallback(() => {
@@ -245,10 +215,70 @@ export function useCustomerDashboard() {
     );
   }, [navigation]);
 
+  const fetchFavorites = useCallback(async () => {
+    if (!user?.id) return;
+
+    try {
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/favorites/get-favorites.php',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customerUserId: user.id }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setFavoriteRestaurantIds(data.favoriteRestaurantIds || []);
+      }
+    } catch {}
+  }, [user?.id]);
+
+  const handleToggleFavorite = useCallback(
+    async (restaurantId: number) => {
+      if (!user?.id || togglingFavoriteId) return;
+
+      try {
+        setTogglingFavoriteId(restaurantId);
+
+        const response = await fetch(
+          'http://10.0.2.2/reservation-api/favorites/toggle-favorite.php',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              customerUserId: user.id,
+              restaurantId,
+            }),
+          },
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          setFavoriteRestaurantIds(prev => {
+            if (data.isFavorite) {
+              return prev.includes(restaurantId) ? prev : [...prev, restaurantId];
+            }
+
+            return prev.filter(id => id !== restaurantId);
+          });
+        } else {
+          Alert.alert('Error', data.message || 'Failed to update favorites.');
+        }
+      } catch {
+        Alert.alert('Error', 'Something went wrong while updating favorites.');
+      } finally {
+        setTogglingFavoriteId(null);
+      }
+    },
+    [user?.id, togglingFavoriteId],
+  );
+
   const checkUserStatus = useCallback(async () => {
-    if (!user?.id || hasShownBanAlert) {
-      return;
-    }
+    if (!user?.id || hasShownBanAlert) return;
 
     try {
       const response = await fetch(
@@ -337,7 +367,7 @@ export function useCustomerDashboard() {
           'error',
         );
       }
-    } catch (error) {
+    } catch {
       Alert.alert(
         'Error',
         'Something went wrong while loading restaurants.',
@@ -376,7 +406,8 @@ export function useCustomerDashboard() {
   useEffect(() => {
     const loadDashboard = async () => {
       await generateNotifications();
-      fetchRestaurants();
+      await fetchFavorites();
+      await fetchRestaurants();
       checkUserStatus();
       fetchUnreadNotificationsCount();
     };
@@ -389,8 +420,8 @@ export function useCustomerDashboard() {
 
     return () => clearInterval(statusInterval);
   }, [
-    user?.id,
     generateNotifications,
+    fetchFavorites,
     fetchRestaurants,
     checkUserStatus,
     fetchUnreadNotificationsCount,
@@ -399,18 +430,24 @@ export function useCustomerDashboard() {
   useFocusEffect(
     useCallback(() => {
       generateNotifications();
+      fetchFavorites();
+      fetchRestaurants();
       fetchUnreadNotificationsCount();
       checkUserStatus();
-    }, [generateNotifications, fetchUnreadNotificationsCount, checkUserStatus]),
+    }, [
+      generateNotifications,
+      fetchFavorites,
+      fetchRestaurants,
+      fetchUnreadNotificationsCount,
+      checkUserStatus,
+    ]),
   );
 
   const filteredRestaurants = restaurants
     .filter(restaurant => {
       const searchValue = search.toLowerCase().trim();
 
-      if (!searchValue) {
-        return true;
-      }
+      if (!searchValue) return true;
 
       return (
         restaurant.restaurant_name?.toLowerCase().includes(searchValue) ||
@@ -425,6 +462,10 @@ export function useCustomerDashboard() {
         return restaurant.displayStatus === '🟢 Open now';
       }
 
+      if (selectedFilter === 'Favorites') {
+        return favoriteRestaurantIds.includes(Number(restaurant.id));
+      }
+
       return true;
     })
     .sort((a, b) => {
@@ -432,9 +473,7 @@ export function useCustomerDashboard() {
         const scoreDifference =
           Number(b.match_score || 0) - Number(a.match_score || 0);
 
-        if (scoreDifference !== 0) {
-          return scoreDifference;
-        }
+        if (scoreDifference !== 0) return scoreDifference;
 
         return Number(b.average_rating || 0) - Number(a.average_rating || 0);
       }
@@ -541,5 +580,8 @@ export function useCustomerDashboard() {
     handleOpenMyReservations,
     unreadNotificationsCount,
     handleOpenNotifications,
+    favoriteRestaurantIds,
+    handleToggleFavorite,
+    togglingFavoriteId,
   };
 }

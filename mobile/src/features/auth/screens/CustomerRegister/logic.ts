@@ -209,7 +209,7 @@ export function useCustomerRegister() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleRegister = async () => {
+    const handleRegister = async () => {
     if (!validate()) {
       Alert.alert('Validation error', 'Please check all fields and try again.');
       return;
@@ -238,12 +238,20 @@ export function useCustomerRegister() {
       const data = await response.json();
 
       if (data.success) {
-        Alert.alert('Success', 'Account created successfully! Please login.', [
-          {
-            text: 'Proceed to Login',
-            onPress: () => navigation.navigate('Login'),
-          },
-        ]);
+        Alert.alert(
+          'Demo SMS Code',
+          `Your verification code is: ${data.demoCode}`,
+          [
+            {
+              text: 'Continue',
+              onPress: () =>
+                navigation.navigate('VerifyPhone', {
+                  userId: data.userId,
+                  phone: data.phone,
+                }),
+            },
+          ],
+        );
       } else {
         Alert.alert('Registration failed', data.message || 'Please try again.');
       }

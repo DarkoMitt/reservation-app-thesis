@@ -39,6 +39,7 @@ try {
             users.password,
             users.role,
             users.status,
+            users.phone_verified,
             users.ban_reason,
             users.no_show_count,
             users.trust_score,
@@ -78,6 +79,14 @@ try {
         echo json_encode([
             "success" => false,
             "message" => $message
+        ]);
+        exit;
+    }
+
+    if ($user["role"] === "customer" && (int)$user["phone_verified"] === 0) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Please verify your phone number before logging in."
         ]);
         exit;
     }

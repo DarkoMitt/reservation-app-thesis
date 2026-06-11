@@ -59,6 +59,46 @@ const getStatusLabel = (status?: string) => {
   }
 };
 
+const parseWorkingHours = (hours?: string) => {
+  if (!hours || !hours.includes('-')) return null;
+
+  const [startRaw, endRaw] = hours.split('-');
+
+  return {
+    start: startRaw.trim(),
+    end: endRaw.trim(),
+  };
+};
+
+const timeToMinutes = (time: string) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
+const isRestaurantOpenNow = (restaurant: any) => {
+  const now = new Date();
+  const day = now.getDay();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  const hours =
+    day >= 1 && day <= 4
+      ? restaurant?.mon_thu_hours
+      : restaurant?.fri_sun_hours;
+
+  const parsedHours = parseWorkingHours(hours);
+
+  if (!parsedHours) return false;
+
+  const startMinutes = timeToMinutes(parsedHours.start);
+  const endMinutes = timeToMinutes(parsedHours.end);
+
+  if (startMinutes < endMinutes) {
+    return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+  }
+
+  return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
+};
+
 export function useRestaurantDetails() {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
@@ -83,6 +123,9 @@ export function useRestaurantDetails() {
   const [showRatingDetails, setShowRatingDetails] = useState(false);
   const [isLoadingReservation, setIsLoadingReservation] = useState(false);
   const [isRespondingChange, setIsRespondingChange] = useState(false);
+
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 
   const fetchRatingSummary = async () => {
     if (!restaurant?.id) return;
@@ -146,10 +189,42 @@ export function useRestaurantDetails() {
     }
   };
 
+  const fetchFavoriteStatus = async () => {
+    if (!restaurant?.id || !user?.id) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/favorites/get-favorites.php',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customerUserId: user.id,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setIsFavorite(
+          (data.favoriteRestaurantIds || []).includes(
+            Number(restaurant.id),
+          ),
+        );
+      }
+    } catch {}
+  };
+
   useFocusEffect(
     useCallback(() => {
       fetchRatingSummary();
       fetchReservationStatus();
+      fetchFavoriteStatus();
     }, [restaurant?.id, user?.id]),
   );
 
@@ -170,6 +245,48 @@ export function useRestaurantDetails() {
 
   const handleCloseImagePreview = () => {
     setPreviewImageUri(null);
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!restaurant?.id || !user?.id) {
+      return;
+    }
+
+    try {
+      setIsTogglingFavorite(true);
+
+      const response = await fetch(
+        'http://10.0.2.2/reservation-api/favorites/toggle-favorite.php',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customerUserId: user.id,
+            restaurantId: restaurant.id,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setIsFavorite(data.isFavorite);
+      } else {
+        Alert.alert(
+          'Error',
+          data.message || 'Failed to update favorites.',
+        );
+      }
+    } catch {
+      Alert.alert(
+        'Error',
+        'Something went wrong while updating favorites.',
+      );
+    } finally {
+      setIsTogglingFavorite(false);
+    }
   };
 
   const respondToChangeRequest = async (action: 'accept' | 'reject') => {
@@ -238,6 +355,7 @@ export function useRestaurantDetails() {
 
   const reservationStatusLabel = getStatusLabel(activeReservation?.status);
   const rejectedStatusLabel = getStatusLabel(lastRejectedReservation?.status);
+  const isOpenNow = isRestaurantOpenNow(restaurant);
 
   return {
     restaurant,
@@ -260,5 +378,10 @@ export function useRestaurantDetails() {
     handleCloseImagePreview,
     handleAcceptChange,
     handleRejectChange,
+
+    isFavorite,
+    isTogglingFavorite,
+    handleToggleFavorite,
+    isOpenNow,
   };
 }

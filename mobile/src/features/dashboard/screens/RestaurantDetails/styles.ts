@@ -712,4 +712,37 @@ heroStatusBadgeFixed: {
   zIndex: 999,
   elevation: 10,
 },
+
+headerActions: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+},
+
+favoriteButton: {
+  width: 42,
+  height: 42,
+  borderRadius: 21,
+  borderWidth: 1,
+  borderColor: '#D8CFC5',
+  backgroundColor: '#FFFDFC',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+favoriteButtonActive: {
+  backgroundColor: '#FFF0F3',
+  borderColor: '#8B1E3F',
+},
+
+favoriteButtonText: {
+  fontSize: 26,
+  color: '#8B1E3F',
+  fontWeight: '800',
+  marginTop: -2,
+},
+
+favoriteButtonTextActive: {
+  color: '#8B1E3F',
+},
 });

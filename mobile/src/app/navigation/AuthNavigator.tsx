@@ -10,6 +10,8 @@ import Login from '../../features/auth/screens/Login';
 import ForgotPassword from '../../features/auth/screens/ForgotPassword';
 import ResetPassword from '../../features/auth/screens/ResetPassword';
 
+import VerifyPhoneScreen from '../../features/auth/screens/VerifyPhone';
+
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 function AuthNavigator() {
@@ -21,6 +23,7 @@ function AuthNavigator() {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
       <Stack.Screen name="ResetPassword" component={ResetPassword} />
+      <Stack.Screen name="VerifyPhone" component={VerifyPhoneScreen} />
     </Stack.Navigator>
   );
 }
