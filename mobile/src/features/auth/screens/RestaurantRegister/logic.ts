@@ -14,10 +14,8 @@ type RestaurantRegisterForm = {
   cuisineType: string;
   description: string;
   maxGuests: string;
-  workingHoursWeekdaysFrom: string;
-  workingHoursWeekdaysTo: string;
-  workingHoursWeekendFrom: string;
-  workingHoursWeekendTo: string;
+  workingHoursFrom: string;
+  workingHoursTo: string;
   businessRegistrationNumber: string;
 };
 
@@ -70,10 +68,8 @@ const initialForm: RestaurantRegisterForm = {
   cuisineType: '',
   description: '',
   maxGuests: '',
-  workingHoursWeekdaysFrom: '',
-  workingHoursWeekdaysTo: '',
-  workingHoursWeekendFrom: '',
-  workingHoursWeekendTo: '',
+  workingHoursFrom: '',
+  workingHoursTo: '',
   businessRegistrationNumber: '',
 };
 
@@ -147,39 +143,59 @@ export function useRestaurantRegister() {
   const validate = () => {
     const nextErrors: RestaurantRegisterErrors = {};
 
-    if (!form.restaurantName.trim()) nextErrors.restaurantName = 'Restaurant name is required.';
-    if (!form.city.trim()) nextErrors.city = 'City is required.';
-    if (!form.streetAddress.trim()) nextErrors.streetAddress = 'Street address is required.';
+    if (!form.restaurantName.trim()) {
+      nextErrors.restaurantName = 'Restaurant name is required.';
+    }
+
+    if (!form.city.trim()) {
+      nextErrors.city = 'City is required.';
+    }
+
+    if (!form.streetAddress.trim()) {
+      nextErrors.streetAddress = 'Street address is required.';
+    }
+
     const phoneWithoutPrefix = form.phoneNumber
       .replace('+389', '')
       .replace(/\D/g, '');
+
     if (!form.phoneNumber.trim() || !phoneWithoutPrefix) {
       nextErrors.phoneNumber = 'Phone number is required.';
     } else if (phoneWithoutPrefix.length < 7) {
       nextErrors.phoneNumber = 'Enter a valid phone number.';
     }
-    if (!form.restaurantType.trim()) nextErrors.restaurantType = 'Restaurant type is required.';
-    if (!form.cuisineType.trim()) nextErrors.cuisineType = 'Cuisine type is required.';
-    if (!form.maxGuests.trim()) nextErrors.maxGuests = 'Max guests is required.';
 
-    if (!form.workingHoursWeekdaysFrom.trim()) {
-      nextErrors.workingHoursWeekdaysFrom = 'Opening time is required.';
+    if (!form.restaurantType.trim()) {
+      nextErrors.restaurantType = 'Restaurant type is required.';
     }
 
-    if (!form.workingHoursWeekdaysTo.trim()) {
-      nextErrors.workingHoursWeekdaysTo = 'Closing time is required.';
+    if (!form.cuisineType.trim()) {
+      nextErrors.cuisineType = 'Cuisine type is required.';
     }
 
-    if (!form.workingHoursWeekendFrom.trim()) {
-      nextErrors.workingHoursWeekendFrom = 'Opening time is required.';
+    if (!form.maxGuests.trim()) {
+      nextErrors.maxGuests = 'Max guests is required.';
     }
 
-    if (!form.workingHoursWeekendTo.trim()) {
-      nextErrors.workingHoursWeekendTo = 'Closing time is required.';
+    const maxGuestsNumber = Number(form.maxGuests);
+    if (
+      form.maxGuests &&
+      (Number.isNaN(maxGuestsNumber) || maxGuestsNumber <= 0)
+    ) {
+      nextErrors.maxGuests = 'Enter a valid number of guests.';
+    }
+
+    if (!form.workingHoursFrom.trim()) {
+      nextErrors.workingHoursFrom = 'Opening time is required.';
+    }
+
+    if (!form.workingHoursTo.trim()) {
+      nextErrors.workingHoursTo = 'Closing time is required.';
     }
 
     if (!form.businessRegistrationNumber.trim()) {
-      nextErrors.businessRegistrationNumber = 'Business registration number is required.';
+      nextErrors.businessRegistrationNumber =
+        'Business registration number is required.';
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -203,11 +219,6 @@ export function useRestaurantRegister() {
       nextErrors.confirmPassword = 'Passwords do not match.';
     }
 
-    const maxGuestsNumber = Number(form.maxGuests);
-    if (form.maxGuests && (Number.isNaN(maxGuestsNumber) || maxGuestsNumber <= 0)) {
-      nextErrors.maxGuests = 'Enter a valid number of guests.';
-    }
-
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
@@ -218,7 +229,7 @@ export function useRestaurantRegister() {
       return;
     }
 
-    const workingHours = `Weekdays: ${form.workingHoursWeekdaysFrom} - ${form.workingHoursWeekdaysTo}, Weekend: ${form.workingHoursWeekendFrom} - ${form.workingHoursWeekendTo}`;
+    const workingHours = `${form.workingHoursFrom} - ${form.workingHoursTo}`;
 
     try {
       const response = await fetch(

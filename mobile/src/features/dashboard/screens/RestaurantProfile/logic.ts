@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Platform } from 'react-native';
 import { appAlert as Alert } from '../../../../shared/services/appAlert';
 import {
   CommonActions,
@@ -7,6 +6,17 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
+
+type DayKey =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
+
+type DayHours = Record<DayKey, string>;
 
 type RestaurantProfile = {
   restaurant_id: number;
@@ -19,8 +29,13 @@ type RestaurantProfile = {
   description: string;
   max_guests: number;
   working_hours: string;
-  mon_thu_hours?: string;
-  fri_sun_hours?: string;
+  monday_hours?: string;
+  tuesday_hours?: string;
+  wednesday_hours?: string;
+  thursday_hours?: string;
+  friday_hours?: string;
+  saturday_hours?: string;
+  sunday_hours?: string;
   restaurant_images?: string;
   menu_images?: string;
   has_smoking_area?: number;
@@ -39,12 +54,10 @@ type RatingSummary = {
   most_common_price_per_person: number | null;
 };
 
-type TimePickerType =
-  | 'monThuStart'
-  | 'monThuEnd'
-  | 'friSunStart'
-  | 'friSunEnd'
-  | null;
+type TimePickerType = {
+  day: DayKey;
+  part: 'start' | 'end';
+} | null;
 
 export const cuisineOptions = [
   'Traditional',
@@ -59,6 +72,16 @@ export const cuisineOptions = [
   'Halal',
   'Gluten-free',
   'Seafood',
+];
+
+export const DAYS: { key: DayKey; label: string }[] = [
+  { key: 'monday', label: 'Monday' },
+  { key: 'tuesday', label: 'Tuesday' },
+  { key: 'wednesday', label: 'Wednesday' },
+  { key: 'thursday', label: 'Thursday' },
+  { key: 'friday', label: 'Friday' },
+  { key: 'saturday', label: 'Saturday' },
+  { key: 'sunday', label: 'Sunday' },
 ];
 
 const parseImages = (value?: string): string[] => {
@@ -81,6 +104,23 @@ const calculateCompletion = (fields: Array<string | string[]>) => {
   return Math.round((completedFields / fields.length) * 100);
 };
 
+const getDefaultHours = (restaurant?: RestaurantProfile) =>
+  restaurant?.working_hours || '09:00 - 23:00';
+
+const buildInitialDayHours = (restaurant?: RestaurantProfile): DayHours => {
+  const defaultHours = getDefaultHours(restaurant);
+
+  return {
+    monday: restaurant?.monday_hours || defaultHours,
+    tuesday: restaurant?.tuesday_hours || defaultHours,
+    wednesday: restaurant?.wednesday_hours || defaultHours,
+    thursday: restaurant?.thursday_hours || defaultHours,
+    friday: restaurant?.friday_hours || defaultHours,
+    saturday: restaurant?.saturday_hours || defaultHours,
+    sunday: restaurant?.sunday_hours || defaultHours,
+  };
+};
+
 export function useRestaurantProfile() {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
@@ -98,11 +138,8 @@ export function useRestaurantProfile() {
   const [description, setDescription] = useState(restaurant?.description || '');
   const [maxGuests, setMaxGuests] = useState(String(restaurant?.max_guests || ''));
 
-  const [monThuHours, setMonThuHours] = useState(
-    restaurant?.mon_thu_hours || '09:00 - 23:00',
-  );
-  const [friSunHours, setFriSunHours] = useState(
-    restaurant?.fri_sun_hours || '09:00 - 23:00',
+  const [dayHours, setDayHours] = useState<DayHours>(
+    buildInitialDayHours(restaurant),
   );
 
   const [activeTimePicker, setActiveTimePicker] = useState<TimePickerType>(null);
@@ -137,8 +174,7 @@ export function useRestaurantProfile() {
     restaurant?.phone || '',
     restaurant?.description || '',
     String(restaurant?.max_guests || ''),
-    restaurant?.mon_thu_hours || '',
-    restaurant?.fri_sun_hours || '',
+    ...Object.values(buildInitialDayHours(restaurant)),
     parseImages(restaurant?.restaurant_images),
     parseImages(restaurant?.menu_images),
   ]);
@@ -152,7 +188,12 @@ export function useRestaurantProfile() {
   };
 
   const getTimeFromHours = (currentValue: string, type: 'start' | 'end') => {
-    const [start = '09:00', end = '23:00'] = currentValue.split(' - ');
+    const safeValue =
+      !currentValue || currentValue === 'Closed'
+        ? '09:00 - 23:00'
+        : currentValue;
+
+    const [start = '09:00', end = '23:00'] = safeValue.split(' - ');
     const selected = type === 'start' ? start : end;
     const [hours, minutes] = selected.split(':').map(Number);
 
@@ -165,13 +206,9 @@ export function useRestaurantProfile() {
     return date;
   };
 
-  const openTimePicker = (picker: TimePickerType) => {
-    setActiveTimePicker(picker);
-
-    if (picker === 'monThuStart') setTimePickerDate(getTimeFromHours(monThuHours, 'start'));
-    if (picker === 'monThuEnd') setTimePickerDate(getTimeFromHours(monThuHours, 'end'));
-    if (picker === 'friSunStart') setTimePickerDate(getTimeFromHours(friSunHours, 'start'));
-    if (picker === 'friSunEnd') setTimePickerDate(getTimeFromHours(friSunHours, 'end'));
+  const openTimePicker = (day: DayKey, part: 'start' | 'end') => {
+    setActiveTimePicker({ day, part });
+    setTimePickerDate(getTimeFromHours(dayHours[day], part));
   };
 
   const updateWorkingHours = (
@@ -179,12 +216,17 @@ export function useRestaurantProfile() {
     selectedTime: string,
     type: 'start' | 'end',
   ) => {
-    const [start = '09:00', end = '23:00'] = currentValue.split(' - ');
+    const safeValue =
+      !currentValue || currentValue === 'Closed'
+        ? '09:00 - 23:00'
+        : currentValue;
+
+    const [start = '09:00', end = '23:00'] = safeValue.split(' - ');
     return type === 'start' ? `${selectedTime} - ${end}` : `${start} - ${selectedTime}`;
   };
 
   const handleTimePickerChange = (_event: any, selectedDate?: Date) => {
-    if (!selectedDate) {
+    if (!selectedDate || !activeTimePicker) {
       setActiveTimePicker(null);
       return;
     }
@@ -193,23 +235,23 @@ export function useRestaurantProfile() {
     const minutes = String(selectedDate.getMinutes()).padStart(2, '0');
     const selectedTime = `${hours}:${minutes}`;
 
-    if (activeTimePicker === 'monThuStart') {
-      setMonThuHours(updateWorkingHours(monThuHours, selectedTime, 'start'));
-    }
-
-    if (activeTimePicker === 'monThuEnd') {
-      setMonThuHours(updateWorkingHours(monThuHours, selectedTime, 'end'));
-    }
-
-    if (activeTimePicker === 'friSunStart') {
-      setFriSunHours(updateWorkingHours(friSunHours, selectedTime, 'start'));
-    }
-
-    if (activeTimePicker === 'friSunEnd') {
-      setFriSunHours(updateWorkingHours(friSunHours, selectedTime, 'end'));
-    }
+    setDayHours(prev => ({
+      ...prev,
+      [activeTimePicker.day]: updateWorkingHours(
+        prev[activeTimePicker.day],
+        selectedTime,
+        activeTimePicker.part,
+      ),
+    }));
 
     setActiveTimePicker(null);
+  };
+
+  const toggleClosedDay = (day: DayKey) => {
+    setDayHours(prev => ({
+      ...prev,
+      [day]: prev[day] === 'Closed' ? '09:00 - 23:00' : 'Closed',
+    }));
   };
 
   const fetchRatingSummary = async () => {
@@ -240,78 +282,78 @@ export function useRestaurantProfile() {
   }, []);
 
   const uploadImageToBackend = async (
-  imageBase64: string,
-  imageType: string | undefined,
-  fileName: string | undefined,
-  type: 'restaurant' | 'menu',
-) => {
-  if (!restaurant?.restaurant_id) {
-    throw new Error('Restaurant ID is missing.');
-  }
+    imageBase64: string,
+    imageType: string | undefined,
+    fileName: string | undefined,
+    type: 'restaurant' | 'menu',
+  ) => {
+    if (!restaurant?.restaurant_id) {
+      throw new Error('Restaurant ID is missing.');
+    }
 
-  const endpoint =
-    type === 'restaurant'
-      ? 'upload-restaurant-image.php'
-      : 'upload-menu-image.php';
+    const endpoint =
+      type === 'restaurant'
+        ? 'upload-restaurant-image.php'
+        : 'upload-menu-image.php';
 
-  const response = await fetch(
-    `http://10.0.2.2/reservation-api/restaurant/${endpoint}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      `http://10.0.2.2/reservation-api/restaurant/${endpoint}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          restaurantId: restaurant.restaurant_id,
+          imageBase64,
+          imageType: imageType || 'image/jpeg',
+          fileName: fileName || `${type}_${Date.now()}.jpg`,
+        }),
       },
-      body: JSON.stringify({
-        restaurantId: restaurant.restaurant_id,
-        imageBase64,
-        imageType: imageType || 'image/jpeg',
-        fileName: fileName || `${type}_${Date.now()}.jpg`,
-      }),
-    },
-  );
+    );
 
-  const data = await response.json();
+    const data = await response.json();
 
-  if (!data.success) {
-    throw new Error(data.message || 'Image upload failed.');
-  }
+    if (!data.success) {
+      throw new Error(data.message || 'Image upload failed.');
+    }
 
-  return data.imageUrl as string;
-};
+    return data.imageUrl as string;
+  };
 
-const pickImages = async (type: 'restaurant' | 'menu') => {
-  if (!restaurant?.restaurant_id) {
-    Alert.alert('Error', 'Restaurant profile is missing.');
-    return;
-  }
+  const pickImages = async (type: 'restaurant' | 'menu') => {
+    if (!restaurant?.restaurant_id) {
+      Alert.alert('Error', 'Restaurant profile is missing.');
+      return;
+    }
 
-  const result = await launchImageLibrary({
-    mediaType: 'photo',
-    quality: 0.8,
-    selectionLimit: 1,
-    includeBase64: true,
-  });
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 0.8,
+      selectionLimit: 1,
+      includeBase64: true,
+    });
 
-  if (result.didCancel) return;
+    if (result.didCancel) return;
 
-  const assets = result.assets || [];
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const assets = result.assets || [];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
 
-  const validImages = assets.filter(asset => {
-    if (!asset.base64) return false;
-    if (!asset.type) return true;
-    return allowedTypes.includes(asset.type);
-  });
+    const validImages = assets.filter(asset => {
+      if (!asset.base64) return false;
+      if (!asset.type) return true;
+      return allowedTypes.includes(asset.type);
+    });
 
-  if (validImages.length === 0) {
-    Alert.alert('Invalid File', 'Only JPG and PNG images are allowed.');
-    return;
-  }
+    if (validImages.length === 0) {
+      Alert.alert('Invalid File', 'Only JPG and PNG images are allowed.');
+      return;
+    }
 
-  try {
-    setIsSaving(true);
+    try {
+      setIsSaving(true);
 
-    const uploadedUrls: string[] = [];
+      const uploadedUrls: string[] = [];
 
       for (const asset of validImages) {
         const uploadedUrl = await uploadImageToBackend(
@@ -324,22 +366,22 @@ const pickImages = async (type: 'restaurant' | 'menu') => {
         uploadedUrls.push(uploadedUrl);
       }
 
-    if (type === 'restaurant') {
-      setRestaurantImages(prev => [...prev, ...uploadedUrls]);
-    } else {
-      setMenuImages(prev => [...prev, ...uploadedUrls]);
-    }
+      if (type === 'restaurant') {
+        setRestaurantImages(prev => [...prev, ...uploadedUrls]);
+      } else {
+        setMenuImages(prev => [...prev, ...uploadedUrls]);
+      }
 
-    Alert.alert('Success', 'Images uploaded successfully.');
-  } catch (error: any) {
-    Alert.alert(
-      'Upload Error',
-      error?.message || 'Something went wrong while uploading images.',
-    );
-  } finally {
-    setIsSaving(false);
-  }
-};
+      Alert.alert('Success', 'Images uploaded successfully.');
+    } catch (error: any) {
+      Alert.alert(
+        'Upload Error',
+        error?.message || 'Something went wrong while uploading images.',
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const removeRestaurantImage = (imageUri: string) => {
     setRestaurantImages(prev => prev.filter(image => image !== imageUri));
@@ -371,9 +413,14 @@ const pickImages = async (type: 'restaurant' | 'menu') => {
             phone,
             description,
             maxGuests: Number(maxGuests),
-            workingHours: `${monThuHours} | ${friSunHours}`,
-            monThuHours,
-            friSunHours,
+            workingHours: dayHours.monday,
+            mondayHours: dayHours.monday,
+            tuesdayHours: dayHours.tuesday,
+            wednesdayHours: dayHours.wednesday,
+            thursdayHours: dayHours.thursday,
+            fridayHours: dayHours.friday,
+            saturdayHours: dayHours.saturday,
+            sundayHours: dayHours.sunday,
             hasSmokingArea: hasSmokingArea ? 1 : 0,
             hasOutdoorSeating: hasOutdoorSeating ? 1 : 0,
             hasParking: hasParking ? 1 : 0,
@@ -396,8 +443,7 @@ const pickImages = async (type: 'restaurant' | 'menu') => {
           phone,
           description,
           maxGuests,
-          monThuHours,
-          friSunHours,
+          ...Object.values(dayHours),
           restaurantImages,
           menuImages,
         ]);
@@ -526,15 +572,13 @@ const pickImages = async (type: 'restaurant' | 'menu') => {
     maxGuests,
     setMaxGuests,
 
+    DAYS,
+    dayHours,
+    openTimePicker,
+    toggleClosedDay,
     activeTimePicker,
     timePickerDate,
-    openTimePicker,
     handleTimePickerChange,
-
-    monThuHours,
-    setMonThuHours,
-    friSunHours,
-    setFriSunHours,
 
     restaurantImages,
     menuImages,

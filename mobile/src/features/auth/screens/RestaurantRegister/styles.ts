@@ -146,4 +146,12 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
   },
+
+  helperText: {
+  fontSize: 12,
+  color: '#6E6258',
+  lineHeight: 18,
+  marginBottom: 12,
+  marginTop: -2,
+},
 });

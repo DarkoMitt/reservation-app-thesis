@@ -40,8 +40,15 @@ try {
             restaurants.description,
             restaurants.max_guests,
             restaurants.working_hours,
-            restaurants.mon_thu_hours,
-            restaurants.fri_sun_hours,
+
+            restaurants.monday_hours,
+            restaurants.tuesday_hours,
+            restaurants.wednesday_hours,
+            restaurants.thursday_hours,
+            restaurants.friday_hours,
+            restaurants.saturday_hours,
+            restaurants.sunday_hours,
+
             restaurants.has_smoking_area,
             restaurants.has_outdoor_seating,
             restaurants.has_parking,

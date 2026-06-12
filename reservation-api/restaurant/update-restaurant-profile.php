@@ -20,6 +20,14 @@ if (!$restaurantId) {
 }
 
 try {
+    $mondayHours = trim($data["mondayHours"] ?? "");
+    $tuesdayHours = trim($data["tuesdayHours"] ?? "");
+    $wednesdayHours = trim($data["wednesdayHours"] ?? "");
+    $thursdayHours = trim($data["thursdayHours"] ?? "");
+    $fridayHours = trim($data["fridayHours"] ?? "");
+    $saturdayHours = trim($data["saturdayHours"] ?? "");
+    $sundayHours = trim($data["sundayHours"] ?? "");
+
     $stmt = $pdo->prepare("
         UPDATE restaurants
         SET
@@ -30,8 +38,15 @@ try {
             description = ?,
             max_guests = ?,
             working_hours = ?,
-            mon_thu_hours = ?,
-            fri_sun_hours = ?,
+
+            monday_hours = ?,
+            tuesday_hours = ?,
+            wednesday_hours = ?,
+            thursday_hours = ?,
+            friday_hours = ?,
+            saturday_hours = ?,
+            sunday_hours = ?,
+
             has_smoking_area = ?,
             has_outdoor_seating = ?,
             has_parking = ?,
@@ -50,9 +65,16 @@ try {
         trim($data["phone"] ?? ""),
         trim($data["description"] ?? ""),
         (int)($data["maxGuests"] ?? 0),
-        trim($data["workingHours"] ?? ""),
-        trim($data["monThuHours"] ?? ""),
-        trim($data["friSunHours"] ?? ""),
+        $mondayHours,
+
+        $mondayHours,
+        $tuesdayHours,
+        $wednesdayHours,
+        $thursdayHours,
+        $fridayHours,
+        $saturdayHours,
+        $sundayHours,
+
         (int)($data["hasSmokingArea"] ?? 0),
         (int)($data["hasOutdoorSeating"] ?? 0),
         (int)($data["hasParking"] ?? 0),

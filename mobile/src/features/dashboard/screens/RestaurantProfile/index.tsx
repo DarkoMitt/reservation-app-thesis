@@ -19,7 +19,6 @@ import { styles } from './styles';
 function RestaurantProfile(): React.JSX.Element {
   const {
     cuisineType,
-    setCuisineType,
     cuisineOptions,
     isCuisineDropdownOpen,
     setIsCuisineDropdownOpen,
@@ -35,13 +34,13 @@ function RestaurantProfile(): React.JSX.Element {
     maxGuests,
     setMaxGuests,
 
+    DAYS,
+    dayHours,
+    openTimePicker,
+    toggleClosedDay,
     activeTimePicker,
     timePickerDate,
-    openTimePicker,
     handleTimePickerChange,
-
-    monThuHours,
-    friSunHours,
 
     restaurantImages,
     menuImages,
@@ -135,45 +134,45 @@ function RestaurantProfile(): React.JSX.Element {
         <View style={styles.card}>
           <Text style={styles.label}>Cuisine Type</Text>
 
-            <TouchableOpacity
-              style={styles.dropdownButton}
-              activeOpacity={0.85}
-              onPress={() => setIsCuisineDropdownOpen(!isCuisineDropdownOpen)}>
-              <Text
-                style={[
-                  styles.dropdownButtonText,
-                  !cuisineType && styles.dropdownPlaceholderText,
-                ]}>
-                {cuisineType || 'Select cuisine type'}
-              </Text>
+          <TouchableOpacity
+            style={styles.dropdownButton}
+            activeOpacity={0.85}
+            onPress={() => setIsCuisineDropdownOpen(!isCuisineDropdownOpen)}>
+            <Text
+              style={[
+                styles.dropdownButtonText,
+                !cuisineType && styles.dropdownPlaceholderText,
+              ]}>
+              {cuisineType || 'Select cuisine type'}
+            </Text>
 
-              <Text style={styles.dropdownArrow}>
-                {isCuisineDropdownOpen ? '▲' : '▼'}
-              </Text>
-            </TouchableOpacity>
+            <Text style={styles.dropdownArrow}>
+              {isCuisineDropdownOpen ? '▲' : '▼'}
+            </Text>
+          </TouchableOpacity>
 
-            {isCuisineDropdownOpen ? (
-              <View style={styles.dropdownList}>
-                {cuisineOptions.map(option => (
-                  <TouchableOpacity
-                    key={option}
+          {isCuisineDropdownOpen ? (
+            <View style={styles.dropdownList}>
+              {cuisineOptions.map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.dropdownItem,
+                    cuisineType === option && styles.activeDropdownItem,
+                  ]}
+                  activeOpacity={0.85}
+                  onPress={() => handleSelectCuisineType(option)}>
+                  <Text
                     style={[
-                      styles.dropdownItem,
-                      cuisineType === option && styles.activeDropdownItem,
-                    ]}
-                    activeOpacity={0.85}
-                    onPress={() => handleSelectCuisineType(option)}>
-                    <Text
-                      style={[
-                        styles.dropdownItemText,
-                        cuisineType === option && styles.activeDropdownItemText,
-                      ]}>
-                      {option}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            ) : null}
+                      styles.dropdownItemText,
+                      cuisineType === option && styles.activeDropdownItemText,
+                    ]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : null}
 
           <Text style={styles.label}>City</Text>
           <TextInput
@@ -212,53 +211,52 @@ function RestaurantProfile(): React.JSX.Element {
             placeholderTextColor="#8B8178"
           />
 
-          <Text style={styles.label}>Mon - Thu</Text>
+          <Text style={styles.featuresTitle}>Working Hours</Text>
 
-          <View style={styles.timeRow}>
-            <TouchableOpacity
-              style={styles.timeInput}
-              activeOpacity={0.85}
-              onPress={() => openTimePicker('monThuStart')}>
-              <Text style={styles.timeInputText}>
-                {monThuHours.split(' - ')[0] || 'Start'}
-              </Text>
-            </TouchableOpacity>
+          {DAYS.map(day => {
+            const isClosed = dayHours[day.key] === 'Closed';
+            const [start = '09:00', end = '23:00'] = isClosed
+              ? ['Closed', 'Closed']
+              : dayHours[day.key].split(' - ');
 
-            <Text style={styles.timeSeparator}>-</Text>
+            return (
+              <View key={day.key} style={styles.dayHoursBox}>
+                <View style={styles.dayHeaderRow}>
+                  <Text style={styles.dayLabel}>{day.label}</Text>
 
-            <TouchableOpacity
-              style={styles.timeInput}
-              activeOpacity={0.85}
-              onPress={() => openTimePicker('monThuEnd')}>
-              <Text style={styles.timeInputText}>
-                {monThuHours.split(' - ')[1] || 'End'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+                  <View style={styles.closedSwitchRow}>
+                    <Text style={styles.closedSwitchLabel}>Closed</Text>
+                    <Switch
+                      value={isClosed}
+                      onValueChange={() => toggleClosedDay(day.key)}
+                    />
+                  </View>
+                </View>
 
-          <Text style={styles.label}>Fri - Sun</Text>
+                {isClosed ? (
+                  <Text style={styles.closedText}>Closed for this day</Text>
+                ) : (
+                  <View style={styles.timeRow}>
+                    <TouchableOpacity
+                      style={styles.timeInput}
+                      activeOpacity={0.85}
+                      onPress={() => openTimePicker(day.key, 'start')}>
+                      <Text style={styles.timeInputText}>{start || 'Start'}</Text>
+                    </TouchableOpacity>
 
-          <View style={styles.timeRow}>
-            <TouchableOpacity
-              style={styles.timeInput}
-              activeOpacity={0.85}
-              onPress={() => openTimePicker('friSunStart')}>
-              <Text style={styles.timeInputText}>
-                {friSunHours.split(' - ')[0] || 'Start'}
-              </Text>
-            </TouchableOpacity>
+                    <Text style={styles.timeSeparator}>-</Text>
 
-            <Text style={styles.timeSeparator}>-</Text>
-
-            <TouchableOpacity
-              style={styles.timeInput}
-              activeOpacity={0.85}
-              onPress={() => openTimePicker('friSunEnd')}>
-              <Text style={styles.timeInputText}>
-                {friSunHours.split(' - ')[1] || 'End'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+                    <TouchableOpacity
+                      style={styles.timeInput}
+                      activeOpacity={0.85}
+                      onPress={() => openTimePicker(day.key, 'end')}>
+                      <Text style={styles.timeInputText}>{end || 'End'}</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            );
+          })}
 
           <Text style={styles.label}>Restaurant Description</Text>
           <TextInput
@@ -402,4 +400,5 @@ function RestaurantProfile(): React.JSX.Element {
     </SafeAreaView>
   );
 }
+
 export default RestaurantProfile;

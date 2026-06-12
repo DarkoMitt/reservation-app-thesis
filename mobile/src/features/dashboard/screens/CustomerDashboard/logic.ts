@@ -18,8 +18,13 @@ type Restaurant = {
   description: string;
   max_guests: number;
   working_hours: string;
-  mon_thu_hours?: string;
-  fri_sun_hours?: string;
+  monday_hours?: string;
+  tuesday_hours?: string;
+  wednesday_hours?: string;
+  thursday_hours?: string;
+  friday_hours?: string;
+  saturday_hours?: string;
+  sunday_hours?: string;
   has_smoking_area?: number;
   has_outdoor_seating?: number;
   has_parking?: number;
@@ -38,7 +43,7 @@ type Restaurant = {
 };
 
 const parseWorkingHours = (hours?: string) => {
-  if (!hours || !hours.includes('-')) return null;
+  if (!hours || hours === 'Closed' || !hours.includes('-')) return null;
 
   const [startRaw, endRaw] = hours.split('-');
 
@@ -53,17 +58,26 @@ const timeToMinutes = (time: string) => {
   return hours * 60 + minutes;
 };
 
+const getTodayWorkingHours = (restaurant: Restaurant) => {
+  const day = new Date().getDay();
+
+  if (day === 0) return restaurant.sunday_hours;
+  if (day === 1) return restaurant.monday_hours;
+  if (day === 2) return restaurant.tuesday_hours;
+  if (day === 3) return restaurant.wednesday_hours;
+  if (day === 4) return restaurant.thursday_hours;
+  if (day === 5) return restaurant.friday_hours;
+  if (day === 6) return restaurant.saturday_hours;
+
+  return restaurant.working_hours;
+};
+
 const isRestaurantOpenNow = (restaurant: Restaurant) => {
   const now = new Date();
-  const day = now.getDay();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-  const hours =
-    day >= 1 && day <= 4
-      ? restaurant.mon_thu_hours
-      : restaurant.fri_sun_hours;
-
-  const parsedHours = parseWorkingHours(hours);
+  const todayHours = getTodayWorkingHours(restaurant);
+  const parsedHours = parseWorkingHours(todayHours);
 
   if (!parsedHours) return false;
 

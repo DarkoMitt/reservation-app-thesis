@@ -47,8 +47,15 @@ function RestaurantDetails(): React.JSX.Element {
   const cuisineType =
     restaurant?.cuisine_type || restaurant?.foodType || 'Cuisine not added';
 
-  const monThuHours = restaurant?.mon_thu_hours || 'Not added';
-  const friSunHours = restaurant?.fri_sun_hours || 'Not added';
+  const workingHoursByDay = [
+    { label: 'Monday', value: restaurant?.monday_hours || 'Not added' },
+    { label: 'Tuesday', value: restaurant?.tuesday_hours || 'Not added' },
+    { label: 'Wednesday', value: restaurant?.wednesday_hours || 'Not added' },
+    { label: 'Thursday', value: restaurant?.thursday_hours || 'Not added' },
+    { label: 'Friday', value: restaurant?.friday_hours || 'Not added' },
+    { label: 'Saturday', value: restaurant?.saturday_hours || 'Not added' },
+    { label: 'Sunday', value: restaurant?.sunday_hours || 'Not added' },
+  ];
 
   const hasRestaurantImages = restaurantImages.length > 0;
 
@@ -394,8 +401,11 @@ function RestaurantDetails(): React.JSX.Element {
               <Text style={styles.infoIcon}>🕒</Text>
             </View>
             <Text style={styles.infoGridTitle}>Working Hours</Text>
-            <Text style={styles.infoGridText}>Mon - Thu: {monThuHours}</Text>
-            <Text style={styles.infoGridText}>Fri - Sun: {friSunHours}</Text>
+            {workingHoursByDay.map(day => (
+              <Text key={day.label} style={styles.infoGridText}>
+                {day.label}: {day.value}
+              </Text>
+            ))}
           </View>
 
           <View style={styles.infoGridCard}>

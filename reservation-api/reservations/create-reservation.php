@@ -29,7 +29,7 @@ function parseWorkingHours($workingHours) {
     $workingHours = trim($workingHours);
     $lowerHours = strtolower($workingHours);
 
-    if (stripos($workingHours, "closed") !== false) return null;
+    if ($lowerHours === "closed") return null;
 
     if (
         $lowerHours === "24/7" ||
@@ -61,9 +61,18 @@ function parseWorkingHours($workingHours) {
     ];
 }
 
-function isWeekendDate($date) {
-    $dayNumber = (int)date("N", strtotime($date));
-    return $dayNumber >= 5;
+function getWorkingHoursForDate($restaurant, $reservationDate) {
+    $dayNumber = (int)date("N", strtotime($reservationDate));
+
+    if ($dayNumber === 1) return $restaurant["monday_hours"] ?? $restaurant["working_hours"];
+    if ($dayNumber === 2) return $restaurant["tuesday_hours"] ?? $restaurant["working_hours"];
+    if ($dayNumber === 3) return $restaurant["wednesday_hours"] ?? $restaurant["working_hours"];
+    if ($dayNumber === 4) return $restaurant["thursday_hours"] ?? $restaurant["working_hours"];
+    if ($dayNumber === 5) return $restaurant["friday_hours"] ?? $restaurant["working_hours"];
+    if ($dayNumber === 6) return $restaurant["saturday_hours"] ?? $restaurant["working_hours"];
+    if ($dayNumber === 7) return $restaurant["sunday_hours"] ?? $restaurant["working_hours"];
+
+    return $restaurant["working_hours"];
 }
 
 function calculateNoShowRisk($trustScore, $noShowCount) {
@@ -167,11 +176,7 @@ try {
         AND status IN ('pending', 'approved', 'change_requested', 'waitlisted')
     ");
 
-    $dailyLimitStmt->execute([
-        $customerUserId,
-        $reservationDate
-    ]);
-
+    $dailyLimitStmt->execute([$customerUserId, $reservationDate]);
     $dailyLimitData = $dailyLimitStmt->fetch(PDO::FETCH_ASSOC);
 
     if ((int)$dailyLimitData["daily_count"] >= 2) {
@@ -230,10 +235,7 @@ try {
         LIMIT 1
     ");
 
-    $duplicateStmt->execute([
-        $customerUserId,
-        $restaurantId
-    ]);
+    $duplicateStmt->execute([$customerUserId, $restaurantId]);
 
     if ($duplicateStmt->fetch(PDO::FETCH_ASSOC)) {
         echo json_encode([
@@ -250,8 +252,13 @@ try {
             restaurant_name,
             max_guests,
             working_hours,
-            mon_thu_hours,
-            fri_sun_hours
+            monday_hours,
+            tuesday_hours,
+            wednesday_hours,
+            thursday_hours,
+            friday_hours,
+            saturday_hours,
+            sunday_hours
         FROM restaurants
         WHERE id = ?
         LIMIT 1
@@ -268,16 +275,7 @@ try {
         exit;
     }
 
-    $selectedWorkingHours = $restaurant["working_hours"];
-
-    if (isWeekendDate($reservationDate) && !empty($restaurant["fri_sun_hours"])) {
-        $selectedWorkingHours = $restaurant["fri_sun_hours"];
-    }
-
-    if (!isWeekendDate($reservationDate) && !empty($restaurant["mon_thu_hours"])) {
-        $selectedWorkingHours = $restaurant["mon_thu_hours"];
-    }
-
+    $selectedWorkingHours = getWorkingHoursForDate($restaurant, $reservationDate);
     $hours = parseWorkingHours($selectedWorkingHours);
 
     if (!$hours) {
@@ -305,8 +303,16 @@ try {
             }
         }
 
-        $allowedStartDateTime = strtotime("+2 hours", $openDateTime);
-        $allowedEndDateTime = strtotime("-2 hours", $closeDateTime);
+        $allowedStartDateTime = strtotime("+3 hours", $openDateTime);
+        $allowedEndDateTime = strtotime("-3 hours", $closeDateTime);
+    }
+
+    if ($allowedStartDateTime > $allowedEndDateTime) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Reservations are not available for this day because the allowed reservation window is too short."
+        ]);
+        exit;
     }
 
     if ($reservationDateTime < $allowedStartDateTime || $reservationDateTime > $allowedEndDateTime) {

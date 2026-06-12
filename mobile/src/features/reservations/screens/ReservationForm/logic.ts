@@ -4,6 +4,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import type { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 const MIN_RESERVATION_BUFFER_MINUTES = 30;
+const OPENING_BUFFER_MINUTES = 180;
+const CLOSING_BUFFER_MINUTES = 180;
 
 const formatDate = (date: Date) => {
   const year = date.getFullYear();
@@ -31,6 +33,134 @@ const getReservationDateTime = (date: Date, time: Date) => {
   reservationDateTime.setHours(time.getHours(), time.getMinutes(), 0, 0);
 
   return reservationDateTime;
+};
+
+const parseWorkingHours = (hours?: string) => {
+  if (!hours || hours === 'Closed' || !hours.includes('-')) return null;
+
+  const [startRaw, endRaw] = hours.split('-');
+
+  return {
+    start: startRaw.trim(),
+    end: endRaw.trim(),
+  };
+};
+
+const timeToMinutes = (time: string) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
+const getWorkingHoursForDate = (restaurant: any, date: Date) => {
+  const day = date.getDay();
+
+  if (day === 0) return restaurant?.sunday_hours;
+  if (day === 1) return restaurant?.monday_hours;
+  if (day === 2) return restaurant?.tuesday_hours;
+  if (day === 3) return restaurant?.wednesday_hours;
+  if (day === 4) return restaurant?.thursday_hours;
+  if (day === 5) return restaurant?.friday_hours;
+  if (day === 6) return restaurant?.saturday_hours;
+
+  return restaurant?.working_hours;
+};
+
+const getAllowedReservationWindow = (restaurant: any, date: Date) => {
+  const hours = getWorkingHoursForDate(restaurant, date);
+  const parsedHours = parseWorkingHours(hours);
+
+  if (!parsedHours) return null;
+
+  const startMinutes = timeToMinutes(parsedHours.start);
+  let endMinutes = timeToMinutes(parsedHours.end);
+
+  if (startMinutes >= endMinutes) {
+    endMinutes += 24 * 60;
+  }
+
+  const allowedStart = startMinutes + OPENING_BUFFER_MINUTES;
+  const allowedEnd = endMinutes - CLOSING_BUFFER_MINUTES;
+
+  if (allowedStart > allowedEnd) return null;
+
+  return {
+    allowedStart,
+    allowedEnd,
+  };
+};
+
+const getSelectedTimeMinutesForWindow = (selectedTime: Date, restaurant: any, selectedDate: Date) => {
+  const hours = getWorkingHoursForDate(restaurant, selectedDate);
+  const parsedHours = parseWorkingHours(hours);
+
+  if (!parsedHours) return null;
+
+  const startMinutes = timeToMinutes(parsedHours.start);
+  const endMinutes = timeToMinutes(parsedHours.end);
+  let selectedMinutes = selectedTime.getHours() * 60 + selectedTime.getMinutes();
+
+  if (startMinutes >= endMinutes && selectedMinutes < startMinutes) {
+    selectedMinutes += 24 * 60;
+  }
+
+  return selectedMinutes;
+};
+
+const formatWindowTime = (minutes: number) => {
+  const normalizedMinutes = ((minutes % (24 * 60)) + 24 * 60) % (24 * 60);
+  const hours = Math.floor(normalizedMinutes / 60);
+  const mins = normalizedMinutes % 60;
+
+  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+};
+
+const validateRestaurantWorkingHoursForReservation = (
+  restaurant: any,
+  selectedDate: Date,
+  selectedTime: Date,
+) => {
+  const hours = getWorkingHoursForDate(restaurant, selectedDate);
+
+  if (!hours || hours === 'Closed') {
+    return {
+      valid: false,
+      message: 'This restaurant is closed on the selected day.',
+    };
+  }
+
+  const window = getAllowedReservationWindow(restaurant, selectedDate);
+  const selectedMinutes = getSelectedTimeMinutesForWindow(
+    selectedTime,
+    restaurant,
+    selectedDate,
+  );
+
+  if (!window || selectedMinutes === null) {
+    return {
+      valid: false,
+      message:
+        'Reservations are not available for the selected day because the working hours are too short or unavailable.',
+    };
+  }
+
+  if (
+    selectedMinutes < window.allowedStart ||
+    selectedMinutes > window.allowedEnd
+  ) {
+    return {
+      valid: false,
+      message: `Reservation time must be between ${formatWindowTime(
+        window.allowedStart,
+      )} and ${formatWindowTime(
+        window.allowedEnd,
+      )} for the selected day.`,
+    };
+  }
+
+  return {
+    valid: true,
+    message: '',
+  };
 };
 
 export function useReservationForm() {
@@ -138,6 +268,20 @@ export function useReservationForm() {
       return;
     }
 
+    const selectedDayHours = getWorkingHoursForDate(restaurant, pickedDate);
+
+    if (!selectedDayHours || selectedDayHours === 'Closed') {
+      setSelectedDate(null);
+      setSelectedTime(null);
+      setAvailableGuests(null);
+
+      Alert.alert(
+        'Restaurant Closed',
+        'This restaurant is closed on the selected day.',
+      );
+      return;
+    }
+
     setSelectedDate(date);
     setAvailableGuests(null);
 
@@ -157,6 +301,21 @@ export function useReservationForm() {
           `For today's reservations, please select a time at least ${MIN_RESERVATION_BUFFER_MINUTES} minutes from now.`,
         );
 
+        return;
+      }
+
+      const workingHoursValidation =
+        validateRestaurantWorkingHoursForReservation(
+          restaurant,
+          date,
+          selectedTime,
+        );
+
+      if (!workingHoursValidation.valid) {
+        setSelectedTime(null);
+        setAvailableGuests(null);
+
+        Alert.alert('Invalid Time', workingHoursValidation.message);
         return;
       }
 
@@ -194,6 +353,17 @@ export function useReservationForm() {
         'Invalid Time',
         `For today's reservations, please select a time at least ${MIN_RESERVATION_BUFFER_MINUTES} minutes from now.`,
       );
+      return;
+    }
+
+    const workingHoursValidation = validateRestaurantWorkingHoursForReservation(
+      restaurant,
+      selectedDate,
+      date,
+    );
+
+    if (!workingHoursValidation.valid) {
+      Alert.alert('Invalid Time', workingHoursValidation.message);
       return;
     }
 
@@ -237,6 +407,18 @@ export function useReservationForm() {
         );
         return;
       }
+
+      const workingHoursValidation =
+        validateRestaurantWorkingHoursForReservation(
+          restaurant,
+          selectedDate,
+          selectedTime,
+        );
+
+      if (!workingHoursValidation.valid) {
+        Alert.alert('Invalid Reservation Time', workingHoursValidation.message);
+        return;
+      }
     }
 
     if (!restaurant?.id || !user?.id) {
@@ -268,30 +450,30 @@ export function useReservationForm() {
       const data = await response.json();
 
       if (data.success) {
-  if (data.status === 'waitlisted') {
-    Alert.alert(
-      'Added to Waitlist',
-      data.message ||
-        'The restaurant is full for this time slot. Your request has been added to the waitlist.',
-      [
-        {
-          text: 'OK',
-          onPress: () => navigation.goBack(),
-        },
-      ],
-    );
-  } else {
-    Alert.alert(
-      'Reservation Sent',
-      data.message || 'Reservation request sent successfully.',
-      [
-        {
-          text: 'OK',
-          onPress: () => navigation.goBack(),
-        },
-      ],
-    );
-  }
+        if (data.status === 'waitlisted') {
+          Alert.alert(
+            'Added to Waitlist',
+            data.message ||
+              'The restaurant is full for this time slot. Your request has been added to the waitlist.',
+            [
+              {
+                text: 'OK',
+                onPress: () => navigation.goBack(),
+              },
+            ],
+          );
+        } else {
+          Alert.alert(
+            'Reservation Sent',
+            data.message || 'Reservation request sent successfully.',
+            [
+              {
+                text: 'OK',
+                onPress: () => navigation.goBack(),
+              },
+            ],
+          );
+        }
       } else {
         Alert.alert(
           'Error',

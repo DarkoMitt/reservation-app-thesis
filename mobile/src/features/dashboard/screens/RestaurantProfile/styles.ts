@@ -424,4 +424,44 @@ imagePreviewCloseText: {
   fontWeight: '900',
   lineHeight: 32,
 },
+
+dayHoursBox: {
+  backgroundColor: '#F7F1E8',
+  borderRadius: 18,
+  padding: 14,
+  marginBottom: 12,
+  borderWidth: 1,
+  borderColor: '#E7DED3',
+},
+
+dayHeaderRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 10,
+},
+
+dayLabel: {
+  fontSize: 15,
+  fontWeight: '900',
+  color: '#2A211C',
+},
+
+closedSwitchRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+},
+
+closedSwitchLabel: {
+  fontSize: 13,
+  fontWeight: '700',
+  color: '#6E6258',
+},
+
+closedText: {
+  fontSize: 14,
+  fontWeight: '700',
+  color: '#8B1E3F',
+},
 });

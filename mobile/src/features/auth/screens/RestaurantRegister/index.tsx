@@ -205,85 +205,49 @@ function RestaurantRegisterScreen(): React.JSX.Element {
 
           <Text style={styles.sectionLabel}>Working hours</Text>
 
-          <Text style={styles.smallLabel}>Monday - Thursday</Text>
-
           <View style={styles.timeRow}>
             <TouchableOpacity
               style={styles.timeButton}
               activeOpacity={0.85}
-              onPress={() => openTimePicker('workingHoursWeekdaysFrom')}>
+              onPress={() => openTimePicker('workingHoursFrom')}>
               <Text
                 style={
-                  form.workingHoursWeekdaysFrom
+                  form.workingHoursFrom
                     ? styles.timeText
                     : styles.timePlaceholder
                 }>
-                {form.workingHoursWeekdaysFrom || 'Open time'}
+                {form.workingHoursFrom || 'Open time'}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.timeButton}
               activeOpacity={0.85}
-              onPress={() => openTimePicker('workingHoursWeekdaysTo')}>
+              onPress={() => openTimePicker('workingHoursTo')}>
               <Text
                 style={
-                  form.workingHoursWeekdaysTo
+                  form.workingHoursTo
                     ? styles.timeText
                     : styles.timePlaceholder
                 }>
-                {form.workingHoursWeekdaysTo || 'Close time'}
+                {form.workingHoursTo || 'Close time'}
               </Text>
             </TouchableOpacity>
           </View>
 
-          {errors.workingHoursWeekdaysFrom ? (
-            <Text style={styles.error}>{errors.workingHoursWeekdaysFrom}</Text>
+          {errors.workingHoursFrom ? (
+            <Text style={styles.error}>{errors.workingHoursFrom}</Text>
           ) : null}
 
-          {errors.workingHoursWeekdaysTo ? (
-            <Text style={styles.error}>{errors.workingHoursWeekdaysTo}</Text>
+          {errors.workingHoursTo ? (
+            <Text style={styles.error}>{errors.workingHoursTo}</Text>
           ) : null}
 
-          <Text style={styles.smallLabel}>Friday - Sunday</Text>
-
-          <View style={styles.timeRow}>
-            <TouchableOpacity
-              style={styles.timeButton}
-              activeOpacity={0.85}
-              onPress={() => openTimePicker('workingHoursWeekendFrom')}>
-              <Text
-                style={
-                  form.workingHoursWeekendFrom
-                    ? styles.timeText
-                    : styles.timePlaceholder
-                }>
-                {form.workingHoursWeekendFrom || 'Open time'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.timeButton}
-              activeOpacity={0.85}
-              onPress={() => openTimePicker('workingHoursWeekendTo')}>
-              <Text
-                style={
-                  form.workingHoursWeekendTo
-                    ? styles.timeText
-                    : styles.timePlaceholder
-                }>
-                {form.workingHoursWeekendTo || 'Close time'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {errors.workingHoursWeekendFrom ? (
-            <Text style={styles.error}>{errors.workingHoursWeekendFrom}</Text>
-          ) : null}
-
-          {errors.workingHoursWeekendTo ? (
-            <Text style={styles.error}>{errors.workingHoursWeekendTo}</Text>
-          ) : null}
+          <Text style={styles.helperText}>
+            This working schedule will be applied to all days. After registration,
+            you can customize the working hours for each day of the week from your
+            restaurant profile.
+          </Text>
 
           {isTimePickerVisible ? (
             <DateTimePicker

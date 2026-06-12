@@ -34,7 +34,8 @@ if (
     empty($address) ||
     empty($phone) ||
     empty($email) ||
-    empty($password)
+    empty($password) ||
+    empty($workingHours)
 ) {
     echo json_encode([
         "success" => false,
@@ -93,9 +94,16 @@ try {
             description,
             max_guests,
             working_hours,
+            monday_hours,
+            tuesday_hours,
+            wednesday_hours,
+            thursday_hours,
+            friday_hours,
+            saturday_hours,
+            sunday_hours,
             status
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
     ");
 
     $insertRestaurant->execute([
@@ -108,6 +116,13 @@ try {
         $phone,
         $description,
         (int)$maxGuests,
+        $workingHours,
+        $workingHours,
+        $workingHours,
+        $workingHours,
+        $workingHours,
+        $workingHours,
+        $workingHours,
         $workingHours
     ]);
 
